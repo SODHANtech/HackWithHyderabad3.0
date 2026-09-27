@@ -1,189 +1,261 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-obsidian">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceCraft AI | Autonomous Website Builder with Hindsight Reflection & Asset Vault</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Archetype | Autonomous Enterprise Web Architect & Self-Healing Engine</title>
+    
+    <!-- Premium Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN with Custom Luxury Design Tokens -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#0B0D10',
+                        charcoal: '#12161C',
+                        graphite: '#1A1F26',
+                        slateSoft: '#252B33',
+                        offwhite: '#F4F2ED',
+                        mutedwhite: '#D9D7D1',
+                        steel: '#7E8A98',
+                        brass: {
+                            DEFAULT: '#C9A96E',
+                            light: '#D6B77A',
+                            dark: '#A8874F',
+                            muted: 'rgba(201, 169, 110, 0.12)',
+                            border: 'rgba(201, 169, 110, 0.28)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #0B0D10;
+            color: #D9D7D1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .font-mono {
             font-family: 'JetBrains Mono', monospace;
         }
+        /* Refined luxury scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: #0f172a;
+            background: #0B0D10;
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
+            background: #252B33;
+            border-radius: 3px;
         }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #363E4A;
+        }
+        /* Restrained focus outline */
+        input:focus, textarea:focus, select:focus {
+            outline: none !important;
+            border-color: #C9A96E !important;
+            box-shadow: 0 0 0 1px rgba(201, 169, 110, 0.25) !important;
+        }
+        /* Subtle acoustic recording pulse */
         .mic-pulsing {
-            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            animation: acoustic-pulse 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
         }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        @keyframes acoustic-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(201, 169, 110, 0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(201, 169, 110, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(201, 169, 110, 0); }
+        }
+        /* Toast notification animation */
+        #toast-container {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden bg-obsidian text-mutedwhite select-none">
 
-    <!-- Top App Navigation Bar -->
-    <header class="h-14 bg-slate-900 border-b border-slate-800 px-6 flex items-center justify-between flex-shrink-0 z-30">
-        <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
-                <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+    <!-- Top Command Navigation Bar -->
+    <header class="h-14 bg-charcoal border-b border-white/[0.07] px-6 flex items-center justify-between flex-shrink-0 z-30">
+        <!-- Brand Monogram & Title -->
+        <div class="flex items-center space-x-3.5">
+            <div class="w-8 h-8 rounded-lg bg-graphite border border-brass-border flex items-center justify-center text-brass shadow-sm">
+                <!-- Precision Monogram -->
+                <svg class="w-4 h-4 text-brass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 22 22 22"/>
+                    <line x1="12" y1="13" x2="12" y2="17"/>
+                    <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg>
             </div>
-            <div>
-                <span class="font-extrabold text-base tracking-tight text-white flex items-center space-x-2">
-                    <span>VoiceCraft AI</span>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">Hindsight Memory</span>
-                </span>
+            <div class="flex items-center space-x-2.5">
+                <span class="text-sm font-semibold tracking-tight text-offwhite uppercase">Archetype</span>
+                <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-brass-muted text-brass border border-brass-border font-medium">Enterprise Architect</span>
             </div>
         </div>
 
-        <!-- System Status Badges -->
-        <div class="flex items-center space-x-4 text-xs font-semibold">
-            <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Hindsight Bank: <strong class="text-white" id="status-bank">local-biz-architect</strong></span>
+        <!-- Telemetry Indicators -->
+        <div class="flex items-center space-x-3 text-xs">
+            <div class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-md bg-graphite border border-white/[0.06] text-steel">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span class="text-[11px]">Bank: <strong class="text-mutedwhite font-medium" id="status-bank">local-biz-architect</strong></span>
             </div>
-            <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
-                <span>4-Critic Self-Healing: <strong class="text-white">Active</strong></span>
+            <div class="flex items-center space-x-2 px-3 py-1 rounded-md bg-graphite border border-white/[0.06] text-steel">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-brass"></i>
+                <span class="text-[11px]">Critic Engine: <strong class="text-mutedwhite font-medium">Synchronized</strong></span>
+            </div>
+            <div class="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] text-[11px] text-steel">
+                <span>Hindsight</span>
+                <span class="text-offwhite font-mono text-[10px]">v0.10</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Workspace Layout -->
+    <!-- Main Workspace Layout (3-Column Power Grid) -->
     <div class="flex-1 flex overflow-hidden">
 
-        <!-- LEFT PANEL: Business Intake & Company Asset Vault -->
-        <aside class="w-80 lg:w-[420px] bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between p-4 overflow-y-auto flex-shrink-0 space-y-4">
+        <!-- LEFT PANEL: Business Parameters & Asset Vault -->
+        <aside class="w-80 lg:w-[420px] bg-charcoal border-r border-white/[0.07] flex flex-col justify-between p-4 overflow-y-auto flex-shrink-0 space-y-4">
             
             <div class="space-y-4">
                 <!-- Section Header -->
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between pt-0.5">
                     <div>
-                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                            <i data-lucide="folder-kanban" class="w-4 h-4 text-sky-400"></i>
-                            <span>Company Assets & Vault</span>
+                        <h2 class="text-xs font-semibold uppercase tracking-wider text-offwhite flex items-center space-x-2">
+                            <i data-lucide="sliders" class="w-3.5 h-3.5 text-brass"></i>
+                            <span>Workspace Intake</span>
                         </h2>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Brand assets, photos, rates & PDFs.</p>
+                        <p class="text-[11px] text-steel mt-0.5">Entity specification, assets, and service rate cards.</p>
                     </div>
                 </div>
 
-                <!-- Presets Quick Select -->
-                <div class="flex flex-wrap gap-1.5">
-                    <button onclick="applyPreset('hotel')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-                        🏨 Hyderabad Hotel
-                    </button>
-                    <button onclick="applyPreset('dental')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-                        🦷 Austin Dental
-                    </button>
-                    <button onclick="applyPreset('plumbing')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-                        🔧 London Plumbers
-                    </button>
-                    <button onclick="applyPreset('cafe')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-                        ☕ Bangalore Cafe
-                    </button>
+                <!-- Industry Presets -->
+                <div class="space-y-1.5">
+                    <span class="text-[10px] uppercase tracking-wider text-steel font-medium">Quick Profiles</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button onclick="applyPreset('hotel')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-mutedwhite hover:text-offwhite px-2.5 py-1.5 rounded-md border border-white/[0.06] transition flex items-center space-x-1.5">
+                            <i data-lucide="building" class="w-3 h-3 text-brass"></i>
+                            <span class="truncate">Hyderabad Hotel</span>
+                        </button>
+                        <button onclick="applyPreset('dental')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-mutedwhite hover:text-offwhite px-2.5 py-1.5 rounded-md border border-white/[0.06] transition flex items-center space-x-1.5">
+                            <i data-lucide="activity" class="w-3 h-3 text-brass"></i>
+                            <span class="truncate">Austin Smile Studio</span>
+                        </button>
+                        <button onclick="applyPreset('plumbing')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-mutedwhite hover:text-offwhite px-2.5 py-1.5 rounded-md border border-white/[0.06] transition flex items-center space-x-1.5">
+                            <i data-lucide="wrench" class="w-3 h-3 text-brass"></i>
+                            <span class="truncate">London Plumbers</span>
+                        </button>
+                        <button onclick="applyPreset('cafe')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-mutedwhite hover:text-offwhite px-2.5 py-1.5 rounded-md border border-white/[0.06] transition flex items-center space-x-1.5">
+                            <i data-lucide="coffee" class="w-3 h-3 text-brass"></i>
+                            <span class="truncate">Bangalore Cafe</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Tab Navigation Buttons -->
-                <div class="flex border-b border-slate-800 text-xs font-semibold">
-                    <button onclick="switchAssetTab('profile')" id="tab-btn-profile" class="flex-1 pb-2 border-b-2 border-sky-500 text-sky-400 flex items-center justify-center space-x-1">
-                        <i data-lucide="info" class="w-3.5 h-3.5"></i>
-                        <span>Profile</span>
+                <!-- Intake Segmented Tab Controls -->
+                <div class="flex border-b border-white/[0.07] text-xs font-medium">
+                    <button onclick="switchAssetTab('profile')" id="tab-btn-profile" class="flex-1 pb-2 border-b-2 border-brass text-offwhite flex items-center justify-center space-x-1 transition">
+                        <i data-lucide="file-text" class="w-3 h-3 text-brass"></i>
+                        <span>Identity</span>
                     </button>
-                    <button onclick="switchAssetTab('brand')" id="tab-btn-brand" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
-                        <i data-lucide="image" class="w-3.5 h-3.5"></i>
-                        <span>Logo</span>
+                    <button onclick="switchAssetTab('brand')" id="tab-btn-brand" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-mutedwhite flex items-center justify-center space-x-1 transition">
+                        <i data-lucide="shield" class="w-3 h-3"></i>
+                        <span>Brand</span>
                     </button>
-                    <button onclick="switchAssetTab('media')" id="tab-btn-media" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
-                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                    <button onclick="switchAssetTab('media')" id="tab-btn-media" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-mutedwhite flex items-center justify-center space-x-1 transition">
+                        <i data-lucide="image" class="w-3 h-3"></i>
                         <span>Media</span>
                     </button>
-                    <button onclick="switchAssetTab('pricing')" id="tab-btn-pricing" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
-                        <i data-lucide="tag" class="w-3.5 h-3.5"></i>
-                        <span>Pricing</span>
+                    <button onclick="switchAssetTab('pricing')" id="tab-btn-pricing" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-mutedwhite flex items-center justify-center space-x-1 transition">
+                        <i data-lucide="layers" class="w-3 h-3"></i>
+                        <span>Rates</span>
                     </button>
-                    <button onclick="switchAssetTab('brochure')" id="tab-btn-brochure" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
-                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                        <span>PDF</span>
+                    <button onclick="switchAssetTab('brochure')" id="tab-btn-brochure" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-mutedwhite flex items-center justify-center space-x-1 transition">
+                        <i data-lucide="file-check-2" class="w-3 h-3"></i>
+                        <span>Docs</span>
                     </button>
                 </div>
 
                 <!-- TAB 1: Profile & Contact -->
                 <div id="tab-pane-profile" class="space-y-3 text-xs">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Business Name</label>
-                        <input type="text" id="biz-name" required value="Satya Grand Hotel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Business Legal Entity Name</label>
+                        <input type="text" id="biz-name" required value="Satya Grand Hotel" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2.5">
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block font-semibold text-slate-300 mb-1">Category</label>
-                            <input type="text" id="biz-category" required value="Hotel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                            <label class="block font-medium text-steel text-[11px] mb-1">Industry Vertical</label>
+                            <input type="text" id="biz-category" required value="Hotel" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-300 mb-1">Location</label>
-                            <input type="text" id="biz-location" required value="Hyderabad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                            <label class="block font-medium text-steel text-[11px] mb-1">Operational City</label>
+                            <input type="text" id="biz-location" required value="Hyderabad" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2.5">
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block font-semibold text-slate-300 mb-1">Telephone</label>
-                            <input type="text" id="biz-phone" required value="7337537599" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                            <label class="block font-medium text-steel text-[11px] mb-1">Office Telephone</label>
+                            <input type="text" id="biz-phone" required value="7337537599" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-300 mb-1">WhatsApp (Intl)</label>
-                            <input type="text" id="biz-whatsapp" required value="917337537599" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                            <label class="block font-medium text-steel text-[11px] mb-1">WhatsApp Direct (E.164)</label>
+                            <input type="text" id="biz-whatsapp" required value="917337537599" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Services / Highlights</label>
-                        <input type="text" id="biz-services" value="Deluxe Executive Suites, Fine Dining, Banquet Facilities" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Key Offerings / Unique Value</label>
+                        <input type="text" id="biz-services" value="Deluxe Executive Suites, Fine Dining, Banquet Facilities" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                     </div>
                 </div>
 
                 <!-- TAB 2: Brand & Logo -->
                 <div id="tab-pane-brand" class="hidden space-y-3 text-xs">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Company Logo File</label>
-                        <input type="file" id="file-logo" accept="image/*" onchange="uploadAssetFile('logo')" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Company Emblem File</label>
+                        <input type="file" id="file-logo" accept="image/*" onchange="uploadAssetFile('logo')" class="w-full bg-obsidian border border-slateSoft rounded-lg px-2 py-1.5 text-steel file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-graphite file:text-offwhite hover:file:bg-slateSoft file:cursor-pointer">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Or Logo Image URL</label>
-                        <input type="text" id="asset-logo-url" placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Or Direct Asset URL</label>
+                        <input type="text" id="asset-logo-url" placeholder="https://..." class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                     </div>
-                    <div id="logo-preview-box" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center space-x-3">
-                        <img id="logo-preview-img" src="" alt="Logo Preview" class="h-10 w-auto object-contain rounded-lg">
-                        <span class="text-[11px] text-emerald-400 font-semibold">Logo attached to site</span>
+                    <div id="logo-preview-box" class="hidden p-3 rounded-lg bg-obsidian border border-white/[0.07] flex items-center space-x-3">
+                        <img id="logo-preview-img" src="" alt="Logo Preview" class="h-8 w-auto object-contain rounded">
+                        <span class="text-[11px] text-brass font-medium">Emblem verified & bound</span>
                     </div>
                 </div>
 
                 <!-- TAB 3: Photos & Videos -->
                 <div id="tab-pane-media" class="hidden space-y-3 text-xs">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Upload Product / Room Photos</label>
-                        <input type="file" id="file-photos" accept="image/*" multiple onchange="uploadAssetFile('photos')" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Product / Interior Gallery Upload</label>
+                        <input type="file" id="file-photos" accept="image/*" multiple onchange="uploadAssetFile('photos')" class="w-full bg-obsidian border border-slateSoft rounded-lg px-2 py-1.5 text-steel file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-graphite file:text-offwhite hover:file:bg-slateSoft file:cursor-pointer">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Virtual Tour Video URL (YouTube/Vimeo)</label>
-                        <input type="text" id="asset-video-url" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Virtual Tour URL (Vimeo/YouTube)</label>
+                        <input type="text" id="asset-video-url" placeholder="https://..." class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                     </div>
                     <div id="photo-chips-container" class="flex flex-wrap gap-1.5 pt-1">
                         <!-- Populated dynamically -->
@@ -193,25 +265,25 @@
                 <!-- TAB 4: Pricing & Rates Customizer -->
                 <div id="tab-pane-pricing" class="hidden space-y-3 text-xs">
                     <div class="flex items-center justify-between">
-                        <label class="font-semibold text-slate-300">Custom Rate Cards / Packages</label>
-                        <button onclick="addPricingTier()" class="text-[10px] text-sky-400 hover:underline">+ Add Package</button>
+                        <label class="font-medium text-steel text-[11px]">Structured Rate Cards</label>
+                        <button onclick="addPricingTier()" class="text-[11px] text-brass hover:text-brass-light font-medium">+ Add Tier</button>
                     </div>
                     <div id="pricing-tier-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
                         <!-- Tier 1 -->
-                        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+                        <div class="p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs">
                             <div class="flex space-x-2">
-                                <input type="text" placeholder="Tier Name" value="Standard Deluxe" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
-                                <input type="text" placeholder="Price" value="₹3,999/night" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                                <input type="text" placeholder="Tier Name" value="Standard Deluxe" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-offwhite font-medium tier-name text-xs">
+                                <input type="text" placeholder="Price" value="₹3,999/night" class="w-24 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-brass font-semibold tier-price text-xs">
                             </div>
-                            <input type="text" placeholder="Features (comma separated)" value="King Bed, Free Wi-Fi, Breakfast" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+                            <input type="text" placeholder="Features (comma separated)" value="King Bed, Free Wi-Fi, Breakfast" class="w-full bg-graphite border border-slateSoft rounded-md px-2 py-1 text-mutedwhite text-[11px] tier-features">
                         </div>
                         <!-- Tier 2 -->
-                        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+                        <div class="p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs">
                             <div class="flex space-x-2">
-                                <input type="text" placeholder="Tier Name" value="Executive Suite" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
-                                <input type="text" placeholder="Price" value="₹6,499/night" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                                <input type="text" placeholder="Tier Name" value="Executive Suite" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-offwhite font-medium tier-name text-xs">
+                                <input type="text" placeholder="Price" value="₹6,499/night" class="w-24 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-brass font-semibold tier-price text-xs">
                             </div>
-                            <input type="text" placeholder="Features (comma separated)" value="Balcony City View, Jacuzzi, Transit" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+                            <input type="text" placeholder="Features (comma separated)" value="Balcony City View, Jacuzzi, Transit" class="w-full bg-graphite border border-slateSoft rounded-md px-2 py-1 text-mutedwhite text-[11px] tier-features">
                         </div>
                     </div>
                 </div>
@@ -219,233 +291,246 @@
                 <!-- TAB 5: Brochure PDF -->
                 <div id="tab-pane-brochure" class="hidden space-y-3 text-xs">
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Company Brochure / Menu PDF</label>
-                        <input type="file" id="file-brochure" accept=".pdf" onchange="uploadAssetFile('brochure')" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Catalog / Menu Document (PDF)</label>
+                        <input type="file" id="file-brochure" accept=".pdf" onchange="uploadAssetFile('brochure')" class="w-full bg-obsidian border border-slateSoft rounded-lg px-2 py-1.5 text-steel file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-graphite file:text-offwhite hover:file:bg-slateSoft file:cursor-pointer">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Or Direct PDF URL</label>
-                        <input type="text" id="asset-brochure-url" placeholder="https://.../brochure.pdf" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                        <label class="block font-medium text-steel text-[11px] mb-1">Direct PDF Document Endpoint</label>
+                        <input type="text" id="asset-brochure-url" placeholder="https://.../brochure.pdf" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                     </div>
-                    <div id="brochure-status-box" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center space-x-2">
-                        <i data-lucide="file-check" class="w-4 h-4 text-emerald-400"></i>
-                        <span class="text-[11px] text-emerald-400 font-semibold" id="brochure-status-text">Brochure PDF Attached</span>
+                    <div id="brochure-status-box" class="hidden p-3 rounded-lg bg-obsidian border border-white/[0.07] flex items-center space-x-2">
+                        <i data-lucide="file-check" class="w-4 h-4 text-brass"></i>
+                        <span class="text-[11px] text-brass font-medium" id="brochure-status-text">Brochure PDF Attached</span>
                     </div>
                 </div>
 
-                <!-- Primary Generate Action Button -->
-                <button onclick="handleGenerate(event)" id="btn-generate" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center space-x-2 text-xs">
-                    <i data-lucide="wand-2" class="w-4 h-4"></i>
-                    <span>Generate & Build with Assets</span>
+                <!-- Primary Action Button: Build Architecture -->
+                <button onclick="handleGenerate(event)" id="btn-generate" class="w-full bg-brass hover:bg-brass-light text-obsidian font-semibold py-2.5 rounded-lg shadow-sm transition-all flex items-center justify-center space-x-2 text-xs">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>Synthesize Architecture</span>
                 </button>
 
-                <!-- Voice Command Section (Supports General Ideas + Exact Replacements) -->
-                <div class="pt-3 border-t border-slate-800/80 space-y-2.5">
+                <!-- Voice / Natural Language Controller -->
+                <div class="pt-3 border-t border-white/[0.07] space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                            <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400"></i>
-                            <span>Voice / Text Command</span>
+                        <span class="text-[10px] font-semibold uppercase tracking-wider text-steel flex items-center space-x-1.5">
+                            <i data-lucide="mic" class="w-3 h-3 text-brass"></i>
+                            <span>Directive Console</span>
                         </span>
-                        <span id="voice-indicator" class="text-[10px] text-slate-500">Ready</span>
+                        <span id="voice-indicator" class="text-[10px] text-steel font-mono">Ready</span>
                     </div>
 
-                    <div class="flex items-center space-x-2">
-                        <button onclick="toggleVoiceRecording()" id="btn-mic" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center flex-shrink-0 transition-all border border-slate-700">
-                            <i data-lucide="mic" class="w-4 h-4 text-emerald-400" id="mic-icon"></i>
+                    <div class="flex items-center space-x-1.5">
+                        <button onclick="toggleVoiceRecording()" id="btn-mic" class="w-9 h-9 rounded-lg bg-graphite hover:bg-slateSoft text-mutedwhite flex items-center justify-center flex-shrink-0 transition border border-white/[0.07]">
+                            <i data-lucide="mic" class="w-3.5 h-3.5 text-brass" id="mic-icon"></i>
                         </button>
-                        <input type="text" id="voice-transcript-input" placeholder='e.g. change book a room to "book room" or make it gold luxury theme...' class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 text-xs">
+                        <input type="text" id="voice-transcript-input" placeholder="e.g. emphasize emergency dispatch or use dark slate theme..." class="flex-1 bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-offwhite placeholder-steel text-xs transition">
                     </div>
 
-                    <button onclick="submitVoiceCommand()" id="btn-voice-submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20">
-                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                        <span>Apply Voice Revision</span>
+                    <button onclick="submitVoiceCommand()" id="btn-voice-submit" class="w-full bg-graphite hover:bg-slateSoft text-offwhite border border-white/[0.08] font-medium py-1.5 rounded-lg text-xs transition flex items-center justify-center space-x-1.5">
+                        <i data-lucide="corner-down-left" class="w-3 h-3 text-steel"></i>
+                        <span>Apply Directive Revision</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Footer / Version Note -->
-            <div class="pt-3 border-t border-slate-800 text-[10px] text-slate-500 text-center">
-                Memory Layer: <span class="text-slate-400 font-medium">Vectorize Hindsight v0.10</span>
+            <!-- Workspace Footer -->
+            <div class="pt-2 border-t border-white/[0.06] text-[10px] text-steel text-center font-mono">
+                System Mode: <span class="text-mutedwhite font-medium">Deterministic Synthesis</span>
             </div>
         </aside>
 
-        <!-- CENTER PANEL: Interactive Sandbox Live Preview -->
-        <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
-            <!-- Sandbox Toolbar -->
-            <div class="h-12 bg-slate-900/60 border-b border-slate-800 px-6 flex items-center justify-between flex-shrink-0">
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs font-semibold text-slate-400">Viewport:</span>
-                    <button onclick="setViewport('desktop')" id="vp-desktop" class="px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5">
-                        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+        <!-- CENTER PANEL: Interactive Canvas & Viewport Sandbox -->
+        <main class="flex-1 flex flex-col bg-obsidian overflow-hidden">
+            <!-- Sandbox Header Toolbar -->
+            <div class="h-12 bg-charcoal border-b border-white/[0.07] px-6 flex items-center justify-between flex-shrink-0">
+                <!-- Device Viewport Toggle -->
+                <div class="flex items-center space-x-1 bg-graphite p-1 rounded-md border border-white/[0.06]">
+                    <button onclick="setViewport('desktop')" id="vp-desktop" class="px-2.5 py-1 rounded text-xs font-medium bg-charcoal text-offwhite border border-white/[0.08] transition flex items-center space-x-1.5">
+                        <i data-lucide="monitor" class="w-3 h-3 text-brass"></i>
                         <span>Desktop</span>
                     </button>
-                    <button onclick="setViewport('tablet')" id="vp-tablet" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
-                        <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
-                        <span>Tablet (768px)</span>
+                    <button onclick="setViewport('tablet')" id="vp-tablet" class="px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-mutedwhite transition flex items-center space-x-1.5">
+                        <i data-lucide="tablet" class="w-3 h-3"></i>
+                        <span>Tablet</span>
                     </button>
-                    <button onclick="setViewport('mobile')" id="vp-mobile" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
-                        <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
-                        <span>Mobile (375px)</span>
+                    <button onclick="setViewport('mobile')" id="vp-mobile" class="px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-mutedwhite transition flex items-center space-x-1.5">
+                        <i data-lucide="smartphone" class="w-3 h-3"></i>
+                        <span>Mobile</span>
                     </button>
                 </div>
 
+                <!-- Export & Production Controls -->
                 <div class="flex items-center space-x-2 text-xs">
-                    <button onclick="deployWebsite()" id="btn-deploy" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold transition flex items-center space-x-1.5 shadow-md shadow-emerald-500/20">
-                        <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
+                    <button onclick="deployWebsite()" id="btn-deploy" class="px-3 py-1.5 rounded-md bg-brass hover:bg-brass-light text-obsidian font-semibold transition flex items-center space-x-1.5 shadow-sm">
+                        <i data-lucide="globe" class="w-3 h-3"></i>
                         <span>Auto-Deploy</span>
                     </button>
 
-                    <button onclick="openInNewTab()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
-                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <button onclick="openInNewTab()" class="px-3 py-1.5 rounded-md bg-graphite hover:bg-slateSoft text-mutedwhite border border-white/[0.06] transition flex items-center space-x-1.5">
+                        <i data-lucide="external-link" class="w-3 h-3 text-steel"></i>
                         <span>New Tab</span>
                     </button>
 
-                    <button onclick="copyCode()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
-                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <button onclick="copyCode()" class="px-3 py-1.5 rounded-md bg-graphite hover:bg-slateSoft text-mutedwhite border border-white/[0.06] transition flex items-center space-x-1.5">
+                        <i data-lucide="copy" class="w-3 h-3 text-steel"></i>
                         <span>Copy Code</span>
                     </button>
 
-                    <button onclick="downloadCode()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
-                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        <span>Download HTML</span>
+                    <button onclick="downloadCode()" class="px-3 py-1.5 rounded-md bg-graphite hover:bg-slateSoft text-mutedwhite border border-white/[0.06] transition flex items-center space-x-1.5">
+                        <i data-lucide="download" class="w-3 h-3 text-steel"></i>
+                        <span>Export HTML</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Sandboxed Iframe Container (Enabled popups & scripts) -->
-            <div class="flex-1 bg-slate-900/40 p-4 flex items-center justify-center overflow-auto">
-                <div id="preview-wrapper" class="w-full h-full bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 border border-slate-800">
+            <!-- Sandboxed Iframe Canvas Container -->
+            <div class="flex-1 bg-obsidian p-4 flex items-center justify-center overflow-auto">
+                <div id="preview-wrapper" class="w-full h-full bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300 border border-white/[0.08]">
                     <iframe id="preview-frame" class="w-full h-full border-none" sandbox="allow-scripts allow-forms allow-same-origin allow-modals allow-popups allow-popups-to-escape-sandbox"></iframe>
                 </div>
             </div>
         </main>
 
-        <!-- RIGHT PANEL: Hindsight Reflection & Self-Healing Brain -->
-        <aside class="w-80 lg:w-96 bg-slate-900/90 border-l border-slate-800 flex flex-col p-5 overflow-y-auto flex-shrink-0 space-y-6">
-            <!-- Panel Header -->
+        <!-- RIGHT PANEL: Cognitive Reflection & Self-Healing Telemetry -->
+        <aside class="w-80 lg:w-96 bg-charcoal border-l border-white/[0.07] flex flex-col p-5 overflow-y-auto flex-shrink-0 space-y-5">
+            <!-- Telemetry Header -->
             <div>
-                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
-                    <i data-lucide="activity" class="w-4 h-4 text-indigo-400"></i>
-                    <span>Critic & Reflection Feed</span>
+                <h2 class="text-xs font-semibold uppercase tracking-wider text-offwhite flex items-center space-x-2">
+                    <i data-lucide="cpu" class="w-3.5 h-3.5 text-brass"></i>
+                    <span>Cognitive Telemetry</span>
                 </h2>
-                <p class="text-xs text-slate-500 mt-1">Multi-critic evaluation and Hindsight learning loop.</p>
+                <p class="text-[11px] text-steel mt-0.5">Multi-critic evaluation matrix & Hindsight learning loop.</p>
             </div>
 
-            <!-- Iteration & Score Summary Card -->
-            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+            <!-- Aggregate Performance Card -->
+            <div class="p-3.5 rounded-lg bg-graphite border border-white/[0.06] space-y-2.5">
                 <div class="flex items-center justify-between text-xs">
-                    <span class="text-slate-400">Healing Iterations:</span>
-                    <span id="stat-iterations" class="font-bold text-white px-2 py-0.5 rounded-md bg-slate-800">1</span>
+                    <span class="text-steel font-medium">Self-Healing Iteration:</span>
+                    <span id="stat-iterations" class="font-mono text-offwhite font-semibold px-2 py-0.5 rounded bg-charcoal border border-white/[0.06]">1</span>
                 </div>
                 <div class="flex items-center justify-between text-xs">
-                    <span class="text-slate-400">Overall Critic Score:</span>
-                    <span id="stat-score" class="font-extrabold text-emerald-400 text-sm">100%</span>
+                    <span class="text-steel font-medium">Overall Quality Index:</span>
+                    <span id="stat-score" class="font-mono font-bold text-brass text-sm">100%</span>
                 </div>
-                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                    <div id="stat-progress-bar" class="bg-gradient-to-r from-emerald-500 to-sky-500 h-full w-full transition-all duration-500"></div>
+                <div class="w-full bg-charcoal h-1.5 rounded-full overflow-hidden">
+                    <div id="stat-progress-bar" class="bg-brass h-full w-full transition-all duration-500"></div>
                 </div>
             </div>
 
-            <!-- 4-Critic Individual Scores -->
+            <!-- 4-Critic Structured Matrix -->
             <div class="space-y-2 text-xs">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Critic Breakdown</span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-steel">Evaluation Matrix</span>
                 <div class="grid grid-cols-2 gap-2">
-                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                        <div class="flex justify-between text-[11px] text-slate-400">
-                            <span>UI/UX</span>
-                            <span id="score-ui" class="font-bold text-emerald-400">100%</span>
+                    <!-- UI / UX -->
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-steel">Visual / UX</span>
+                            <span id="score-ui" class="font-mono font-bold text-offwhite">100%</span>
                         </div>
-                        <div class="text-[10px] text-slate-500 truncate" id="summary-ui">Balanced layout</div>
+                        <div class="text-[10px] text-steel truncate" id="summary-ui">Balanced hierarchy</div>
                     </div>
-                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                        <div class="flex justify-between text-[11px] text-slate-400">
-                            <span>Functionality</span>
-                            <span id="score-func" class="font-bold text-emerald-400">100%</span>
+                    <!-- Functionality -->
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-steel">Functions</span>
+                            <span id="score-func" class="font-mono font-bold text-offwhite">100%</span>
                         </div>
-                        <div class="text-[10px] text-slate-500 truncate" id="summary-func">WhatsApp verified</div>
+                        <div class="text-[10px] text-steel truncate" id="summary-func">WhatsApp validated</div>
                     </div>
-                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                        <div class="flex justify-between text-[11px] text-slate-400">
-                            <span>Mobile/Perf</span>
-                            <span id="score-perf" class="font-bold text-emerald-400">100%</span>
+                    <!-- Performance -->
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-steel">Mobile/Perf</span>
+                            <span id="score-perf" class="font-mono font-bold text-offwhite">100%</span>
                         </div>
-                        <div class="text-[10px] text-slate-500 truncate" id="summary-perf">Responsive touch</div>
+                        <div class="text-[10px] text-steel truncate" id="summary-perf">Responsive layout</div>
                     </div>
-                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                        <div class="flex justify-between text-[11px] text-slate-400">
-                            <span>Code Quality</span>
-                            <span id="score-code" class="font-bold text-emerald-400">100%</span>
+                    <!-- Code Quality -->
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="text-steel">Code Quality</span>
+                            <span id="score-code" class="font-mono font-bold text-offwhite">100%</span>
                         </div>
-                        <div class="text-[10px] text-slate-500 truncate" id="summary-code">Valid HTML5</div>
+                        <div class="text-[10px] text-steel truncate" id="summary-code">Standard HTML5</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Hindsight Memory Stream -->
-            <div class="space-y-3 flex-1 flex flex-col">
+            <!-- Hindsight Memory Bank Stream -->
+            <div class="space-y-2.5 flex-1 flex flex-col">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                        <i data-lucide="database" class="w-3.5 h-3.5 text-sky-400"></i>
-                        <span>Hindsight Memory Bank</span>
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-steel flex items-center space-x-1.5">
+                        <i data-lucide="database" class="w-3 h-3 text-brass"></i>
+                        <span>Memory Bank</span>
                     </span>
                     <div class="flex items-center space-x-2">
-                        <button onclick="runHindsightDemo()" id="btn-demo-hindsight" class="px-2 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold transition flex items-center space-x-1 shadow-sm">
-                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                        <button onclick="runHindsightDemo()" id="btn-demo-hindsight" class="px-2 py-0.5 rounded bg-brass-muted text-brass border border-brass-border text-[10px] font-medium transition flex items-center space-x-1 hover:bg-brass hover:text-obsidian">
+                            <i data-lucide="play" class="w-2.5 h-2.5"></i>
                             <span>Run Demo</span>
                         </button>
-                        <button onclick="fetchMemories()" class="text-[10px] text-sky-400 hover:underline">Refresh</button>
+                        <button onclick="fetchMemories()" class="text-[10px] text-steel hover:text-offwhite transition">Refresh</button>
                     </div>
                 </div>
 
                 <div id="memory-feed" class="space-y-2 overflow-y-auto max-h-72 pr-1 text-xs">
-                    <!-- Loaded dynamically -->
+                    <!-- Populated dynamically via fetchMemories() -->
                 </div>
             </div>
         </aside>
 
     </div>
 
-    <!-- Auto-Deploy Modal -->
-    <div id="deploy-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl relative space-y-5 animate-in fade-in duration-200">
-            <button onclick="closeDeployModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg">
-                <i data-lucide="x" class="w-5 h-5"></i>
+    <!-- Production Deployment Modal -->
+    <div id="deploy-modal" class="fixed inset-0 z-50 hidden bg-obsidian/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-charcoal border border-white/[0.1] rounded-xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
+            <button onclick="closeDeployModal()" class="absolute top-4 right-4 text-steel hover:text-offwhite p-1 rounded-md transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
             </button>
 
             <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-                    <i data-lucide="rocket" class="w-6 h-6"></i>
+                <div class="w-10 h-10 rounded-lg bg-brass-muted border border-brass-border text-brass flex items-center justify-center">
+                    <i data-lucide="globe" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-white leading-tight">Website Deployed Live!</h3>
-                    <p class="text-xs text-slate-400">Accessible worldwide via public URL</p>
+                    <h3 class="text-sm font-semibold text-offwhite">Deployment Ready</h3>
+                    <p class="text-[11px] text-steel">Artifact compiled and distributed.</p>
                 </div>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-2.5">
                 <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Public Worldwide Link</label>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" id="deploy-public-url" readonly class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-emerald-400 text-xs font-mono focus:outline-none">
-                        <button onclick="copyDeployUrl()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold">Copy</button>
+                    <label class="block text-[10px] font-semibold uppercase tracking-wider text-steel mb-1">Public Worldwide Endpoint</label>
+                    <div class="flex items-center space-x-1.5">
+                        <input type="text" id="deploy-public-url" readonly class="flex-1 bg-obsidian border border-slateSoft rounded-lg px-3 py-1.5 text-brass text-xs font-mono focus:outline-none">
+                        <button onclick="copyDeployUrl()" class="px-2.5 py-1.5 bg-graphite hover:bg-slateSoft text-offwhite border border-white/[0.08] rounded-lg text-xs font-medium transition">Copy</button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Local Server Route</label>
-                    <input type="text" id="deploy-local-url" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-400 text-xs font-mono focus:outline-none">
+                    <label class="block text-[10px] font-semibold uppercase tracking-wider text-steel mb-1">Local Server Route</label>
+                    <input type="text" id="deploy-local-url" readonly class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-1.5 text-steel text-xs font-mono focus:outline-none">
                 </div>
             </div>
 
-            <div class="pt-2 flex items-center space-x-3">
-                <a id="deploy-open-link" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-center text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2">
-                    <i data-lucide="external-link" class="w-4 h-4"></i>
-                    <span>Open Live Website</span>
+            <div class="pt-2">
+                <a id="deploy-open-link" href="#" target="_blank" rel="noopener noreferrer" class="w-full bg-brass hover:bg-brass-light text-obsidian font-semibold py-2 rounded-lg text-center text-xs flex items-center justify-center space-x-1.5 transition">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>Launch Production Site</span>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Application Script -->
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200">
+        <div class="px-4 py-2.5 rounded-lg bg-charcoal border border-brass-border text-offwhite text-xs font-medium shadow-xl flex items-center space-x-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-brass"></span>
+            <span id="toast-text">Action completed successfully</span>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
     <script>
         let currentHtmlCode = "";
         let isRecording = false;
@@ -454,22 +539,41 @@
 
         lucide.createIcons();
 
-        // Tab Switcher
+        // Toast Feedback System
+        function showToast(message) {
+            const container = document.getElementById("toast-container");
+            const text = document.getElementById("toast-text");
+            if (!container || !text) return;
+            text.innerText = message;
+            container.classList.remove("opacity-0", "translate-y-2");
+            container.classList.add("opacity-100", "translate-y-0");
+
+            setTimeout(() => {
+                container.classList.remove("opacity-100", "translate-y-0");
+                container.classList.add("opacity-0", "translate-y-2");
+            }, 3000);
+        }
+
+        // Tab Navigation
         function switchAssetTab(tab) {
             const tabs = ['profile', 'brand', 'media', 'pricing', 'brochure'];
             tabs.forEach(t => {
                 const pane = document.getElementById(`tab-pane-${t}`);
                 const btn = document.getElementById(`tab-btn-${t}`);
+                if (!pane || !btn) return;
                 if (t === tab) {
                     pane.classList.remove('hidden');
-                    btn.classList.add('border-sky-500', 'text-sky-400');
-                    btn.classList.remove('border-transparent', 'text-slate-400');
+                    btn.className = "flex-1 pb-2 border-b-2 border-brass text-offwhite flex items-center justify-center space-x-1 transition font-medium";
+                    const icon = btn.querySelector('svg');
+                    if (icon) icon.classList.add('text-brass');
                 } else {
                     pane.classList.add('hidden');
-                    btn.classList.remove('border-sky-500', 'text-sky-400');
-                    btn.classList.add('border-transparent', 'text-slate-400');
+                    btn.className = "flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-mutedwhite flex items-center justify-center space-x-1 transition font-medium";
+                    const icon = btn.querySelector('svg');
+                    if (icon) icon.classList.remove('text-brass');
                 }
             });
+            lucide.createIcons();
         }
 
         // Upload Asset Handler
@@ -497,17 +601,20 @@
                             document.getElementById('asset-logo-url').value = data.url;
                             document.getElementById('logo-preview-img').src = data.url;
                             document.getElementById('logo-preview-box').classList.remove('hidden');
+                            showToast("Logo verified and bound to project");
                         } else if (type === 'photos') {
                             uploadedPhotos.push({ url: data.url, title: file.name.split('.')[0] });
                             renderPhotoChips();
+                            showToast("Media asset added to gallery");
                         } else if (type === 'brochure') {
                             document.getElementById('asset-brochure-url').value = data.url;
                             document.getElementById('brochure-status-box').classList.remove('hidden');
-                            document.getElementById('brochure-status-text').innerText = `${file.name} Attached`;
+                            document.getElementById('brochure-status-text').innerText = `${file.name} Bound`;
+                            showToast("Catalog document attached");
                         }
                     }
                 } catch (e) {
-                    alert("Error uploading asset: " + e.message);
+                    showToast("Error uploading asset: " + e.message);
                 }
             }
             fetchMemories();
@@ -518,8 +625,8 @@
             container.innerHTML = "";
             uploadedPhotos.forEach((p, idx) => {
                 const chip = document.createElement('div');
-                chip.className = "px-2 py-1 bg-slate-800 border border-slate-700 rounded-lg text-[10px] text-slate-300 flex items-center space-x-1";
-                chip.innerHTML = `<span>📷 ${p.title}</span><button onclick="removePhoto(${idx})" class="text-slate-500 hover:text-red-400">&times;</button>`;
+                chip.className = "px-2 py-1 bg-graphite border border-white/[0.08] rounded text-[10px] text-mutedwhite flex items-center space-x-1.5";
+                chip.innerHTML = `<span>${p.title}</span><button onclick="removePhoto(${idx})" class="text-steel hover:text-red-400 font-bold">&times;</button>`;
                 container.appendChild(chip);
             });
         }
@@ -532,13 +639,13 @@
         function addPricingTier() {
             const list = document.getElementById('pricing-tier-list');
             const div = document.createElement('div');
-            div.className = "p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs";
+            div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs";
             div.innerHTML = `
                 <div class="flex space-x-2">
-                    <input type="text" placeholder="Tier Name" value="Custom Package" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
-                    <input type="text" placeholder="Price" value="₹1,999" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                    <input type="text" placeholder="Tier Name" value="Custom Package" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-offwhite font-medium tier-name text-xs">
+                    <input type="text" placeholder="Price" value="₹1,999" class="w-24 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-brass font-semibold tier-price text-xs">
                 </div>
-                <input type="text" placeholder="Features (comma separated)" value="Dedicated Support, Instant Booking" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+                <input type="text" placeholder="Features (comma separated)" value="Dedicated Support, Instant Booking" class="w-full bg-graphite border border-slateSoft rounded-md px-2 py-1 text-mutedwhite text-[11px] tier-features">
             `;
             list.appendChild(div);
         }
@@ -547,18 +654,22 @@
             const tiers = [];
             const cards = document.querySelectorAll('#pricing-tier-list > div');
             cards.forEach(c => {
-                const name = c.querySelector('.tier-name').value.trim();
-                const price = c.querySelector('.tier-price').value.trim();
-                const featuresRaw = c.querySelector('.tier-features').value.trim();
-                const features = featuresRaw.split(',').map(f => f.trim()).filter(Boolean);
-                if (name && price) {
-                    tiers.push({ name, price, period: "", features });
+                const nameInput = c.querySelector('.tier-name');
+                const priceInput = c.querySelector('.tier-price');
+                const featInput = c.querySelector('.tier-features');
+                if (nameInput && priceInput) {
+                    const name = nameInput.value.trim();
+                    const price = priceInput.value.trim();
+                    const features = featInput ? featInput.value.split(',').map(f => f.trim()).filter(Boolean) : [];
+                    if (name && price) {
+                        tiers.push({ name, price, period: "", features });
+                    }
                 }
             });
             return tiers;
         }
 
-        // Presets data
+        // Industry Profile Presets
         const presets = {
             hotel: {
                 name: "Satya Grand Hotel",
@@ -625,46 +736,49 @@
                 list.innerHTML = "";
                 p.tiers.forEach(t => {
                     const div = document.createElement('div');
-                    div.className = "p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs";
+                    div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs";
                     div.innerHTML = `
                         <div class="flex space-x-2">
-                            <input type="text" placeholder="Tier Name" value="${t.name}" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
-                            <input type="text" placeholder="Price" value="${t.price}" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                            <input type="text" placeholder="Tier Name" value="${t.name}" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-offwhite font-medium tier-name text-xs">
+                            <input type="text" placeholder="Price" value="${t.price}" class="w-24 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-brass font-semibold tier-price text-xs">
                         </div>
-                        <input type="text" placeholder="Features (comma separated)" value="${t.features}" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+                        <input type="text" placeholder="Features (comma separated)" value="${t.features}" class="w-full bg-graphite border border-slateSoft rounded-md px-2 py-1 text-mutedwhite text-[11px] tier-features">
                     `;
                     list.appendChild(div);
                 });
             }
+            showToast(`Loaded ${p.name} preset`);
         }
 
-        // Viewport Switcher
+        // Device Viewport Switcher
         function setViewport(mode) {
             const wrapper = document.getElementById("preview-wrapper");
             const btnDesktop = document.getElementById("vp-desktop");
             const btnTablet = document.getElementById("vp-tablet");
             const btnMobile = document.getElementById("vp-mobile");
 
-            [btnDesktop, btnTablet, btnMobile].forEach(btn => {
-                btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5";
-            });
+            const activeClass = "px-2.5 py-1 rounded text-xs font-medium bg-charcoal text-offwhite border border-white/[0.08] transition flex items-center space-x-1.5";
+            const inactiveClass = "px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-mutedwhite transition flex items-center space-x-1.5";
+
+            [btnDesktop, btnTablet, btnMobile].forEach(btn => btn.className = inactiveClass);
 
             if (mode === "desktop") {
                 wrapper.style.width = "100%";
                 wrapper.style.maxWidth = "100%";
-                btnDesktop.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5";
+                btnDesktop.className = activeClass;
             } else if (mode === "tablet") {
                 wrapper.style.width = "768px";
                 wrapper.style.maxWidth = "768px";
-                btnTablet.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5";
+                btnTablet.className = activeClass;
             } else if (mode === "mobile") {
                 wrapper.style.width = "375px";
                 wrapper.style.maxWidth = "375px";
-                btnMobile.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5";
+                btnMobile.className = activeClass;
             }
+            lucide.createIcons();
         }
 
-        // Web Speech API
+        // Web Speech API Integration
         function setupSpeechRecognition() {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRec) return null;
@@ -675,16 +789,17 @@
 
             rec.onstart = () => {
                 isRecording = true;
-                document.getElementById("btn-mic").classList.add("bg-red-600", "mic-pulsing");
-                document.getElementById("mic-icon").classList.replace("text-emerald-400", "text-white");
-                document.getElementById("voice-indicator").innerText = "Listening...";
-                document.getElementById("voice-indicator").classList.add("text-red-400");
+                const micBtn = document.getElementById("btn-mic");
+                micBtn.classList.add("bg-brass-muted", "border-brass", "mic-pulsing");
+                document.getElementById("voice-indicator").innerText = "Acoustic Stream Active...";
+                document.getElementById("voice-indicator").classList.add("text-brass");
             };
 
             rec.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
                 document.getElementById("voice-transcript-input").value = transcript;
-                document.getElementById("voice-indicator").innerText = "Voice captured!";
+                document.getElementById("voice-indicator").innerText = "Voice captured";
+                showToast("Voice directive transcribed");
             };
 
             rec.onerror = () => stopVoiceRecording();
@@ -696,7 +811,7 @@
             if (!recognition) {
                 recognition = setupSpeechRecognition();
                 if (!recognition) {
-                    alert("Speech recognition is not supported in this browser. Please use Chrome or type your instructions.");
+                    showToast("Speech recognition unavailable in this browser. Please type instructions.");
                     return;
                 }
             }
@@ -714,18 +829,18 @@
 
         function stopVoiceRecording() {
             isRecording = false;
-            document.getElementById("btn-mic").classList.remove("bg-red-600", "mic-pulsing");
-            document.getElementById("mic-icon").classList.replace("text-white", "text-emerald-400");
+            const micBtn = document.getElementById("btn-mic");
+            micBtn.classList.remove("bg-brass-muted", "border-brass", "mic-pulsing");
             document.getElementById("voice-indicator").innerText = "Ready";
-            document.getElementById("voice-indicator").classList.remove("text-red-400");
+            document.getElementById("voice-indicator").classList.remove("text-brass");
         }
 
-        // Generate Pipeline API Call
+        // Synthesis Generation Pipeline API Call
         async function handleGenerate(e) {
             if (e) e.preventDefault();
             const btn = document.getElementById("btn-generate");
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Synthesizing with Assets...</span>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Synthesizing Architecture...</span>`;
             lucide.createIcons();
 
             const payload = {
@@ -752,26 +867,27 @@
                 });
                 const data = await res.json();
                 renderResults(data);
+                showToast("Website synthesized successfully");
             } catch (err) {
-                alert("Error calling website generation pipeline: " + err.message);
+                showToast("Error generating architecture: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i><span>Generate & Build with Assets</span>`;
+                btn.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>Synthesize Architecture</span>`;
                 lucide.createIcons();
             }
         }
 
-        // Voice Command Submit
+        // Voice Command / Natural Language Directive
         async function submitVoiceCommand() {
             const transcript = document.getElementById("voice-transcript-input").value;
             if (!transcript.trim()) {
-                alert("Please record or type a voice instruction first.");
+                showToast("Please state or type a directive first");
                 return;
             }
 
             const btn = document.getElementById("btn-voice-submit");
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Applying Instruction...</span>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i><span>Applying Directive...</span>`;
             lucide.createIcons();
 
             const payload = {
@@ -803,25 +919,26 @@
                 const data = await res.json();
                 renderResults(data);
                 document.getElementById("voice-transcript-input").value = "";
+                showToast("Directive incorporated & verified");
             } catch (err) {
-                alert("Error applying voice instruction: " + err.message);
+                showToast("Error applying revision: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Apply Voice Revision</span>`;
+                btn.innerHTML = `<i data-lucide="corner-down-left" class="w-3 h-3 text-steel"></i><span>Apply Directive Revision</span>`;
                 lucide.createIcons();
             }
         }
 
-        // Auto-Deploy
+        // Production Auto-Deploy
         async function deployWebsite() {
             if (!currentHtmlCode) {
-                alert("Please generate a website before deploying.");
+                showToast("Generate a website before deploying");
                 return;
             }
 
             const btn = document.getElementById("btn-deploy");
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Deploying...</span>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i><span>Deploying...</span>`;
             lucide.createIcons();
 
             const payload = {
@@ -845,13 +962,14 @@
                     document.getElementById("deploy-local-url").value = data.local_url;
                     document.getElementById("deploy-open-link").href = data.public_url;
                     document.getElementById("deploy-modal").classList.remove("hidden");
+                    showToast("Website deployed to live production endpoint");
                     fetchMemories();
                 }
             } catch (err) {
-                alert("Deployment error: " + err.message);
+                showToast("Deployment error: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="rocket" class="w-3.5 h-3.5"></i><span>Auto-Deploy</span>`;
+                btn.innerHTML = `<i data-lucide="globe" class="w-3 h-3"></i><span>Auto-Deploy</span>`;
                 lucide.createIcons();
             }
         }
@@ -864,7 +982,7 @@
             const copyText = document.getElementById("deploy-public-url");
             copyText.select();
             navigator.clipboard.writeText(copyText.value);
-            alert("Copied public link: " + copyText.value);
+            showToast("Copied public link to clipboard");
         }
 
         function renderResults(data) {
@@ -900,6 +1018,12 @@
             fetchMemories();
         }
 
+        function renderPreview(html) {
+            currentHtmlCode = html;
+            const frame = document.getElementById("preview-frame");
+            if (frame) frame.srcdoc = html;
+        }
+
         async function fetchMemories() {
             try {
                 const res = await fetch("/api/memories");
@@ -908,24 +1032,25 @@
                 feed.innerHTML = "";
 
                 if (!data.memories || data.memories.length === 0) {
-                    feed.innerHTML = `<div class="text-slate-500 italic p-3 text-center">No memories retained yet.</div>`;
+                    feed.innerHTML = `<div class="text-steel italic p-3 text-center text-[11px]">No memory observations recorded yet.</div>`;
                     return;
                 }
 
                 data.memories.slice().reverse().forEach(m => {
                     const div = document.createElement("div");
-                    div.className = "p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5";
+                    div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.06] space-y-1.5 transition";
                     
-                    let badgeColor = "bg-sky-500/20 text-sky-400 border-sky-500/30";
-                    if (m.type === "experience") badgeColor = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-                    if (m.type === "directive") badgeColor = "bg-amber-500/20 text-amber-400 border-amber-500/30";
+                    let badgeColor = "bg-white/[0.05] text-steel border-white/[0.08]";
+                    if (m.type === "experience") badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                    if (m.type === "directive") badgeColor = "bg-brass-muted text-brass border-brass-border";
+                    if (m.type === "observation") badgeColor = "bg-sky-500/10 text-sky-400 border-sky-500/20";
 
                     div.innerHTML = `
                         <div class="flex items-center justify-between text-[10px]">
-                            <span class="px-2 py-0.5 rounded-full border ${badgeColor} font-bold uppercase tracking-wider">${m.type}</span>
-                            <span class="text-slate-500">${m.source || 'hindsight'}</span>
+                            <span class="px-2 py-0.5 rounded border ${badgeColor} font-mono font-medium uppercase tracking-wider">${m.type}</span>
+                            <span class="text-steel font-mono text-[9px]">${m.source || 'hindsight'}</span>
                         </div>
-                        <p class="text-slate-300 text-[11px] leading-relaxed">${m.content}</p>
+                        <p class="text-mutedwhite text-[11px] leading-relaxed">${m.content}</p>
                     `;
                     feed.appendChild(div);
                 });
@@ -950,25 +1075,26 @@
             a.download = "index.html";
             a.click();
             URL.revokeObjectURL(url);
+            showToast("HTML source package downloaded");
         }
 
         function copyCode() {
             if (!currentHtmlCode) {
-                showToast("Generate a website first!");
+                showToast("Synthesize a website first");
                 return;
             }
             navigator.clipboard.writeText(currentHtmlCode).then(() => {
-                showToast("HTML code copied to clipboard!");
+                showToast("HTML source code copied to clipboard");
             }).catch(err => {
                 console.error("Copy failed", err);
-                showToast("Failed to copy code");
+                showToast("Failed to copy code to clipboard");
             });
         }
 
         async function runHindsightDemo() {
             const btn = document.getElementById("btn-demo-hindsight");
             const originalContent = btn.innerHTML;
-            btn.innerHTML = `<span class="animate-spin mr-1">⏳</span> Running...`;
+            btn.innerHTML = `<span class="animate-spin mr-1">⏳</span> Executing...`;
             btn.disabled = true;
 
             try {
@@ -1003,10 +1129,10 @@
                         });
                     }
 
-                    showToast(`Hindsight Demo: Score elevated from ${data.run1_score}% to ${data.run2_score}%!`);
+                    showToast(`Hindsight Proof: Elevated from ${data.run1_score}% to ${data.run2_score}%!`);
                     await fetchMemories();
                 } else {
-                    showToast("Demo execution failed");
+                    showToast("Demonstration execution failed");
                 }
             } catch (err) {
                 console.error("Demo failed:", err);
