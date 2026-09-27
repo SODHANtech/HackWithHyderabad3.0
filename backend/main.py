@@ -16,7 +16,7 @@ from backend.orchestrator import orchestration_agent
 from backend.agents.coder import code_generator_agent
 
 app = FastAPI(
-    title="VoiceCraft AI Website Architect API",
+    title="HEXOELITE Autonomous Enterprise Web Architect API",
     description="Autonomous Website Builder with Hindsight Reflection, Asset Vault & Self-Healing Loop",
     version="1.2.0"
 )
@@ -375,4 +375,4 @@ def serve_index():
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():
         return FileResponse(index_path)
-    return HTMLResponse("<h1>VoiceCraft AI Website Architect API is Running!</h1><p>Visit /docs for API specs.</p>")
+    return HTMLResponse("<h1>HEXOELITE API is Running!</h1><p>Visit /docs for API specs.</p>")

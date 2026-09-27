@@ -11,7 +11,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("Starting VoiceCraft AI - Autonomous Website Builder")
+    print("Starting HEXOELITE - Autonomous Enterprise Web Architect")
     print(f"Hindsight Memory Bank: {settings.hindsight_bank_id}")
     print(f"Dashboard URL: http://localhost:{settings.port}")
     print("=" * 60)

@@ -3,13 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archetype | Autonomous Enterprise Web Architect & Cognitive Engine</title>
+    <title>HEXOELITE | Autonomous Enterprise Web Architect & Cognitive Engine</title>
     
     <!-- Premium Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Suppress Tailwind Play CDN production notice in console -->
+    <script>
+        (function() {
+            const _warn = console.warn;
+            console.warn = function(...args) {
+                if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+                _warn.apply(console, args);
+            };
+        })();
+    </script>
+
     <!-- Tailwind CSS CDN with Custom Metallic Luxury Design Tokens -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -247,15 +258,14 @@
         <!-- Brand Monogram & Title -->
         <div class="flex items-center space-x-3.5">
             <div class="w-8 h-8 rounded-lg bg-graphite border border-gold-bronze/40 flex items-center justify-center text-gold shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer">
-                <!-- Precision Architectural Monogram -->
+                <!-- Precision Hexagonal Monogram -->
                 <svg class="w-4 h-4 text-gold-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="12 2 2 22 22 22"/>
-                    <line x1="12" y1="13" x2="12" y2="17"/>
-                    <line x1="8" y1="18" x2="16" y2="18"/>
+                    <path d="M12 2l9 4.9v9.8L12 21.5l-9-4.8V6.9L12 2z"/>
+                    <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
                 </svg>
             </div>
             <div class="flex items-center space-x-2.5">
-                <span class="text-sm font-semibold tracking-tight text-ivory uppercase">Archetype</span>
+                <span class="text-sm font-semibold tracking-tight text-ivory uppercase">HEXOELITE</span>
                 <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-gold-bronze/15 text-gold-light border border-gold-bronze/35 font-medium">Enterprise Architect</span>
             </div>
         </div>
@@ -534,7 +544,7 @@
             <!-- Sandboxed Iframe Canvas Container (Warm Ivory Background with Refined Luxury Frame) -->
             <div class="flex-1 bg-obsidian p-4 flex items-center justify-center overflow-auto">
                 <div id="preview-wrapper" class="w-full h-full bg-[#FAF8F5] rounded-lg shadow-2xl overflow-hidden transition-all duration-300 border border-white/[0.08]">
-                    <iframe id="preview-frame" class="w-full h-full border-none" sandbox="allow-scripts allow-forms allow-same-origin allow-modals allow-popups allow-popups-to-escape-sandbox"></iframe>
+                    <iframe id="preview-frame" class="w-full h-full border-none" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"></iframe>
                 </div>
             </div>
         </main>
@@ -1011,7 +1021,7 @@
 
             // Injected interactive styling block for preview iframe
             const luxuryStyle = `
-                <style id="archetype-luxury-inject">
+                <style id="hexoelite-luxury-inject">
                     /* Universal smooth transitions */
                     a, button {
                         transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
@@ -1023,7 +1033,7 @@
                     }
 
                     /* PRIMARY CTA (BOOK A ROOM / SCHEDULE APPOINTMENT) - BRUSHED METALLIC CHAMPAGNE WITH HOVER SHEEN */
-                    .archetype-metallic-btn,
+                    .hexoelite-metallic-btn,
                     #booking-modal-btn,
                     a[href*="#booking-modal"],
                     button[id*="book"],
@@ -1038,7 +1048,7 @@
                         overflow: hidden !important;
                         cursor: pointer !important;
                     }
-                    .archetype-metallic-btn:hover,
+                    .hexoelite-metallic-btn:hover,
                     #booking-modal-btn:hover,
                     button[id*="book"]:hover,
                     a[id*="book"]:hover,
@@ -1047,7 +1057,7 @@
                         transform: translateY(-1.5px) !important;
                         box-shadow: 0 5px 16px -2px rgba(201, 164, 92, 0.38) !important;
                     }
-                    .archetype-metallic-btn:active,
+                    .hexoelite-metallic-btn:active,
                     #booking-modal-btn:active,
                     button[id*="book"]:active {
                         transform: translateY(0.5px) scale(0.99) !important;
@@ -1093,6 +1103,14 @@
                     }
                 </style>
             `;
+
+            // Suppress Tailwind CDN production warning inside iframe console
+            const suppressNotice = `<script>(function(){const _w=console.warn;console.warn=function(...a){if(a[0]&&typeof a[0]==='string'&&a[0].includes('cdn.tailwindcss.com'))return;_w.apply(console,a);};})();<\/script>`;
+            if (enhanced.includes("<head>")) {
+                enhanced = enhanced.replace("<head>", "<head>\n" + suppressNotice);
+            } else if (enhanced.includes("<head ")) {
+                enhanced = enhanced.replace(/(<head[^>]*>)/i, "$1\n" + suppressNotice);
+            }
 
             if (enhanced.includes("</head>")) {
                 enhanced = enhanced.replace("</head>", luxuryStyle + "</head>");
