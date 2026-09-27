@@ -73,19 +73,28 @@
         ::-webkit-scrollbar-thumb {
             background: #252B33;
             border-radius: 2px;
+            transition: background 0.2s ease;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #8E6B32;
         }
 
-        /* Restrained metallic input focus */
+        /* Restrained metallic input states */
+        input, textarea, select {
+            transition: border-color 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        box-shadow 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        background-color 0.2s ease;
+        }
+        input:hover, textarea:hover, select:hover {
+            border-color: rgba(255, 255, 255, 0.16) !important;
+        }
         input:focus, textarea:focus, select:focus {
             outline: none !important;
             border-color: #C9A45C !important;
             box-shadow: 0 0 0 1px rgba(201, 164, 92, 0.28) !important;
         }
 
-        /* BRUSHED METALLIC CHAMPAGNE GOLD GRADIENT */
+        /* BRUSHED METALLIC CHAMPAGNE GOLD SURFACE */
         .bg-gold-metallic {
             background: linear-gradient(
                 110deg,
@@ -100,55 +109,109 @@
             color: #0B0D10;
         }
 
-        /* REFINED SUBTLE GOLD SHINE / METALLIC SHEEN */
+        /* TACTILE METALLIC GOLD BUTTON WITH ON-HOVER LIGHT SWEEP */
         .gold-sheen {
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        filter 0.2s ease,
+                        box-shadow 0.2s ease;
         }
         .gold-sheen::after {
             content: '';
             position: absolute;
             top: -50%;
-            left: -120%;
+            left: -130%;
             width: 65%;
             height: 200%;
             background: linear-gradient(
                 115deg,
                 transparent 15%,
-                rgba(245, 223, 160, 0.42) 50%,
+                rgba(245, 223, 160, 0.45) 50%,
                 transparent 85%
             );
             transform: rotate(22deg);
-            animation: gold-sweep 7.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
             pointer-events: none;
+            opacity: 0;
+            transition: none;
         }
-        @keyframes gold-sweep {
-            0%, 25% { left: -120%; }
-            55%, 100% { left: 160%; }
-        }
-
-        /* METALLIC HOVER ELEVATION & BRIGHTNESS */
+        /* Hover: single smooth metallic light sweep + 1.5px elevation */
         .gold-sheen:hover {
-            transform: translateY(-0.5px);
-            filter: brightness(1.07);
-            box-shadow: 0 3px 12px -2px rgba(201, 164, 92, 0.28), 0 0 0 1px rgba(245, 223, 160, 0.35);
+            transform: translateY(-1.5px);
+            filter: brightness(1.08);
+            box-shadow: 0 4px 16px -2px rgba(201, 164, 92, 0.35), 0 0 0 1px rgba(245, 223, 160, 0.38);
         }
+        .gold-sheen:hover::after {
+            opacity: 1;
+            left: 140%;
+            transition: left 0.75s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        /* Active click: subtle compression press-down */
         .gold-sheen:active {
-            transform: translateY(0);
-            filter: brightness(0.97);
+            transform: translateY(0.5px) scale(0.99);
+            filter: brightness(0.96);
+            box-shadow: 0 2px 8px -2px rgba(201, 164, 92, 0.2);
         }
 
-        /* METALLIC BORDER GRADIENT FOR SELECTED ITEMS */
-        .border-gold-subtle {
-            border: 1px solid rgba(201, 164, 92, 0.26);
+        /* TACTILE GRAPHITE CONTROL INTERACTION */
+        .graphite-btn {
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        background-color 0.2s ease,
+                        border-color 0.2s ease,
+                        color 0.2s ease,
+                        box-shadow 0.2s ease;
         }
-        .border-gold-active {
-            border: 1px solid rgba(201, 164, 92, 0.65);
-            box-shadow: inset 0 0 12px rgba(201, 164, 92, 0.05);
+        .graphite-btn:hover {
+            transform: translateY(-1px);
+            background-color: #252B33;
+            border-color: rgba(255, 255, 255, 0.14);
+            color: #F9F7F2;
+            box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
+        }
+        .graphite-btn:active {
+            transform: translateY(0.5px) scale(0.99);
+            background-color: #1A1F26;
         }
 
-        /* RESTRAINED ACOUSTIC PULSE */
+        /* INTERACTIVE CARD WITH SUBTLE 1PX ELEVATION */
+        .interactive-card {
+            transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        border-color 0.22s ease,
+                        background-color 0.22s ease,
+                        box-shadow 0.22s ease;
+        }
+        .interactive-card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.4);
+        }
+
+        /* QUICK PROFILE ACTIVE STATE */
+        .preset-active {
+            border-color: rgba(201, 164, 92, 0.65) !important;
+            background-color: #1F252E !important;
+            box-shadow: 0 0 0 1px rgba(201, 164, 92, 0.35) !important;
+            color: #F9F7F2 !important;
+        }
+
+        /* AMBIENT STATUS BREATHING PULSE (SLOW & CALM) */
+        @keyframes status-ambient {
+            0%, 100% { opacity: 0.65; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .status-ambient {
+            animation: status-ambient 4s ease-in-out infinite;
+        }
+
+        /* TAB FADE TRANSITION */
+        @keyframes tab-fade-in {
+            0% { opacity: 0; transform: translateY(3px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESTRAINED ACOUSTIC PULSE WHEN RECORDING ONLY */
         .mic-pulsing {
             animation: acoustic-pulse 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
         }
@@ -158,9 +221,22 @@
             100% { box-shadow: 0 0 0 0 rgba(201, 164, 92, 0); }
         }
 
-        /* TOAST CONTAINER TRANSITION */
+        /* TOAST TRANSITION */
         #toast-container {
-            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+            transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.24s ease;
+        }
+
+        /* ACCESSIBILITY: RESPECT PREFERS-REDUCED-MOTION */
+        @media (prefers-reduced-motion: reduce) {
+            *, ::after, ::before {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            .gold-sheen::after {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -170,7 +246,7 @@
     <header class="h-14 bg-charcoal border-b border-white/[0.07] px-6 flex items-center justify-between flex-shrink-0 z-30">
         <!-- Brand Monogram & Title -->
         <div class="flex items-center space-x-3.5">
-            <div class="w-8 h-8 rounded-lg bg-graphite border border-gold-bronze/40 flex items-center justify-center text-gold shadow-sm">
+            <div class="w-8 h-8 rounded-lg bg-graphite border border-gold-bronze/40 flex items-center justify-center text-gold shadow-sm transition-transform duration-200 hover:scale-105 cursor-pointer">
                 <!-- Precision Architectural Monogram -->
                 <svg class="w-4 h-4 text-gold-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="12 2 2 22 22 22"/>
@@ -186,11 +262,11 @@
 
         <!-- Telemetry Indicators -->
         <div class="flex items-center space-x-3 text-xs">
-            <div class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-md bg-graphite border border-white/[0.06] text-steel">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <div class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-md bg-graphite border border-white/[0.06] text-steel transition-colors hover:border-white/[0.12]">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 status-ambient"></span>
                 <span class="text-[11px]">Bank: <strong class="text-ivory font-medium font-mono" id="status-bank">local-biz-architect</strong></span>
             </div>
-            <div class="flex items-center space-x-2 px-3 py-1 rounded-md bg-graphite border border-white/[0.06] text-steel">
+            <div class="flex items-center space-x-2 px-3 py-1 rounded-md bg-graphite border border-white/[0.06] text-steel transition-colors hover:border-white/[0.12]">
                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-gold"></i>
                 <span class="text-[11px]">Critic Engine: <strong class="text-ivory font-medium">Synchronized</strong></span>
             </div>
@@ -219,23 +295,23 @@
                     </div>
                 </div>
 
-                <!-- Quick Profiles -->
+                <!-- Quick Profiles with Interactive State Feedback -->
                 <div class="space-y-1.5">
                     <span class="text-[10px] uppercase tracking-wider text-steel font-medium">Quick Profiles</span>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <button onclick="applyPreset('hotel')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-ivory-muted hover:text-ivory px-2.5 py-1.5 rounded-md border border-white/[0.06] hover:border-gold-bronze/40 transition flex items-center space-x-1.5">
+                    <div class="grid grid-cols-2 gap-1.5" id="presets-container">
+                        <button onclick="applyPreset('hotel')" id="preset-hotel" class="preset-active text-left text-[11px] bg-graphite text-ivory-muted px-2.5 py-1.5 rounded-md border border-white/[0.06] flex items-center space-x-1.5 graphite-btn">
                             <i data-lucide="building" class="w-3 h-3 text-gold"></i>
                             <span class="truncate">Hyderabad Hotel</span>
                         </button>
-                        <button onclick="applyPreset('dental')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-ivory-muted hover:text-ivory px-2.5 py-1.5 rounded-md border border-white/[0.06] hover:border-gold-bronze/40 transition flex items-center space-x-1.5">
+                        <button onclick="applyPreset('dental')" id="preset-dental" class="text-left text-[11px] bg-graphite text-ivory-muted px-2.5 py-1.5 rounded-md border border-white/[0.06] flex items-center space-x-1.5 graphite-btn">
                             <i data-lucide="activity" class="w-3 h-3 text-gold"></i>
                             <span class="truncate">Austin Smile Studio</span>
                         </button>
-                        <button onclick="applyPreset('plumbing')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-ivory-muted hover:text-ivory px-2.5 py-1.5 rounded-md border border-white/[0.06] hover:border-gold-bronze/40 transition flex items-center space-x-1.5">
+                        <button onclick="applyPreset('plumbing')" id="preset-plumbing" class="text-left text-[11px] bg-graphite text-ivory-muted px-2.5 py-1.5 rounded-md border border-white/[0.06] flex items-center space-x-1.5 graphite-btn">
                             <i data-lucide="wrench" class="w-3 h-3 text-gold"></i>
                             <span class="truncate">London Plumbers</span>
                         </button>
-                        <button onclick="applyPreset('cafe')" class="text-left text-[11px] bg-graphite hover:bg-slateSoft text-ivory-muted hover:text-ivory px-2.5 py-1.5 rounded-md border border-white/[0.06] hover:border-gold-bronze/40 transition flex items-center space-x-1.5">
+                        <button onclick="applyPreset('cafe')" id="preset-cafe" class="text-left text-[11px] bg-graphite text-ivory-muted px-2.5 py-1.5 rounded-md border border-white/[0.06] flex items-center space-x-1.5 graphite-btn">
                             <i data-lucide="coffee" class="w-3 h-3 text-gold"></i>
                             <span class="truncate">Bangalore Cafe</span>
                         </button>
@@ -244,23 +320,23 @@
 
                 <!-- Intake Segmented Tab Controls -->
                 <div class="flex border-b border-white/[0.07] text-xs font-medium">
-                    <button onclick="switchAssetTab('profile')" id="tab-btn-profile" class="flex-1 pb-2 border-b-2 border-gold text-ivory flex items-center justify-center space-x-1 transition">
+                    <button onclick="switchAssetTab('profile')" id="tab-btn-profile" class="flex-1 pb-2 border-b-2 border-gold text-ivory flex items-center justify-center space-x-1 transition-all duration-200">
                         <i data-lucide="file-text" class="w-3 h-3 text-gold"></i>
                         <span>Identity</span>
                     </button>
-                    <button onclick="switchAssetTab('brand')" id="tab-btn-brand" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted flex items-center justify-center space-x-1 transition">
+                    <button onclick="switchAssetTab('brand')" id="tab-btn-brand" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted hover:bg-white/[0.02] flex items-center justify-center space-x-1 transition-all duration-200">
                         <i data-lucide="shield" class="w-3 h-3"></i>
                         <span>Brand</span>
                     </button>
-                    <button onclick="switchAssetTab('media')" id="tab-btn-media" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted flex items-center justify-center space-x-1 transition">
+                    <button onclick="switchAssetTab('media')" id="tab-btn-media" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted hover:bg-white/[0.02] flex items-center justify-center space-x-1 transition-all duration-200">
                         <i data-lucide="image" class="w-3 h-3"></i>
                         <span>Media</span>
                     </button>
-                    <button onclick="switchAssetTab('pricing')" id="tab-btn-pricing" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted flex items-center justify-center space-x-1 transition">
+                    <button onclick="switchAssetTab('pricing')" id="tab-btn-pricing" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted hover:bg-white/[0.02] flex items-center justify-center space-x-1 transition-all duration-200">
                         <i data-lucide="layers" class="w-3 h-3"></i>
                         <span>Rates</span>
                     </button>
-                    <button onclick="switchAssetTab('brochure')" id="tab-btn-brochure" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted flex items-center justify-center space-x-1 transition">
+                    <button onclick="switchAssetTab('brochure')" id="tab-btn-brochure" class="flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted hover:bg-white/[0.02] flex items-center justify-center space-x-1 transition-all duration-200">
                         <i data-lucide="file-check-2" class="w-3 h-3"></i>
                         <span>Docs</span>
                     </button>
@@ -270,34 +346,34 @@
                 <div id="tab-pane-profile" class="space-y-3 text-xs">
                     <div>
                         <label class="block font-medium text-steel text-[11px] mb-1">Business Legal Entity Name</label>
-                        <input type="text" id="biz-name" required value="Satya Grand Hotel" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                        <input type="text" id="biz-name" required value="Satya Grand Hotel" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block font-medium text-steel text-[11px] mb-1">Industry Vertical</label>
-                            <input type="text" id="biz-category" required value="Hotel" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                            <input type="text" id="biz-category" required value="Hotel" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                         </div>
                         <div>
                             <label class="block font-medium text-steel text-[11px] mb-1">Operational City</label>
-                            <input type="text" id="biz-location" required value="Hyderabad" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                            <input type="text" id="biz-location" required value="Hyderabad" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block font-medium text-steel text-[11px] mb-1">Office Telephone</label>
-                            <input type="text" id="biz-phone" required value="7337537599" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                            <input type="text" id="biz-phone" required value="7337537599" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                         </div>
                         <div>
                             <label class="block font-medium text-steel text-[11px] mb-1">WhatsApp Direct (E.164)</label>
-                            <input type="text" id="biz-whatsapp" required value="917337537599" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                            <input type="text" id="biz-whatsapp" required value="917337537599" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                         </div>
                     </div>
 
                     <div>
                         <label class="block font-medium text-steel text-[11px] mb-1">Key Offerings / Unique Value</label>
-                        <input type="text" id="biz-services" value="Deluxe Executive Suites, Fine Dining, Banquet Facilities" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                        <input type="text" id="biz-services" value="Deluxe Executive Suites, Fine Dining, Banquet Facilities" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                     </div>
                 </div>
 
@@ -309,9 +385,9 @@
                     </div>
                     <div>
                         <label class="block font-medium text-steel text-[11px] mb-1">Or Direct Asset URL</label>
-                        <input type="text" id="asset-logo-url" placeholder="https://..." class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                        <input type="text" id="asset-logo-url" placeholder="https://..." class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                     </div>
-                    <div id="logo-preview-box" class="hidden p-3 rounded-lg bg-obsidian border border-white/[0.07] flex items-center space-x-3">
+                    <div id="logo-preview-box" class="hidden p-3 rounded-lg bg-obsidian border border-white/[0.07] flex items-center space-x-3 interactive-card">
                         <img id="logo-preview-img" src="" alt="Logo Preview" class="h-8 w-auto object-contain rounded">
                         <span class="text-[11px] text-gold font-medium">Emblem verified & bound</span>
                     </div>
@@ -325,7 +401,7 @@
                     </div>
                     <div>
                         <label class="block font-medium text-steel text-[11px] mb-1">Virtual Tour URL (Vimeo/YouTube)</label>
-                        <input type="text" id="asset-video-url" placeholder="https://..." class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                        <input type="text" id="asset-video-url" placeholder="https://..." class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                     </div>
                     <div id="photo-chips-container" class="flex flex-wrap gap-1.5 pt-1">
                         <!-- Populated dynamically -->
@@ -336,11 +412,11 @@
                 <div id="tab-pane-pricing" class="hidden space-y-3 text-xs">
                     <div class="flex items-center justify-between">
                         <label class="font-medium text-steel text-[11px]">Structured Rate Cards</label>
-                        <button onclick="addPricingTier()" class="text-[11px] text-gold hover:text-gold-light font-medium">+ Add Tier</button>
+                        <button onclick="addPricingTier()" class="text-[11px] text-gold hover:text-gold-light font-medium transition-colors">+ Add Tier</button>
                     </div>
                     <div id="pricing-tier-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
                         <!-- Tier 1 -->
-                        <div class="p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs">
+                        <div class="p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs interactive-card">
                             <div class="flex space-x-2">
                                 <input type="text" placeholder="Tier Name" value="Standard Deluxe" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-ivory font-medium tier-name text-xs">
                                 <input type="text" placeholder="Price" value="₹3,999/night" class="w-24 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-gold-light font-semibold tier-price text-xs">
@@ -348,7 +424,7 @@
                             <input type="text" placeholder="Features (comma separated)" value="King Bed, Free Wi-Fi, Breakfast" class="w-full bg-graphite border border-slateSoft rounded-md px-2 py-1 text-ivory-muted text-[11px] tier-features">
                         </div>
                         <!-- Tier 2 -->
-                        <div class="p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs">
+                        <div class="p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs interactive-card">
                             <div class="flex space-x-2">
                                 <input type="text" placeholder="Tier Name" value="Executive Suite" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-ivory font-medium tier-name text-xs">
                                 <input type="text" placeholder="Price" value="₹6,499/night" class="w-24 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-gold-light font-semibold tier-price text-xs">
@@ -366,16 +442,16 @@
                     </div>
                     <div>
                         <label class="block font-medium text-steel text-[11px] mb-1">Direct PDF Document Endpoint</label>
-                        <input type="text" id="asset-brochure-url" placeholder="https://.../brochure.pdf" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                        <input type="text" id="asset-brochure-url" placeholder="https://.../brochure.pdf" class="w-full bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                     </div>
-                    <div id="brochure-status-box" class="hidden p-3 rounded-lg bg-obsidian border border-white/[0.07] flex items-center space-x-2">
+                    <div id="brochure-status-box" class="hidden p-3 rounded-lg bg-obsidian border border-white/[0.07] flex items-center space-x-2 interactive-card">
                         <i data-lucide="file-check" class="w-4 h-4 text-gold"></i>
                         <span class="text-[11px] text-gold font-medium" id="brochure-status-text">Brochure PDF Attached</span>
                     </div>
                 </div>
 
-                <!-- Primary Action Button: Build Architecture (Brushed Champagne Metallic with Sheen) -->
-                <button onclick="handleGenerate(event)" id="btn-generate" class="w-full bg-gold-metallic gold-sheen text-obsidian font-semibold py-2.5 rounded-lg shadow-sm flex items-center justify-center space-x-2 text-xs transition">
+                <!-- Primary Action Button: Build Architecture (Tactile Metallic Champagne with On-Hover Light Sweep) -->
+                <button onclick="handleGenerate(event)" id="btn-generate" class="w-full bg-gold-metallic gold-sheen text-obsidian font-semibold py-2.5 rounded-lg shadow-sm flex items-center justify-center space-x-2 text-xs">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5 text-obsidian"></i>
                     <span class="tracking-wide">Synthesize Architecture</span>
                 </button>
@@ -391,13 +467,13 @@
                     </div>
 
                     <div class="flex items-center space-x-1.5">
-                        <button onclick="toggleVoiceRecording()" id="btn-mic" class="w-9 h-9 rounded-lg bg-graphite hover:bg-slateSoft text-ivory flex items-center justify-center flex-shrink-0 transition border border-white/[0.07]">
-                            <i data-lucide="mic" class="w-3.5 h-3.5 text-gold-light" id="mic-icon"></i>
+                        <button onclick="toggleVoiceRecording()" id="btn-mic" class="w-9 h-9 rounded-lg bg-graphite hover:bg-slateSoft text-ivory flex items-center justify-center flex-shrink-0 transition-all duration-200 border border-white/[0.07] hover:border-gold-bronze/40 cursor-pointer">
+                            <i data-lucide="mic" class="w-3.5 h-3.5 text-gold-light transition-transform duration-200" id="mic-icon"></i>
                         </button>
-                        <input type="text" id="voice-transcript-input" placeholder="e.g. emphasize luxury penthouse suites or weekend discounts..." class="flex-1 bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs transition">
+                        <input type="text" id="voice-transcript-input" placeholder="e.g. emphasize luxury penthouse suites or weekend discounts..." class="flex-1 bg-obsidian border border-slateSoft rounded-lg px-3 py-2 text-ivory placeholder-steel text-xs">
                     </div>
 
-                    <button onclick="submitVoiceCommand()" id="btn-voice-submit" class="w-full bg-graphite hover:bg-slateSoft text-ivory border border-white/[0.08] font-medium py-1.5 rounded-lg text-xs transition flex items-center justify-center space-x-1.5 hover:border-gold-bronze/40">
+                    <button onclick="submitVoiceCommand()" id="btn-voice-submit" class="w-full bg-graphite hover:bg-slateSoft text-ivory border border-white/[0.08] font-medium py-1.5 rounded-lg text-xs graphite-btn flex items-center justify-center space-x-1.5">
                         <i data-lucide="corner-down-left" class="w-3 h-3 text-steel"></i>
                         <span>Apply Directive Revision</span>
                     </button>
@@ -414,17 +490,17 @@
         <main class="flex-1 flex flex-col bg-obsidian overflow-hidden">
             <!-- Sandbox Header Toolbar -->
             <div class="h-12 bg-charcoal border-b border-white/[0.07] px-6 flex items-center justify-between flex-shrink-0">
-                <!-- Device Viewport Toggle -->
+                <!-- Device Viewport Toggle (Tactile Segmented Controls) -->
                 <div class="flex items-center space-x-1 bg-graphite p-1 rounded-md border border-white/[0.06]">
-                    <button onclick="setViewport('desktop')" id="vp-desktop" class="px-2.5 py-1 rounded text-xs font-medium bg-charcoal text-ivory border border-white/[0.08] transition flex items-center space-x-1.5">
+                    <button onclick="setViewport('desktop')" id="vp-desktop" class="px-2.5 py-1 rounded text-xs font-medium bg-charcoal text-ivory border border-white/[0.08] transition-all duration-200 flex items-center space-x-1.5 cursor-pointer">
                         <i data-lucide="monitor" class="w-3 h-3 text-gold"></i>
                         <span>Desktop</span>
                     </button>
-                    <button onclick="setViewport('tablet')" id="vp-tablet" class="px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-ivory transition flex items-center space-x-1.5">
+                    <button onclick="setViewport('tablet')" id="vp-tablet" class="px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-ivory hover:bg-slateSoft transition-all duration-200 flex items-center space-x-1.5 cursor-pointer">
                         <i data-lucide="tablet" class="w-3 h-3"></i>
                         <span>Tablet</span>
                     </button>
-                    <button onclick="setViewport('mobile')" id="vp-mobile" class="px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-ivory transition flex items-center space-x-1.5">
+                    <button onclick="setViewport('mobile')" id="vp-mobile" class="px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-ivory hover:bg-slateSoft transition-all duration-200 flex items-center space-x-1.5 cursor-pointer">
                         <i data-lucide="smartphone" class="w-3 h-3"></i>
                         <span>Mobile</span>
                     </button>
@@ -433,22 +509,22 @@
                 <!-- Export & Production Controls -->
                 <div class="flex items-center space-x-2 text-xs">
                     <!-- Auto-Deploy CTA (Brushed Champagne Metallic with Sheen) -->
-                    <button onclick="deployWebsite()" id="btn-deploy" class="px-3 py-1.5 rounded-md bg-gold-metallic gold-sheen text-obsidian font-semibold transition flex items-center space-x-1.5 shadow-sm">
+                    <button onclick="deployWebsite()" id="btn-deploy" class="px-3 py-1.5 rounded-md bg-gold-metallic gold-sheen text-obsidian font-semibold flex items-center space-x-1.5 shadow-sm">
                         <i data-lucide="globe" class="w-3 h-3 text-obsidian"></i>
                         <span class="tracking-wide">Auto-Deploy</span>
                     </button>
 
-                    <button onclick="openInNewTab()" class="px-3 py-1.5 rounded-md bg-graphite hover:bg-slateSoft text-ivory-muted hover:text-ivory border border-white/[0.06] hover:border-gold-bronze/35 transition flex items-center space-x-1.5">
+                    <button onclick="openInNewTab()" class="px-3 py-1.5 rounded-md bg-graphite text-ivory-muted border border-white/[0.06] graphite-btn flex items-center space-x-1.5">
                         <i data-lucide="external-link" class="w-3 h-3 text-steel"></i>
                         <span>New Tab</span>
                     </button>
 
-                    <button onclick="copyCode()" class="px-3 py-1.5 rounded-md bg-graphite hover:bg-slateSoft text-ivory-muted hover:text-ivory border border-white/[0.06] hover:border-gold-bronze/35 transition flex items-center space-x-1.5">
+                    <button onclick="copyCode()" class="px-3 py-1.5 rounded-md bg-graphite text-ivory-muted border border-white/[0.06] graphite-btn flex items-center space-x-1.5">
                         <i data-lucide="copy" class="w-3 h-3 text-steel"></i>
                         <span>Copy Code</span>
                     </button>
 
-                    <button onclick="downloadCode()" class="px-3 py-1.5 rounded-md bg-graphite hover:bg-slateSoft text-ivory-muted hover:text-ivory border border-white/[0.06] hover:border-gold-bronze/35 transition flex items-center space-x-1.5">
+                    <button onclick="downloadCode()" class="px-3 py-1.5 rounded-md bg-graphite text-ivory-muted border border-white/[0.06] graphite-btn flex items-center space-x-1.5">
                         <i data-lucide="download" class="w-3 h-3 text-steel"></i>
                         <span>Export HTML</span>
                     </button>
@@ -475,7 +551,7 @@
             </div>
 
             <!-- Aggregate Performance Card -->
-            <div class="p-3.5 rounded-lg bg-graphite border border-white/[0.06] space-y-2.5">
+            <div class="p-3.5 rounded-lg bg-graphite border border-white/[0.06] space-y-2.5 interactive-card">
                 <div class="flex items-center justify-between text-xs">
                     <span class="text-steel font-medium">Self-Healing Iteration:</span>
                     <span id="stat-iterations" class="font-mono text-ivory font-semibold px-2 py-0.5 rounded bg-charcoal border border-white/[0.06]">1</span>
@@ -485,16 +561,16 @@
                     <span id="stat-score" class="font-mono font-bold text-gold-light text-sm">100%</span>
                 </div>
                 <div class="w-full bg-charcoal h-1.5 rounded-full overflow-hidden">
-                    <div id="stat-progress-bar" class="h-full w-full transition-all duration-500 bg-gold-metallic"></div>
+                    <div id="stat-progress-bar" class="h-full w-full transition-all duration-700 bg-gold-metallic" style="width: 100%;"></div>
                 </div>
             </div>
 
-            <!-- 4-Critic Structured Matrix -->
+            <!-- 4-Critic Structured Matrix (Interactive Tactile Cards) -->
             <div class="space-y-2 text-xs">
                 <span class="text-[10px] font-semibold uppercase tracking-wider text-steel">Evaluation Matrix</span>
                 <div class="grid grid-cols-2 gap-2">
                     <!-- UI / UX -->
-                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1 interactive-card cursor-default">
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-steel">Visual / UX</span>
                             <span id="score-ui" class="font-mono font-bold text-ivory">100%</span>
@@ -502,7 +578,7 @@
                         <div class="text-[10px] text-steel truncate" id="summary-ui">Balanced hierarchy</div>
                     </div>
                     <!-- Functionality -->
-                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1 interactive-card cursor-default">
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-steel">Functions</span>
                             <span id="score-func" class="font-mono font-bold text-ivory">100%</span>
@@ -510,7 +586,7 @@
                         <div class="text-[10px] text-steel truncate" id="summary-func">WhatsApp validated</div>
                     </div>
                     <!-- Performance -->
-                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1 interactive-card cursor-default">
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-steel">Mobile/Perf</span>
                             <span id="score-perf" class="font-mono font-bold text-ivory">100%</span>
@@ -518,7 +594,7 @@
                         <div class="text-[10px] text-steel truncate" id="summary-perf">Responsive layout</div>
                     </div>
                     <!-- Code Quality -->
-                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1">
+                    <div class="p-2.5 rounded-lg bg-graphite border border-white/[0.06] space-y-1 interactive-card cursor-default">
                         <div class="flex justify-between items-center text-[11px]">
                             <span class="text-steel">Code Quality</span>
                             <span id="score-code" class="font-mono font-bold text-ivory">100%</span>
@@ -536,12 +612,12 @@
                         <span>Memory Bank</span>
                     </span>
                     <div class="flex items-center space-x-2">
-                        <!-- Run Demo Trigger with Metallic Sheen -->
-                        <button onclick="runHindsightDemo()" id="btn-demo-hindsight" class="px-2 py-0.5 rounded bg-gold-bronze/15 text-gold-light border border-gold-bronze/40 text-[10px] font-medium transition flex items-center space-x-1 hover:bg-gold hover:text-obsidian gold-sheen">
+                        <!-- Run Demo Trigger with Metallic Sheen & Hover Animation -->
+                        <button onclick="runHindsightDemo()" id="btn-demo-hindsight" class="px-2 py-0.5 rounded bg-gold-bronze/15 text-gold-light border border-gold-bronze/40 text-[10px] font-medium transition-all duration-200 flex items-center space-x-1 hover:bg-gold hover:text-obsidian gold-sheen">
                             <i data-lucide="play" class="w-2.5 h-2.5"></i>
                             <span>Run Demo</span>
                         </button>
-                        <button onclick="fetchMemories()" class="text-[10px] text-steel hover:text-ivory transition">Refresh</button>
+                        <button onclick="fetchMemories()" class="text-[10px] text-steel hover:text-ivory transition-colors duration-200 cursor-pointer">Refresh</button>
                     </div>
                 </div>
 
@@ -553,10 +629,10 @@
 
     </div>
 
-    <!-- Production Deployment Modal -->
-    <div id="deploy-modal" class="fixed inset-0 z-50 hidden bg-obsidian/85 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-charcoal border border-white/[0.1] rounded-xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
-            <button onclick="closeDeployModal()" class="absolute top-4 right-4 text-steel hover:text-ivory p-1 rounded-md transition">
+    <!-- Production Deployment Modal (Smooth Scale & Fade Entrance) -->
+    <div id="deploy-modal" class="fixed inset-0 z-50 hidden bg-obsidian/85 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-200">
+        <div id="deploy-modal-card" class="bg-charcoal border border-white/[0.1] rounded-xl max-w-md w-full p-6 shadow-2xl relative space-y-4 transform transition-all duration-250 scale-95 opacity-0">
+            <button onclick="closeDeployModal()" class="absolute top-4 right-4 text-steel hover:text-ivory p-1 rounded-md transition-colors cursor-pointer">
                 <i data-lucide="x" class="w-4 h-4"></i>
             </button>
 
@@ -575,7 +651,7 @@
                     <label class="block text-[10px] font-semibold uppercase tracking-wider text-steel mb-1">Public Worldwide Endpoint</label>
                     <div class="flex items-center space-x-1.5">
                         <input type="text" id="deploy-public-url" readonly class="flex-1 bg-obsidian border border-slateSoft rounded-lg px-3 py-1.5 text-gold-light text-xs font-mono focus:outline-none">
-                        <button onclick="copyDeployUrl()" class="px-2.5 py-1.5 bg-graphite hover:bg-slateSoft text-ivory border border-white/[0.08] rounded-lg text-xs font-medium transition hover:border-gold-bronze/40">Copy</button>
+                        <button onclick="copyDeployUrl()" class="px-2.5 py-1.5 bg-graphite hover:bg-slateSoft text-ivory border border-white/[0.08] rounded-lg text-xs font-medium graphite-btn">Copy</button>
                     </div>
                 </div>
 
@@ -586,7 +662,7 @@
             </div>
 
             <div class="pt-2">
-                <a id="deploy-open-link" href="#" target="_blank" rel="noopener noreferrer" class="w-full bg-gold-metallic gold-sheen text-obsidian font-semibold py-2 rounded-lg text-center text-xs flex items-center justify-center space-x-1.5 transition">
+                <a id="deploy-open-link" href="#" target="_blank" rel="noopener noreferrer" class="w-full bg-gold-metallic gold-sheen text-obsidian font-semibold py-2 rounded-lg text-center text-xs flex items-center justify-center space-x-1.5">
                     <i data-lucide="external-link" class="w-3.5 h-3.5 text-obsidian"></i>
                     <span class="tracking-wide">Launch Production Site</span>
                 </a>
@@ -594,9 +670,9 @@
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200">
-        <div class="px-4 py-2.5 rounded-lg bg-charcoal border border-gold-bronze/50 text-ivory text-xs font-medium shadow-xl flex items-center space-x-2">
+    <!-- Toast Notification Container (Smooth Slide-Up 8px & Fade) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-2">
+        <div class="px-4 py-2.5 rounded-lg bg-charcoal border border-gold-bronze/50 text-ivory text-xs font-medium shadow-2xl flex items-center space-x-2.5">
             <span class="w-1.5 h-1.5 rounded-full bg-gold-light"></span>
             <span id="toast-text">Action completed successfully</span>
         </div>
@@ -611,22 +687,22 @@
 
         lucide.createIcons();
 
-        // Toast Feedback System
+        // Toast Feedback System (Smooth 8px Slide Up & Down)
         function showToast(message) {
             const container = document.getElementById("toast-container");
             const text = document.getElementById("toast-text");
             if (!container || !text) return;
             text.innerText = message;
-            container.classList.remove("opacity-0", "translate-y-2");
-            container.classList.add("opacity-100", "translate-y-0");
+            container.style.transform = "translateY(0)";
+            container.style.opacity = "1";
 
             setTimeout(() => {
-                container.classList.remove("opacity-100", "translate-y-0");
-                container.classList.add("opacity-0", "translate-y-2");
-            }, 3000);
+                container.style.transform = "translateY(4px)";
+                container.style.opacity = "0";
+            }, 2800);
         }
 
-        // Tab Navigation
+        // Tab Navigation with Subtle Micro-Interaction & Pane Transitions
         function switchAssetTab(tab) {
             const tabs = ['profile', 'brand', 'media', 'pricing', 'brochure'];
             tabs.forEach(t => {
@@ -635,7 +711,8 @@
                 if (!pane || !btn) return;
                 if (t === tab) {
                     pane.classList.remove('hidden');
-                    btn.className = "flex-1 pb-2 border-b-2 border-gold text-ivory flex items-center justify-center space-x-1 transition font-medium";
+                    pane.style.animation = 'tab-fade-in 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                    btn.className = "flex-1 pb-2 border-b-2 border-gold text-ivory flex items-center justify-center space-x-1 transition-all duration-200 font-medium";
                     const icon = btn.querySelector('svg');
                     if (icon) {
                         icon.classList.remove('text-steel');
@@ -643,7 +720,8 @@
                     }
                 } else {
                     pane.classList.add('hidden');
-                    btn.className = "flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted flex items-center justify-center space-x-1 transition font-medium";
+                    pane.style.animation = '';
+                    btn.className = "flex-1 pb-2 border-b-2 border-transparent text-steel hover:text-ivory-muted hover:bg-white/[0.02] flex items-center justify-center space-x-1 transition-all duration-200 font-medium";
                     const icon = btn.querySelector('svg');
                     if (icon) {
                         icon.classList.remove('text-gold');
@@ -703,8 +781,8 @@
             container.innerHTML = "";
             uploadedPhotos.forEach((p, idx) => {
                 const chip = document.createElement('div');
-                chip.className = "px-2 py-1 bg-graphite border border-white/[0.08] rounded text-[10px] text-ivory-muted flex items-center space-x-1.5";
-                chip.innerHTML = `<span>${p.title}</span><button onclick="removePhoto(${idx})" class="text-steel hover:text-red-400 font-bold">&times;</button>`;
+                chip.className = "px-2 py-1 bg-graphite border border-white/[0.08] rounded text-[10px] text-ivory-muted flex items-center space-x-1.5 interactive-card";
+                chip.innerHTML = `<span>${p.title}</span><button onclick="removePhoto(${idx})" class="text-steel hover:text-red-400 font-bold cursor-pointer transition-colors">&times;</button>`;
                 container.appendChild(chip);
             });
         }
@@ -717,7 +795,7 @@
         function addPricingTier() {
             const list = document.getElementById('pricing-tier-list');
             const div = document.createElement('div');
-            div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs";
+            div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs interactive-card";
             div.innerHTML = `
                 <div class="flex space-x-2">
                     <input type="text" placeholder="Tier Name" value="Custom Package" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-ivory font-medium tier-name text-xs">
@@ -802,6 +880,19 @@
         function applyPreset(key) {
             const p = presets[key];
             if (!p) return;
+
+            // Highlight Active Preset Button Tactilely
+            ['hotel', 'dental', 'plumbing', 'cafe'].forEach(k => {
+                const btn = document.getElementById(`preset-${k}`);
+                if (btn) {
+                    if (k === key) {
+                        btn.classList.add('preset-active');
+                    } else {
+                        btn.classList.remove('preset-active');
+                    }
+                }
+            });
+
             document.getElementById("biz-name").value = p.name;
             document.getElementById("biz-category").value = p.category;
             document.getElementById("biz-location").value = p.location;
@@ -814,7 +905,7 @@
                 list.innerHTML = "";
                 p.tiers.forEach(t => {
                     const div = document.createElement('div');
-                    div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs";
+                    div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.07] space-y-1.5 text-xs interactive-card";
                     div.innerHTML = `
                         <div class="flex space-x-2">
                             <input type="text" placeholder="Tier Name" value="${t.name}" class="flex-1 bg-graphite border border-slateSoft rounded-md px-2 py-1 text-ivory font-medium tier-name text-xs">
@@ -828,15 +919,15 @@
             showToast(`Loaded ${p.name} profile`);
         }
 
-        // Device Viewport Switcher
+        // Device Viewport Switcher with Smooth Transition
         function setViewport(mode) {
             const wrapper = document.getElementById("preview-wrapper");
             const btnDesktop = document.getElementById("vp-desktop");
             const btnTablet = document.getElementById("vp-tablet");
             const btnMobile = document.getElementById("vp-mobile");
 
-            const activeClass = "px-2.5 py-1 rounded text-xs font-medium bg-charcoal text-ivory border border-white/[0.08] transition flex items-center space-x-1.5";
-            const inactiveClass = "px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-ivory transition flex items-center space-x-1.5";
+            const activeClass = "px-2.5 py-1 rounded text-xs font-medium bg-charcoal text-ivory border border-white/[0.08] transition-all duration-200 flex items-center space-x-1.5 cursor-pointer";
+            const inactiveClass = "px-2.5 py-1 rounded text-xs font-medium text-steel hover:text-ivory hover:bg-slateSoft transition-all duration-200 flex items-center space-x-1.5 cursor-pointer";
 
             [btnDesktop, btnTablet, btnMobile].forEach(btn => btn.className = inactiveClass);
 
@@ -913,15 +1004,25 @@
             document.getElementById("voice-indicator").classList.remove("text-gold-light");
         }
 
-        // LUXURY ENHANCEMENT FOR PREVIEW: Eliminates orange tones on Primary CTAs and applies Brushed Champagne Gold
+        // LUXURY ENHANCEMENT FOR PREVIEW: Replaces orange tones with Brushed Metallic Champagne and adds polished tactile hover
         function enhancePreviewForLuxury(html) {
             if (!html) return html;
             let enhanced = html;
 
-            // Metallic Champagne style block to inject into iframe head
+            // Injected interactive styling block for preview iframe
             const luxuryStyle = `
                 <style id="archetype-luxury-inject">
-                    /* Refined Champagne Gold Metallic Primary Buttons - Eliminates Orange */
+                    /* Universal smooth transitions */
+                    a, button {
+                        transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+                    }
+
+                    /* Header logo & interactive text hover */
+                    header a:hover, header span:hover {
+                        filter: brightness(1.12);
+                    }
+
+                    /* PRIMARY CTA (BOOK A ROOM / SCHEDULE APPOINTMENT) - BRUSHED METALLIC CHAMPAGNE WITH HOVER SHEEN */
                     .archetype-metallic-btn,
                     #booking-modal-btn,
                     a[href*="#booking-modal"],
@@ -932,26 +1033,61 @@
                         font-weight: 600 !important;
                         border: 1px solid rgba(245, 223, 160, 0.4) !important;
                         text-shadow: none !important;
-                        box-shadow: 0 4px 14px -2px rgba(142, 107, 50, 0.25) !important;
-                        transition: all 0.2s ease !important;
+                        box-shadow: 0 3px 12px -2px rgba(142, 107, 50, 0.28) !important;
+                        position: relative !important;
+                        overflow: hidden !important;
+                        cursor: pointer !important;
                     }
                     .archetype-metallic-btn:hover,
                     #booking-modal-btn:hover,
                     button[id*="book"]:hover,
-                    a[id*="book"]:hover {
+                    a[id*="book"]:hover,
+                    a[href*="#booking-modal"]:hover {
                         filter: brightness(1.08) !important;
-                        transform: translateY(-0.5px) !important;
-                        box-shadow: 0 6px 18px -2px rgba(201, 164, 92, 0.35) !important;
+                        transform: translateY(-1.5px) !important;
+                        box-shadow: 0 5px 16px -2px rgba(201, 164, 92, 0.38) !important;
                     }
-                    /* Subtle champagne text highlights */
+                    .archetype-metallic-btn:active,
+                    #booking-modal-btn:active,
+                    button[id*="book"]:active {
+                        transform: translateY(0.5px) scale(0.99) !important;
+                        filter: brightness(0.96) !important;
+                    }
+
+                    /* WHATSAPP CTA - SUBTLE GREEN HOVER & TINY ELEVATION (ZERO CONSTANT PULSING) */
+                    a[href*="wa.me"] {
+                        transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                                    box-shadow 0.2s ease,
+                                    filter 0.2s ease !important;
+                        cursor: pointer !important;
+                    }
+                    a[href*="wa.me"]:hover {
+                        transform: translateY(-1px) scale(1.02) !important;
+                        filter: brightness(1.06) !important;
+                        box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35) !important;
+                    }
+                    a[href*="wa.me"]:active {
+                        transform: translateY(0) scale(0.99) !important;
+                    }
+
+                    /* SERVICE & PRICING CARDS - SUBTLE 2PX LIFT ON HOVER */
+                    section div.rounded-xl, section div.rounded-2xl {
+                        transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+                                    box-shadow 0.25s ease,
+                                    border-color 0.25s ease !important;
+                    }
+                    section div.rounded-xl:hover, section div.rounded-2xl:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.14) !important;
+                    }
+
+                    /* ELIMINATE HARSH ORANGE ACCENTS ON GENERIC TEXT */
                     .text-amber-500, .text-amber-600, .text-orange-500, .text-orange-600 {
                         color: #C9A45C !important;
                     }
-                    /* Subtle champagne borders */
                     .border-amber-500, .border-amber-600, .border-orange-500 {
                         border-color: #C9A45C !important;
                     }
-                    /* Clean typography rendering */
                     body {
                         -webkit-font-smoothing: antialiased;
                     }
@@ -1099,7 +1235,15 @@
                     document.getElementById("deploy-public-url").value = data.public_url;
                     document.getElementById("deploy-local-url").value = data.local_url;
                     document.getElementById("deploy-open-link").href = data.public_url;
-                    document.getElementById("deploy-modal").classList.remove("hidden");
+                    
+                    const modal = document.getElementById("deploy-modal");
+                    const card = document.getElementById("deploy-modal-card");
+                    modal.classList.remove("hidden");
+                    setTimeout(() => {
+                        card.classList.remove("scale-95", "opacity-0");
+                        card.classList.add("scale-100", "opacity-100");
+                    }, 10);
+
                     showToast("Website deployed to live production endpoint");
                     fetchMemories();
                 }
@@ -1113,7 +1257,13 @@
         }
 
         function closeDeployModal() {
-            document.getElementById("deploy-modal").classList.add("hidden");
+            const modal = document.getElementById("deploy-modal");
+            const card = document.getElementById("deploy-modal-card");
+            card.classList.remove("scale-100", "opacity-100");
+            card.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                modal.classList.add("hidden");
+            }, 200);
         }
 
         function copyDeployUrl() {
@@ -1177,10 +1327,10 @@
 
                 data.memories.slice().reverse().forEach(m => {
                     const div = document.createElement("div");
-                    div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.06] space-y-1.5 transition";
+                    div.className = "p-2.5 rounded-lg bg-obsidian border border-white/[0.06] space-y-1.5 interactive-card";
                     
                     let badgeColor = "bg-white/[0.05] text-steel border-white/[0.08]";
-                    if (m.type === "experience") badgeColor = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/25";
+                    if (m.type === "experience") badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/25";
                     if (m.type === "directive") badgeColor = "bg-gold-bronze/15 text-gold-light border border-gold-bronze/35";
                     if (m.type === "observation") badgeColor = "bg-slateSoft text-ivory border border-white/[0.08]";
 
