@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceCraft AI | Autonomous Website Builder with Hindsight Reflection</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .mic-pulsing {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
+
+    <!-- Top App Navigation Bar -->
+    <header class="h-14 bg-slate-900 border-b border-slate-800 px-6 flex items-center justify-between flex-shrink-0 z-30">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+                <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <span class="font-extrabold text-base tracking-tight text-white flex items-center space-x-2">
+                    <span>VoiceCraft AI</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">Hindsight Memory</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- System Status Badges -->
+        <div class="flex items-center space-x-4 text-xs font-semibold">
+            <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Hindsight Bank: <strong class="text-white" id="status-bank">local-biz-architect</strong></span>
+            </div>
+            <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>4-Critic Self-Healing: <strong class="text-white">Active</strong></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- LEFT PANEL: Business Intake & Voice Command Controller -->
+        <aside class="w-80 lg:w-96 bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between p-5 overflow-y-auto flex-shrink-0">
+            <div class="space-y-6">
+                <!-- Section Header -->
+                <div>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
+                        <i data-lucide="store" class="w-4 h-4 text-sky-400"></i>
+                        <span>Business Intake</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Provide business parameters or pick a preset.</p>
+                </div>
+
+                <!-- Presets Quick Select -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="applyPreset('dental')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                        🦷 Austin Dental
+                    </button>
+                    <button onclick="applyPreset('plumbing')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                        🔧 London Plumber
+                    </button>
+                    <button onclick="applyPreset('cafe')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                        ☕ Bangalore Cafe
+                    </button>
+                </div>
+
+                <!-- Form Controls -->
+                <form id="intake-form" onsubmit="handleGenerate(event)" class="space-y-3.5 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Business Name</label>
+                        <input type="text" id="biz-name" required value="Austin Smile Studio" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Category</label>
+                            <input type="text" id="biz-category" required value="Dental Clinic" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Location</label>
+                            <input type="text" id="biz-location" required value="Austin, TX" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Telephone</label>
+                            <input type="text" id="biz-phone" required value="+1 (512) 555-0198" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">WhatsApp (Intl)</label>
+                            <input type="text" id="biz-whatsapp" required value="15125550198" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Offered Services</label>
+                        <input type="text" id="biz-services" value="Cosmetic Dentistry, Teeth Whitening, Emergency Dental" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                    </div>
+
+                    <button type="submit" id="btn-generate" class="w-full mt-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center space-x-2">
+                        <i data-lucide="wand-2" class="w-4 h-4"></i>
+                        <span>Generate & Self-Heal</span>
+                    </button>
+                </form>
+
+                <!-- Voice Command Section -->
+                <div class="pt-4 border-t border-slate-800/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                            <i data-lucide="mic" class="w-4 h-4 text-emerald-400"></i>
+                            <span>Voice Command</span>
+                        </span>
+                        <span id="voice-indicator" class="text-[10px] text-slate-500">Ready</span>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button onclick="toggleVoiceRecording()" id="btn-mic" class="w-12 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center flex-shrink-0 transition-all border border-slate-700">
+                            <i data-lucide="mic" class="w-5 h-5 text-emerald-400" id="mic-icon"></i>
+                        </button>
+                        <input type="text" id="voice-transcript-input" placeholder="Click mic to speak or type instruction..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 text-xs">
+                    </div>
+
+                    <button onclick="submitVoiceCommand()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        <span>Apply Voice Revision</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer / Version Note -->
+            <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-500 text-center">
+                Memory Layer: <span class="text-slate-400 font-medium">Vectorize Hindsight v0.10</span>
+            </div>
+        </aside>
+
+        <!-- CENTER PANEL: Interactive Sandbox Live Preview -->
+        <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+            <!-- Sandbox Toolbar -->
+            <div class="h-12 bg-slate-900/60 border-b border-slate-800 px-6 flex items-center justify-between flex-shrink-0">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-400">Viewport:</span>
+                    <button onclick="setViewport('desktop')" id="vp-desktop" class="px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5">
+                        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+                        <span>Desktop</span>
+                    </button>
+                    <button onclick="setViewport('tablet')" id="vp-tablet" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
+                        <span>Tablet (768px)</span>
+                    </button>
+                    <button onclick="setViewport('mobile')" id="vp-mobile" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+                        <span>Mobile (375px)</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-3 text-xs">
+                    <button onclick="openInNewTab()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        <span>New Window</span>
+                    </button>
+                    <button onclick="downloadCode()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Download HTML</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sandboxed Iframe Container -->
+            <div class="flex-1 bg-slate-900/40 p-4 flex items-center justify-center overflow-auto">
+                <div id="preview-wrapper" class="w-full h-full bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 border border-slate-800">
+                    <iframe id="preview-frame" class="w-full h-full border-none" sandbox="allow-scripts allow-forms allow-same-origin allow-modals"></iframe>
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT PANEL: Hindsight Reflection & Self-Healing Brain -->
+        <aside class="w-80 lg:w-96 bg-slate-900/90 border-l border-slate-800 flex flex-col p-5 overflow-y-auto flex-shrink-0 space-y-6">
+            <!-- Panel Header -->
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
+                    <i data-lucide="activity" class="w-4 h-4 text-indigo-400"></i>
+                    <span>Critic & Reflection Feed</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">Multi-critic evaluation and Hindsight learning loop.</p>
+            </div>
+
+            <!-- Iteration & Score Summary Card -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Healing Iterations:</span>
+                    <span id="stat-iterations" class="font-bold text-white px-2 py-0.5 rounded-md bg-slate-800">1</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Overall Critic Score:</span>
+                    <span id="stat-score" class="font-extrabold text-emerald-400 text-sm">100%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="stat-progress-bar" class="bg-gradient-to-r from-emerald-500 to-sky-500 h-full w-full transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <!-- 4-Critic Individual Scores -->
+            <div class="space-y-2 text-xs">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Critic Breakdown</span>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>UI/UX</span>
+                            <span id="score-ui" class="font-bold text-emerald-400">100%</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 truncate" id="summary-ui">Balanced layout</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>Functionality</span>
+                            <span id="score-func" class="font-bold text-emerald-400">100%</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 truncate" id="summary-func">WhatsApp verified</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>Mobile/Perf</span>
+                            <span id="score-perf" class="font-bold text-emerald-400">100%</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 truncate" id="summary-perf">Responsive touch</div>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>Code Quality</span>
+                            <span id="score-code" class="font-bold text-emerald-400">100%</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 truncate" id="summary-code">Valid HTML5</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hindsight Memory Stream -->
+            <div class="space-y-3 flex-1 flex flex-col">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                        <i data-lucide="database" class="w-3.5 h-3.5 text-sky-400"></i>
+                        <span>Hindsight Memory Bank</span>
+                    </span>
+                    <button onclick="fetchMemories()" class="text-[10px] text-sky-400 hover:underline">Refresh</button>
+                </div>
+
+                <div id="memory-feed" class="space-y-2 overflow-y-auto max-h-72 pr-1 text-xs">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        let currentHtmlCode = "";
+        let isRecording = false;
+        let recognition = null;
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Presets data
+        const presets = {
+            dental: {
+                name: "Austin Smile Studio",
+                category: "Dental Clinic",
+                location: "Austin, TX",
+                phone: "+1 (512) 555-0198",
+                whatsapp: "15125550198",
+                services: "Cosmetic Dentistry, Teeth Whitening, Emergency Dental"
+            },
+            plumbing: {
+                name: "London Rapid Plumbers",
+                category: "Emergency Plumbing",
+                location: "London, UK",
+                phone: "+44 20 7946 0912",
+                whatsapp: "442079460912",
+                services: "24/7 Burst Pipes, Boiler Repair, Drain Unblocking"
+            },
+            cafe: {
+                name: "Kaveri Artisan Roasters",
+                category: "Artisan Cafe",
+                location: "Bangalore, IN",
+                phone: "+91 98450 12345",
+                whatsapp: "919845012345",
+                services: "Single Origin Brews, Table Reservations, Event Catering"
+            }
+        };
+
+        function applyPreset(key) {
+            const p = presets[key];
+            if (!p) return;
+            document.getElementById("biz-name").value = p.name;
+            document.getElementById("biz-category").value = p.category;
+            document.getElementById("biz-location").value = p.location;
+            document.getElementById("biz-phone").value = p.phone;
+            document.getElementById("biz-whatsapp").value = p.whatsapp;
+            document.getElementById("biz-services").value = p.services;
+        }
+
+        // Viewport Switcher
+        function setViewport(mode) {
+            const wrapper = document.getElementById("preview-wrapper");
+            const btnDesktop = document.getElementById("vp-desktop");
+            const btnTablet = document.getElementById("vp-tablet");
+            const btnMobile = document.getElementById("vp-mobile");
+
+            [btnDesktop, btnTablet, btnMobile].forEach(btn => {
+                btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5";
+            });
+
+            if (mode === "desktop") {
+                wrapper.style.width = "100%";
+                wrapper.style.maxWidth = "100%";
+                btnDesktop.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5";
+            } else if (mode === "tablet") {
+                wrapper.style.width = "768px";
+                wrapper.style.maxWidth = "768px";
+                btnTablet.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5";
+            } else if (mode === "mobile") {
+                wrapper.style.width = "375px";
+                wrapper.style.maxWidth = "375px";
+                btnMobile.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-sky-600 text-white transition flex items-center space-x-1.5";
+            }
+        }
+
+        // Web Speech API for Voice Controller
+        function setupSpeechRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                console.warn("Web Speech API not supported on this browser.");
+                return null;
+            }
+            const rec = new SpeechRec();
+            rec.continuous = false;
+            rec.interimResults = false;
+            rec.lang = 'en-US';
+
+            rec.onstart = () => {
+                isRecording = true;
+                document.getElementById("btn-mic").classList.add("bg-red-600", "mic-pulsing");
+                document.getElementById("mic-icon").classList.replace("text-emerald-400", "text-white");
+                document.getElementById("voice-indicator").innerText = "Listening...";
+                document.getElementById("voice-indicator").classList.add("text-red-400");
+            };
+
+            rec.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById("voice-transcript-input").value = transcript;
+                document.getElementById("voice-indicator").innerText = "Voice captured!";
+            };
+
+            rec.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                stopVoiceRecording();
+            };
+
+            rec.onend = () => {
+                stopVoiceRecording();
+            };
+
+            return rec;
+        }
+
+        function toggleVoiceRecording() {
+            if (!recognition) {
+                recognition = setupSpeechRecognition();
+                if (!recognition) {
+                    alert("Speech recognition is not supported in this browser. Please use Chrome or type your instructions.");
+                    return;
+                }
+            }
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        function stopVoiceRecording() {
+            isRecording = false;
+            document.getElementById("btn-mic").classList.remove("bg-red-600", "mic-pulsing");
+            document.getElementById("mic-icon").classList.replace("text-white", "text-emerald-400");
+            document.getElementById("voice-indicator").innerText = "Ready";
+            document.getElementById("voice-indicator").classList.remove("text-red-400");
+        }
+
+        // Generate Pipeline API Call
+        async function handleGenerate(e) {
+            if (e) e.preventDefault();
+            const btn = document.getElementById("btn-generate");
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Synthesizing & Reflecting...</span>`;
+            lucide.createIcons();
+
+            const payload = {
+                name: document.getElementById("biz-name").value,
+                category: document.getElementById("biz-category").value,
+                location: document.getElementById("biz-location").value,
+                phone: document.getElementById("biz-phone").value,
+                whatsapp: document.getElementById("biz-whatsapp").value,
+                services: document.getElementById("biz-services").value
+            };
+
+            try {
+                const res = await fetch("/api/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                renderResults(data);
+            } catch (err) {
+                alert("Error calling website generation pipeline: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i><span>Generate & Self-Heal</span>`;
+                lucide.createIcons();
+            }
+        }
+
+        // Voice Command Submit
+        async function submitVoiceCommand() {
+            const transcript = document.getElementById("voice-transcript-input").value;
+            if (!transcript.trim()) {
+                alert("Please record or type a voice instruction first.");
+                return;
+            }
+
+            const payload = {
+                transcript: transcript,
+                current_html: currentHtmlCode,
+                business_data: {
+                    name: document.getElementById("biz-name").value,
+                    category: document.getElementById("biz-category").value,
+                    location: document.getElementById("biz-location").value,
+                    phone: document.getElementById("biz-phone").value,
+                    whatsapp: document.getElementById("biz-whatsapp").value,
+                    services: document.getElementById("biz-services").value
+                }
+            };
+
+            try {
+                const res = await fetch("/api/voice-command", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                renderResults(data);
+                document.getElementById("voice-transcript-input").value = "";
+            } catch (err) {
+                alert("Error applying voice instruction: " + err.message);
+            }
+        }
+
+        function renderResults(data) {
+            currentHtmlCode = data.html;
+
+            // Render live preview inside iframe
+            const frame = document.getElementById("preview-frame");
+            frame.srcdoc = currentHtmlCode;
+
+            // Update stats
+            document.getElementById("stat-iterations").innerText = data.iterations_count || 1;
+            const evalData = data.final_evaluation || {};
+            const avg = evalData.average_score || 100;
+            document.getElementById("stat-score").innerText = avg + "%";
+            document.getElementById("stat-progress-bar").style.width = avg + "%";
+
+            // Update individual critics
+            if (evalData.critic_results) {
+                evalData.critic_results.forEach(c => {
+                    if (c.critic === "UI/UX Critic") {
+                        document.getElementById("score-ui").innerText = c.score + "%";
+                        document.getElementById("summary-ui").innerText = c.summary;
+                    } else if (c.critic === "Functionality Critic") {
+                        document.getElementById("score-func").innerText = c.score + "%";
+                        document.getElementById("summary-func").innerText = c.summary;
+                    } else if (c.critic === "Performance & Responsiveness Critic") {
+                        document.getElementById("score-perf").innerText = c.score + "%";
+                        document.getElementById("summary-perf").innerText = c.summary;
+                    } else if (c.critic === "Code Quality & Validation Critic") {
+                        document.getElementById("score-code").innerText = c.score + "%";
+                        document.getElementById("summary-code").innerText = c.summary;
+                    }
+                });
+            }
+
+            fetchMemories();
+        }
+
+        async function fetchMemories() {
+            try {
+                const res = await fetch("/api/memories");
+                const data = await res.json();
+                const feed = document.getElementById("memory-feed");
+                feed.innerHTML = "";
+
+                if (!data.memories || data.memories.length === 0) {
+                    feed.innerHTML = `<div class="text-slate-500 italic p-3 text-center">No memories retained yet.</div>`;
+                    return;
+                }
+
+                // Render latest first
+                data.memories.slice().reverse().forEach(m => {
+                    const div = document.createElement("div");
+                    div.className = "p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5";
+                    
+                    let badgeColor = "bg-sky-500/20 text-sky-400 border-sky-500/30";
+                    if (m.type === "experience") badgeColor = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+                    if (m.type === "directive") badgeColor = "bg-amber-500/20 text-amber-400 border-amber-500/30";
+
+                    div.innerHTML = `
+                        <div class="flex items-center justify-between text-[10px]">
+                            <span class="px-2 py-0.5 rounded-full border ${badgeColor} font-bold uppercase tracking-wider">${m.type}</span>
+                            <span class="text-slate-500">${m.source || 'hindsight'}</span>
+                        </div>
+                        <p class="text-slate-300 text-[11px] leading-relaxed">${m.content}</p>
+                    `;
+                    feed.appendChild(div);
+                });
+            } catch (e) {
+                console.error("Failed to fetch memories:", e);
+            }
+        }
+
+        function openInNewTab() {
+            if (!currentHtmlCode) return;
+            const newWindow = window.open();
+            newWindow.document.write(currentHtmlCode);
+            newWindow.document.close();
+        }
+
+        function downloadCode() {
+            if (!currentHtmlCode) return;
+            const blob = new Blob([currentHtmlCode], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "index.html";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initial boot
+        window.addEventListener("DOMContentLoaded", () => {
+            fetchMemories();
+            // Trigger initial generation
+            handleGenerate();
+        });
+    </script>
+</body>
+</html>
