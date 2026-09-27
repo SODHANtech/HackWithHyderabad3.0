@@ -1,10 +1,19 @@
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from backend.services.hindsight_service import hindsight_service
 
 class DesignAgent:
     """Selects high-conversion color palettes, typography, and component styling based on business niche."""
 
     NICHE_PALETTES = {
+        "hotel": {
+            "primary": "#b45309",       # Amber/Gold 700 (Luxury Hospitality)
+            "primary_hover": "#92400e", # Amber 800
+            "secondary": "#0f172a",     # Midnight Slate 900
+            "accent": "#10b981",        # Emerald
+            "bg_light": "#fffbeb",      # Warm Luxury Amber 50
+            "text_dark": "#0f172a",     # Slate 900
+            "tag": "Luxury Hospitality & Accommodations"
+        },
         "dental": {
             "primary": "#0284c7",       # Sky 600
             "primary_hover": "#0369a1", # Sky 700
@@ -32,6 +41,15 @@ class DesignAgent:
             "text_dark": "#1c1917",     # Stone 900
             "tag": "Hospitality & Dining"
         },
+        "cafe": {
+            "primary": "#78350f",       # Roasted Coffee Brown 900
+            "primary_hover": "#451a03",
+            "secondary": "#d97706",     # Warm Amber
+            "accent": "#059669",
+            "bg_light": "#fefce8",      # Cream
+            "text_dark": "#1c1917",
+            "tag": "Artisan Cafe & Coffee"
+        },
         "legal": {
             "primary": "#1e293b",       # Slate 800
             "primary_hover": "#0f172a",
@@ -52,15 +70,30 @@ class DesignAgent:
         }
     }
 
-    def choose_design_system(self, category: str) -> Dict[str, Any]:
+    def choose_design_system(self, category: str, instructions: Optional[str] = None) -> Dict[str, Any]:
         cat_lower = category.lower()
+        inst_lower = (instructions or "").lower()
+
         matched = "default"
         for key in self.NICHE_PALETTES:
-            if key in cat_lower:
+            if key in cat_lower or key in inst_lower:
                 matched = key
                 break
 
-        palette = self.NICHE_PALETTES[matched]
+        palette = dict(self.NICHE_PALETTES[matched])
+
+        # Voice instruction color overrides
+        if "gold" in inst_lower or "luxury" in inst_lower:
+            palette["primary"] = "#d97706"
+            palette["primary_hover"] = "#b45309"
+        elif "dark" in inst_lower and "slate" in inst_lower:
+            palette["primary"] = "#0f172a"
+        elif "green" in inst_lower or "emerald" in inst_lower:
+            palette["primary"] = "#059669"
+            palette["primary_hover"] = "#047857"
+        elif "purple" in inst_lower:
+            palette["primary"] = "#7c3aed"
+            palette["primary_hover"] = "#6d28d9"
 
         # Check Hindsight memory for any user-overridden design constraints
         memories = hindsight_service.recall(
@@ -73,8 +106,8 @@ class DesignAgent:
             "theme_name": palette["tag"],
             "palette": palette,
             "typography": {
-                "font_family": "Inter, system-ui, sans-serif",
-                "heading_weight": "font-bold tracking-tight",
+                "font_family": "Plus Jakarta Sans, system-ui, sans-serif",
+                "heading_weight": "font-extrabold tracking-tight",
                 "body_size": "text-slate-600 text-base leading-relaxed"
             },
             "components": {

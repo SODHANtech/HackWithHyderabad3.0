@@ -32,32 +32,38 @@ class OrchestrationAgent:
             logs.append(entry)
             logger.info(f"[{stage}] {message}")
 
-        log_event("Intake", f"Received business profile: {business_data.get('name')} ({business_data.get('category')})")
+        instruction_summary = f" Instructions: '{initial_prompt}'" if initial_prompt else ""
+        log_event("Intake", f"Received business profile: {business_data.get('name')} in {business_data.get('location')} ({business_data.get('category')}).{instruction_summary}")
 
         # Step 1: Retain business context in Hindsight as World Facts
         hindsight_service.retain(
-            content=f"Business profile: {business_data.get('name')} located in {business_data.get('location')}. Category: {business_data.get('category')}. WhatsApp: {business_data.get('whatsapp', business_data.get('phone'))}.",
+            content=f"Business profile: {business_data.get('name')} located in {business_data.get('location')}. Category: {business_data.get('category')}. WhatsApp: {business_data.get('whatsapp', business_data.get('phone'))}.{instruction_summary}",
             tags=["business_intake", business_data.get("category", "local_biz").lower()],
             metadata={"type": "world", "workflow_id": workflow_id}
         )
 
         # Step 2: Hindsight Memory Recall for best patterns
         recalled = hindsight_service.recall(
-            query=f"design copy functionality directives for {business_data.get('category')}",
+            query=f"design copy functionality directives for {business_data.get('category')} {initial_prompt or ''}",
             tags=["pattern", "directive"]
         )
         log_event("Hindsight Recall", f"Retrieved {len(recalled)} historical directives and observations from memory", recalled)
 
-        # Step 3: Run Copywriter & Designer
-        log_event("Copywriter Agent", "Generating value proposition, SEO tags, and conversion headlines...")
-        copy_data = copywriter_agent.generate_copy(business_data)
+        # Step 3: Run Copywriter & Designer (passing voice instructions!)
+        log_event("Copywriter Agent", f"Generating copy incorporating voice instructions: '{initial_prompt or 'Default'}'...")
+        copy_data = copywriter_agent.generate_copy(business_data, instructions=initial_prompt)
 
         log_event("Design Agent", f"Selecting design system and color palette for {business_data.get('category')}...")
-        design_system = design_agent.choose_design_system(business_data.get("category", "default"))
+        design_system = design_agent.choose_design_system(business_data.get("category", "default"), instructions=initial_prompt)
 
-        # Step 4: Initial Code Generation
-        log_event("Code Generator Agent", "Assembling initial HTML/Tailwind/JS code...")
-        current_html = code_generator_agent.generate_website(business_data, copy_data, design_system)
+        # Step 4: Initial Code Generation (passing voice instructions!)
+        log_event("Code Generator Agent", "Assembling tailored HTML/Tailwind/JS with active Live Chat...")
+        current_html = code_generator_agent.generate_website(
+            business_data,
+            copy_data,
+            design_system,
+            instructions=initial_prompt
+        )
 
         # Step 5: Multi-Critic Reflection & Self-Healing Loop
         iteration = 1
@@ -81,7 +87,7 @@ class OrchestrationAgent:
                 
                 # Retain success pattern in Hindsight
                 hindsight_service.retain(
-                    content=f"Successfully approved website layout for {business_data.get('name')} with score {evaluation['average_score']}%. Layout: {design_system['theme_name']}.",
+                    content=f"Successfully approved website layout for {business_data.get('name')} with score {evaluation['average_score']}%. Theme: {design_system['theme_name']}. Primary CTA: {copy_data.get('cta_primary')}.",
                     tags=["success_pattern", "approved"],
                     metadata={"type": "experience", "score": str(evaluation["average_score"])}
                 )
@@ -112,6 +118,7 @@ class OrchestrationAgent:
                         business_data,
                         copy_data,
                         design_system,
+                        instructions=initial_prompt,
                         critique_patch_instructions=reflection_patch
                     )
 

@@ -1,4 +1,6 @@
 import os
+import uuid
+import httpx
 from pathlib import Path
 from typing import Dict, Any, Optional
 from fastapi import FastAPI, HTTPException
@@ -12,9 +14,9 @@ from backend.services.hindsight_service import hindsight_service
 from backend.orchestrator import orchestration_agent
 
 app = FastAPI(
-    title="Hindsight AI Website Architect API",
+    title="VoiceCraft AI Website Architect API",
     description="Autonomous Website Builder with Hindsight Reflection & Self-Healing Loop",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # Enable CORS for local testing & preview
@@ -25,6 +27,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Local directory to store deployed sites
+DEPLOYED_DIR = Path(__file__).resolve().parent / "deployed"
+DEPLOYED_DIR.mkdir(parents=True, exist_ok=True)
 
 class GenerateRequest(BaseModel):
     name: str = "Austin Smile Studio"
@@ -38,6 +44,10 @@ class GenerateRequest(BaseModel):
 class VoiceCommandRequest(BaseModel):
     transcript: str
     current_html: str
+    business_data: Dict[str, Any]
+
+class DeployRequest(BaseModel):
+    html: str
     business_data: Dict[str, Any]
 
 class RetainRequest(BaseModel):
@@ -80,7 +90,7 @@ def generate_website(req: GenerateRequest):
 def process_voice_command(req: VoiceCommandRequest):
     """
     Process user voice instruction, retain command into Hindsight as user preference,
-    and trigger self-correction re-generation.
+    and trigger self-correction re-generation with the voice instruction actively applied.
     """
     try:
         # Retain the user's voice preference in Hindsight
@@ -96,12 +106,74 @@ def process_voice_command(req: VoiceCommandRequest):
             context=f"Business: {req.business_data.get('name')}"
         )
 
-        # Re-run pipeline with refined instruction
+        # Re-run pipeline passing the voice instruction directly so all agents adapt!
         biz_data = req.business_data
-        result = orchestration_agent.run_pipeline(biz_data, initial_prompt=f"{req.transcript}. {patch_instruction}")
+        result = orchestration_agent.run_pipeline(biz_data, initial_prompt=req.transcript)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/deploy")
+async def deploy_website(req: DeployRequest):
+    """
+    Deploy the website instantly:
+    1. Upload to public hosting via Bytebin (worldwide instant public link).
+    2. Persist to local /site/{site_id} endpoint.
+    3. Retain deployment metadata in Hindsight memory.
+    """
+    try:
+        site_id = str(uuid.uuid4())[:8]
+        biz_name = req.business_data.get("name", "site")
+        
+        # 1. Save locally
+        local_file = DEPLOYED_DIR / f"{site_id}.html"
+        local_file.write_text(req.html, encoding="utf-8")
+        local_url = f"http://localhost:{settings.port}/site/{site_id}"
+
+        # 2. Deploy to Bytebin for instant public URL
+        public_url = None
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.post(
+                    "https://bytebin.lucko.me/post",
+                    content=req.html.encode("utf-8"),
+                    headers={"Content-Type": "text/html; charset=utf-8"}
+                )
+                if res.status_code == 201:
+                    key = res.json().get("key")
+                    public_url = f"https://bytebin.lucko.me/{key}"
+        except Exception as err:
+            public_url = local_url
+
+        # Fallback to local URL if public upload failed
+        final_public_url = public_url or local_url
+
+        # 3. Retain in Hindsight
+        hindsight_service.retain(
+            content=f"Deployed production website for {biz_name} at URL: {final_public_url}. Stored site ID: {site_id}.",
+            tags=["deployment", "production_url"],
+            metadata={"type": "experience", "site_id": site_id, "url": final_public_url}
+        )
+
+        return {
+            "success": True,
+            "site_id": site_id,
+            "public_url": final_public_url,
+            "local_url": local_url,
+            "business_name": biz_name
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Deployment error: {str(e)}")
+
+
+@app.get("/site/{site_id}", response_class=HTMLResponse)
+def serve_deployed_site(site_id: str):
+    """Serve any deployed site by ID"""
+    file_path = DEPLOYED_DIR / f"{site_id}.html"
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Site not found")
+    return HTMLResponse(file_path.read_text(encoding="utf-8"))
 
 
 @app.get("/api/memories")
@@ -141,4 +213,4 @@ def serve_index():
     index_path = STATIC_DIR / "index.html"
     if index_path.exists():
         return FileResponse(index_path)
-    return HTMLResponse("<h1>Hindsight Website Architect API is Running!</h1><p>Visit /docs for API specs.</p>")
+    return HTMLResponse("<h1>VoiceCraft AI Website Architect API is Running!</h1><p>Visit /docs for API specs.</p>")
