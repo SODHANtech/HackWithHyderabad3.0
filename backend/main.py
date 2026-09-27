@@ -52,8 +52,8 @@ class GenerateRequest(BaseModel):
 
 class VoiceCommandRequest(BaseModel):
     transcript: str
-    current_html: str
-    business_data: Dict[str, Any]
+    current_html: Optional[str] = None
+    business_data: Optional[Dict[str, Any]] = None
 
 class DeployRequest(BaseModel):
     html: str
@@ -122,6 +122,21 @@ def generate_website(req: GenerateRequest):
         if biz_data.get("assets") is None:
             biz_data["assets"] = {}
         result = orchestration_agent.run_pipeline(biz_data, initial_prompt=req.instructions)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/generate-from-prompt")
+async def generate_from_prompt(prompt: str):
+    """Accept a natural language description, obtain structured business data via Groq, and run the generation pipeline."""
+    try:
+        from backend.services.groq_service import GroqService
+        groq = GroqService()
+        business_data = await groq.get_business_profile(prompt)
+        if business_data.get("assets") is None:
+            business_data["assets"] = {}
+        result = orchestration_agent.run_pipeline(business_data)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -12,6 +12,20 @@ class CopywriterAgent:
         category = business_data.get("category", "Local Service")
         location = business_data.get("location", "Downtown")
         services = business_data.get("services", "")
+        # Prevent stale services from a previous category (for example hotel rooms
+        # after switching to Clinic) from contaminating generated copy.
+        cat_lower = category.lower()
+        stale_hotel_terms = ("suite", "room", "villa", "banquet", "fine dining", "/night", "nightly")
+        is_hospitality = any(term in cat_lower for term in ("hotel", "resort", "stay", "lodge", "inn"))
+        if services and not is_hospitality and any(term in services.lower() for term in stale_hotel_terms):
+            if "dental" in cat_lower:
+                services = "Dental Checkups, Teeth Cleaning & Whitening, Restorative Care"
+            elif any(term in cat_lower for term in ("clinic", "hospital", "medical", "health")):
+                services = "General Consultation, Diagnostics & Screening, Follow-up Care"
+            elif any(term in cat_lower for term in ("cafe", "coffee", "restaurant", "bakery")):
+                services = "Specialty Coffee, Fresh Bakery & Desserts, Table & Event Reservations"
+            else:
+                services = f"Professional {category} Consultation, Complete Service, Priority Support"
         phone = business_data.get("phone", "+1 555-0199")
         whatsapp = business_data.get("whatsapp", phone)
 
@@ -135,8 +149,13 @@ Return ONLY valid JSON. No markdown wrappers or explanation.
                 {"title": "Quality Satisfaction Guarantee", "description": "Every job is performed to the highest industry standards with full warranty."}
             ]
 
-        # If user explicitly specified services in the input box, prioritize them
+        # If user explicitly specified services in the input box, prioritize them.
+        # Only use them when they match the selected business category; stale hotel
+        # terms are ignored for clinics, cafes, and other categories.
         if services_input and len(services_input.strip()) > 3:
+            stale = any(term in services_input.lower() for term in ("suite", "room", "villa", "banquet", "fine dining", "/night", "nightly"))
+            if stale and not any(term in cat_lower for term in ("hotel", "resort", "stay", "lodge", "inn")):
+                services_input = ""
             custom_list = [s.strip() for s in services_input.split(",") if s.strip()]
             if custom_list:
                 services = [

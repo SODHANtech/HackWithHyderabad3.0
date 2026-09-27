@@ -57,7 +57,8 @@ Return ONLY valid HTML inside ```html ... ``` code block.
             llm_response = llm_service.complete(prompt, system_prompt="You write pristine, production-ready HTML with zero syntax errors.")
             if "```html" in llm_response:
                 html_code = llm_response.split("```html")[1].split("```")[0].strip()
-                return html_code
+                if "<html" in html_code.lower() and "<header" in html_code.lower() and "</body>" in html_code.lower():
+                    return html_code
 
         # Default battle-tested template with full asset support
         return self._build_template(business_data, copy_data, design_system, wa_url, assets, instructions)
@@ -284,13 +285,24 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         brochure_url = (assets.get("brochure_url") or "").strip()
         pricing_tiers = assets.get("pricing_tiers") or []
 
+        # Protect against stale pricing from a previous category. If a clinic/cafe/etc.
+        # receives hotel-specific tiers from the UI, discard them and derive category-safe defaults.
+        category_lower = category.lower()
+        hotel_terms = ("suite", "room", "villa", "king bed", "room service", "/night", "/ night")
+        has_hotel_pricing = any(any(term in str(v).lower() for term in hotel_terms) for tier in pricing_tiers for v in (tier.values() if isinstance(tier, dict) else []))
+        if not pricing_tiers or ("hotel" not in category_lower and "resort" not in category_lower and has_hotel_pricing):
+            pricing_tiers = self._resolve_pricing_tiers(category, copy_data.get("services", ""), instructions)
+
         # Default rich photo gallery if none provided - dynamically resolved per business niche and prompt
         if not photos:
             photos = self._resolve_photos(category, copy_data.get("services", ""), instructions, name, location)
 
-        # Default pricing tiers if none provided - dynamically resolved per business niche
-        if not pricing_tiers:
-            pricing_tiers = self._resolve_pricing_tiers(category, copy_data.get("services", ""), instructions)
+        is_hospitality = "hotel" in category_lower or "resort" in category_lower or "stay" in category_lower
+        pricing_heading = "Packages & Rates" if is_hospitality else "Services & Pricing"
+        pricing_subtitle = f"Clear, upfront options tailored for this {category.lower()}."
+        offerings_label = "Tailored Offerings" if is_hospitality else "Our Services"
+        offerings_heading = "World-Class Comfort & Amenities" if is_hospitality else f"Professional {category} Solutions"
+        offerings_subtitle = f"Delivering verified excellence in {location}."
 
         # Logo Markup
         if logo_url:
@@ -632,8 +644,8 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Transparent Pricing</h2>
-                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Packages & Rates</h3>
-                <p class="text-slate-600 mt-4 text-base">Clear, upfront rates with no hidden fees. Select your preferred tier below.</p>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{pricing_heading}</h3>
+                <p class="text-slate-600 mt-4 text-base">{pricing_subtitle}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -646,9 +658,9 @@ Return ONLY valid HTML inside ```html ... ``` code block.
     <section id="services" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Tailored Offerings</h2>
-                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">World-Class Services & Comfort</h3>
-                <p class="text-slate-600 mt-4 text-base">Delivering excellence and comfort in {location}.</p>
+                <h2 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">{offerings_label}</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{offerings_heading}</h3>
+                <p class="text-slate-600 mt-4 text-base">{offerings_subtitle}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
