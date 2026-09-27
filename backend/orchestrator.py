@@ -12,13 +12,18 @@ logger = logging.getLogger("orchestrator")
 class OrchestrationAgent:
     """
     Coordinates the iterative generation, critic evaluation, Hindsight reflection,
-    and self-correction loop.
+    asset vault management, and self-correction loop.
     """
 
     def __init__(self):
         self.max_healing_iterations = 3
 
-    def run_pipeline(self, business_data: Dict[str, Any], initial_prompt: Optional[str] = None) -> Dict[str, Any]:
+    def run_pipeline(
+        self,
+        business_data: Dict[str, Any],
+        initial_prompt: Optional[str] = None,
+        existing_html: Optional[str] = None
+    ) -> Dict[str, Any]:
         workflow_id = f"wf-{int(datetime.now().timestamp())}"
         logs = []
 
@@ -33,36 +38,41 @@ class OrchestrationAgent:
             logger.info(f"[{stage}] {message}")
 
         instruction_summary = f" Instructions: '{initial_prompt}'" if initial_prompt else ""
-        log_event("Intake", f"Received business profile: {business_data.get('name')} in {business_data.get('location')} ({business_data.get('category')}).{instruction_summary}")
+        log_event("Intake", f"Processing {business_data.get('name')} in {business_data.get('location')} ({business_data.get('category')}).{instruction_summary}")
 
-        # Step 1: Retain business context in Hindsight as World Facts
+        # Retain company context & assets in Hindsight
+        assets = business_data.get("assets") or {}
+        photos = assets.get("photos") or []
+        pricing_tiers = assets.get("pricing_tiers") or []
+        logo_url = assets.get("logo_url")
         hindsight_service.retain(
-            content=f"Business profile: {business_data.get('name')} located in {business_data.get('location')}. Category: {business_data.get('category')}. WhatsApp: {business_data.get('whatsapp', business_data.get('phone'))}.{instruction_summary}",
+            content=f"Business profile: {business_data.get('name')} in {business_data.get('location')}. Category: {business_data.get('category')}. WhatsApp: {business_data.get('whatsapp', business_data.get('phone'))}. Assets: {len(photos)} photos, Logo: {bool(logo_url)}, Pricing Tiers: {len(pricing_tiers)}.{instruction_summary}",
             tags=["business_intake", business_data.get("category", "local_biz").lower()],
             metadata={"type": "world", "workflow_id": workflow_id}
         )
 
-        # Step 2: Hindsight Memory Recall for best patterns
+        # Step 2: Hindsight Memory Recall
         recalled = hindsight_service.recall(
             query=f"design copy functionality directives for {business_data.get('category')} {initial_prompt or ''}",
             tags=["pattern", "directive"]
         )
         log_event("Hindsight Recall", f"Retrieved {len(recalled)} historical directives and observations from memory", recalled)
 
-        # Step 3: Run Copywriter & Designer (passing voice instructions!)
+        # Step 3: Run Copywriter & Designer
         log_event("Copywriter Agent", f"Generating copy incorporating voice instructions: '{initial_prompt or 'Default'}'...")
         copy_data = copywriter_agent.generate_copy(business_data, instructions=initial_prompt)
 
         log_event("Design Agent", f"Selecting design system and color palette for {business_data.get('category')}...")
         design_system = design_agent.choose_design_system(business_data.get("category", "default"), instructions=initial_prompt)
 
-        # Step 4: Initial Code Generation (passing voice instructions!)
-        log_event("Code Generator Agent", "Assembling tailored HTML/Tailwind/JS with active Live Chat...")
+        # Step 4: Initial Code Generation
+        log_event("Code Generator Agent", "Assembling tailored HTML with company assets, gallery, and pricing...")
         current_html = code_generator_agent.generate_website(
             business_data,
             copy_data,
             design_system,
-            instructions=initial_prompt
+            instructions=initial_prompt,
+            existing_html=existing_html
         )
 
         # Step 5: Multi-Critic Reflection & Self-Healing Loop
@@ -85,7 +95,6 @@ class OrchestrationAgent:
                 log_event("Self-Correction Router", "All critics approved code! Passing to deployment.")
                 healed = True
                 
-                # Retain success pattern in Hindsight
                 hindsight_service.retain(
                     content=f"Successfully approved website layout for {business_data.get('name')} with score {evaluation['average_score']}%. Theme: {design_system['theme_name']}. Primary CTA: {copy_data.get('cta_primary')}.",
                     tags=["success_pattern", "approved"],
@@ -93,7 +102,6 @@ class OrchestrationAgent:
                 )
                 break
             else:
-                # Flaws detected! Feed to Hindsight Memory & Reflect
                 issues_summary = "; ".join(evaluation["all_issues"])
                 log_event("Hindsight Retain", f"Retaining critic flaws into memory bank: {issues_summary}")
                 
@@ -110,7 +118,6 @@ class OrchestrationAgent:
                 )
                 log_event("Self-Correction Patch", "Hindsight generated actionable healing instructions", reflection_patch)
 
-                # Self-healing regeneration
                 iteration += 1
                 if iteration <= self.max_healing_iterations:
                     log_event("Code Generator Agent", f"Applying self-healing patch for Iteration {iteration}...")
@@ -119,7 +126,8 @@ class OrchestrationAgent:
                         copy_data,
                         design_system,
                         instructions=initial_prompt,
-                        critique_patch_instructions=reflection_patch
+                        critique_patch_instructions=reflection_patch,
+                        existing_html=current_html
                     )
 
         return {

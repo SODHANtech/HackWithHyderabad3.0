@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceCraft AI | Autonomous Website Builder with Hindsight Reflection</title>
+    <title>VoiceCraft AI | Autonomous Website Builder with Hindsight Reflection & Asset Vault</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons CDN -->
@@ -69,92 +69,193 @@
     <!-- Main Workspace Layout -->
     <div class="flex-1 flex overflow-hidden">
 
-        <!-- LEFT PANEL: Business Intake & Voice Command Controller -->
-        <aside class="w-80 lg:w-96 bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between p-5 overflow-y-auto flex-shrink-0">
-            <div class="space-y-6">
+        <!-- LEFT PANEL: Business Intake & Company Asset Vault -->
+        <aside class="w-80 lg:w-[420px] bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between p-4 overflow-y-auto flex-shrink-0 space-y-4">
+            
+            <div class="space-y-4">
                 <!-- Section Header -->
-                <div>
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
-                        <i data-lucide="store" class="w-4 h-4 text-sky-400"></i>
-                        <span>Business Intake</span>
-                    </h2>
-                    <p class="text-xs text-slate-500 mt-1">Provide business parameters or pick a preset.</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                            <i data-lucide="folder-kanban" class="w-4 h-4 text-sky-400"></i>
+                            <span>Company Assets & Vault</span>
+                        </h2>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Brand assets, photos, rates & PDFs.</p>
+                    </div>
                 </div>
 
                 <!-- Presets Quick Select -->
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="applyPreset('hotel')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="applyPreset('hotel')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
                         🏨 Hyderabad Hotel
                     </button>
-                    <button onclick="applyPreset('dental')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                    <button onclick="applyPreset('dental')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
                         🦷 Austin Dental
                     </button>
-                    <button onclick="applyPreset('plumbing')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
-                        🔧 London Plumber
+                    <button onclick="applyPreset('plumbing')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
+                        🔧 London Plumbers
                     </button>
-                    <button onclick="applyPreset('cafe')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                    <button onclick="applyPreset('cafe')" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
                         ☕ Bangalore Cafe
                     </button>
                 </div>
 
-                <!-- Form Controls -->
-                <form id="intake-form" onsubmit="handleGenerate(event)" class="space-y-3.5 text-xs">
+                <!-- Tab Navigation Buttons -->
+                <div class="flex border-b border-slate-800 text-xs font-semibold">
+                    <button onclick="switchAssetTab('profile')" id="tab-btn-profile" class="flex-1 pb-2 border-b-2 border-sky-500 text-sky-400 flex items-center justify-center space-x-1">
+                        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                        <span>Profile</span>
+                    </button>
+                    <button onclick="switchAssetTab('brand')" id="tab-btn-brand" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
+                        <i data-lucide="image" class="w-3.5 h-3.5"></i>
+                        <span>Logo</span>
+                    </button>
+                    <button onclick="switchAssetTab('media')" id="tab-btn-media" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
+                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                        <span>Media</span>
+                    </button>
+                    <button onclick="switchAssetTab('pricing')" id="tab-btn-pricing" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
+                        <i data-lucide="tag" class="w-3.5 h-3.5"></i>
+                        <span>Pricing</span>
+                    </button>
+                    <button onclick="switchAssetTab('brochure')" id="tab-btn-brochure" class="flex-1 pb-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center justify-center space-x-1">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        <span>PDF</span>
+                    </button>
+                </div>
+
+                <!-- TAB 1: Profile & Contact -->
+                <div id="tab-pane-profile" class="space-y-3 text-xs">
                     <div>
                         <label class="block font-semibold text-slate-300 mb-1">Business Name</label>
-                        <input type="text" id="biz-name" required value="Satya Grand Hotel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                        <input type="text" id="biz-name" required value="Satya Grand Hotel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <label class="block font-semibold text-slate-300 mb-1">Category</label>
-                            <input type="text" id="biz-category" required value="Hotel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                            <input type="text" id="biz-category" required value="Hotel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
                         </div>
                         <div>
                             <label class="block font-semibold text-slate-300 mb-1">Location</label>
-                            <input type="text" id="biz-location" required value="Hyderabad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                            <input type="text" id="biz-location" required value="Hyderabad" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <label class="block font-semibold text-slate-300 mb-1">Telephone</label>
-                            <input type="text" id="biz-phone" required value="7337537599" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                            <input type="text" id="biz-phone" required value="7337537599" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
                         </div>
                         <div>
                             <label class="block font-semibold text-slate-300 mb-1">WhatsApp (Intl)</label>
-                            <input type="text" id="biz-whatsapp" required value="917337537599" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                            <input type="text" id="biz-whatsapp" required value="917337537599" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-semibold text-slate-300 mb-1">Offered Services / Specialties</label>
-                        <input type="text" id="biz-services" value="Deluxe Suites, Luxury Dining, Banquet Halls" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-sky-500 text-xs">
+                        <label class="block font-semibold text-slate-300 mb-1">Services / Highlights</label>
+                        <input type="text" id="biz-services" value="Deluxe Executive Suites, Fine Dining, Banquet Facilities" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
                     </div>
+                </div>
 
-                    <button type="submit" id="btn-generate" class="w-full mt-2 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center space-x-2">
-                        <i data-lucide="wand-2" class="w-4 h-4"></i>
-                        <span>Generate & Self-Heal</span>
-                    </button>
-                </form>
+                <!-- TAB 2: Brand & Logo -->
+                <div id="tab-pane-brand" class="hidden space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Company Logo File</label>
+                        <input type="file" id="file-logo" accept="image/*" onchange="uploadAssetFile('logo')" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Or Logo Image URL</label>
+                        <input type="text" id="asset-logo-url" placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                    </div>
+                    <div id="logo-preview-box" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center space-x-3">
+                        <img id="logo-preview-img" src="" alt="Logo Preview" class="h-10 w-auto object-contain rounded-lg">
+                        <span class="text-[11px] text-emerald-400 font-semibold">Logo attached to site</span>
+                    </div>
+                </div>
 
-                <!-- Voice Command Section -->
-                <div class="pt-4 border-t border-slate-800/80 space-y-3">
+                <!-- TAB 3: Photos & Videos -->
+                <div id="tab-pane-media" class="hidden space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Upload Product / Room Photos</label>
+                        <input type="file" id="file-photos" accept="image/*" multiple onchange="uploadAssetFile('photos')" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Virtual Tour Video URL (YouTube/Vimeo)</label>
+                        <input type="text" id="asset-video-url" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                    </div>
+                    <div id="photo-chips-container" class="flex flex-wrap gap-1.5 pt-1">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- TAB 4: Pricing & Rates Customizer -->
+                <div id="tab-pane-pricing" class="hidden space-y-3 text-xs">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-                            <i data-lucide="mic" class="w-4 h-4 text-emerald-400"></i>
-                            <span>Voice Command (General Idea)</span>
+                        <label class="font-semibold text-slate-300">Custom Rate Cards / Packages</label>
+                        <button onclick="addPricingTier()" class="text-[10px] text-sky-400 hover:underline">+ Add Package</button>
+                    </div>
+                    <div id="pricing-tier-list" class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                        <!-- Tier 1 -->
+                        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+                            <div class="flex space-x-2">
+                                <input type="text" placeholder="Tier Name" value="Standard Deluxe" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
+                                <input type="text" placeholder="Price" value="₹3,999/night" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                            </div>
+                            <input type="text" placeholder="Features (comma separated)" value="King Bed, Free Wi-Fi, Breakfast" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+                        </div>
+                        <!-- Tier 2 -->
+                        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs">
+                            <div class="flex space-x-2">
+                                <input type="text" placeholder="Tier Name" value="Executive Suite" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
+                                <input type="text" placeholder="Price" value="₹6,499/night" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                            </div>
+                            <input type="text" placeholder="Features (comma separated)" value="Balcony City View, Jacuzzi, Transit" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: Brochure PDF -->
+                <div id="tab-pane-brochure" class="hidden space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Company Brochure / Menu PDF</label>
+                        <input type="file" id="file-brochure" accept=".pdf" onchange="uploadAssetFile('brochure')" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Or Direct PDF URL</label>
+                        <input type="text" id="asset-brochure-url" placeholder="https://.../brochure.pdf" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                    </div>
+                    <div id="brochure-status-box" class="hidden p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center space-x-2">
+                        <i data-lucide="file-check" class="w-4 h-4 text-emerald-400"></i>
+                        <span class="text-[11px] text-emerald-400 font-semibold" id="brochure-status-text">Brochure PDF Attached</span>
+                    </div>
+                </div>
+
+                <!-- Primary Generate Action Button -->
+                <button onclick="handleGenerate(event)" id="btn-generate" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-sky-500/20 transition-all flex items-center justify-center space-x-2 text-xs">
+                    <i data-lucide="wand-2" class="w-4 h-4"></i>
+                    <span>Generate & Build with Assets</span>
+                </button>
+
+                <!-- Voice Command Section (Supports General Ideas + Exact Replacements) -->
+                <div class="pt-3 border-t border-slate-800/80 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
+                            <i data-lucide="mic" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span>Voice / Text Command</span>
                         </span>
                         <span id="voice-indicator" class="text-[10px] text-slate-500">Ready</span>
                     </div>
 
                     <div class="flex items-center space-x-2">
-                        <button onclick="toggleVoiceRecording()" id="btn-mic" class="w-12 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center flex-shrink-0 transition-all border border-slate-700">
-                            <i data-lucide="mic" class="w-5 h-5 text-emerald-400" id="mic-icon"></i>
+                        <button onclick="toggleVoiceRecording()" id="btn-mic" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center flex-shrink-0 transition-all border border-slate-700">
+                            <i data-lucide="mic" class="w-4 h-4 text-emerald-400" id="mic-icon"></i>
                         </button>
-                        <input type="text" id="voice-transcript-input" placeholder="e.g. 'Change schedule appointment to book a room' or 'Make it warm gold luxury theme'..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-3 text-slate-200 focus:outline-none focus:border-emerald-500 text-xs">
+                        <input type="text" id="voice-transcript-input" placeholder='e.g. change book a room to "book room" or make it gold luxury theme...' class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-emerald-500 text-xs">
                     </div>
 
-                    <button onclick="submitVoiceCommand()" id="btn-voice-submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20">
+                    <button onclick="submitVoiceCommand()" id="btn-voice-submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20">
                         <i data-lucide="send" class="w-3.5 h-3.5"></i>
                         <span>Apply Voice Revision</span>
                     </button>
@@ -162,7 +263,7 @@
             </div>
 
             <!-- Footer / Version Note -->
-            <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-500 text-center">
+            <div class="pt-3 border-t border-slate-800 text-[10px] text-slate-500 text-center">
                 Memory Layer: <span class="text-slate-400 font-medium">Vectorize Hindsight v0.10</span>
             </div>
         </aside>
@@ -188,7 +289,6 @@
                 </div>
 
                 <div class="flex items-center space-x-2 text-xs">
-                    <!-- Auto Deploy Button -->
                     <button onclick="deployWebsite()" id="btn-deploy" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold transition flex items-center space-x-1.5 shadow-md shadow-emerald-500/20">
                         <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
                         <span>Auto-Deploy</span>
@@ -339,8 +439,113 @@
         let currentHtmlCode = "";
         let isRecording = false;
         let recognition = null;
+        let uploadedPhotos = [];
 
         lucide.createIcons();
+
+        // Tab Switcher
+        function switchAssetTab(tab) {
+            const tabs = ['profile', 'brand', 'media', 'pricing', 'brochure'];
+            tabs.forEach(t => {
+                const pane = document.getElementById(`tab-pane-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tab) {
+                    pane.classList.remove('hidden');
+                    btn.classList.add('border-sky-500', 'text-sky-400');
+                    btn.classList.remove('border-transparent', 'text-slate-400');
+                } else {
+                    pane.classList.add('hidden');
+                    btn.classList.remove('border-sky-500', 'text-sky-400');
+                    btn.classList.add('border-transparent', 'text-slate-400');
+                }
+            });
+        }
+
+        // Upload Asset Handler
+        async function uploadAssetFile(type) {
+            let inputElement;
+            if (type === 'logo') inputElement = document.getElementById('file-logo');
+            else if (type === 'photos') inputElement = document.getElementById('file-photos');
+            else if (type === 'brochure') inputElement = document.getElementById('file-brochure');
+
+            if (!inputElement || !inputElement.files.length) return;
+
+            const files = Array.from(inputElement.files);
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const res = await fetch('/api/upload-asset', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        if (type === 'logo') {
+                            document.getElementById('asset-logo-url').value = data.url;
+                            document.getElementById('logo-preview-img').src = data.url;
+                            document.getElementById('logo-preview-box').classList.remove('hidden');
+                        } else if (type === 'photos') {
+                            uploadedPhotos.push({ url: data.url, title: file.name.split('.')[0] });
+                            renderPhotoChips();
+                        } else if (type === 'brochure') {
+                            document.getElementById('asset-brochure-url').value = data.url;
+                            document.getElementById('brochure-status-box').classList.remove('hidden');
+                            document.getElementById('brochure-status-text').innerText = `${file.name} Attached`;
+                        }
+                    }
+                } catch (e) {
+                    alert("Error uploading asset: " + e.message);
+                }
+            }
+            fetchMemories();
+        }
+
+        function renderPhotoChips() {
+            const container = document.getElementById('photo-chips-container');
+            container.innerHTML = "";
+            uploadedPhotos.forEach((p, idx) => {
+                const chip = document.createElement('div');
+                chip.className = "px-2 py-1 bg-slate-800 border border-slate-700 rounded-lg text-[10px] text-slate-300 flex items-center space-x-1";
+                chip.innerHTML = `<span>📷 ${p.title}</span><button onclick="removePhoto(${idx})" class="text-slate-500 hover:text-red-400">&times;</button>`;
+                container.appendChild(chip);
+            });
+        }
+
+        function removePhoto(idx) {
+            uploadedPhotos.splice(idx, 1);
+            renderPhotoChips();
+        }
+
+        function addPricingTier() {
+            const list = document.getElementById('pricing-tier-list');
+            const div = document.createElement('div');
+            div.className = "p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs";
+            div.innerHTML = `
+                <div class="flex space-x-2">
+                    <input type="text" placeholder="Tier Name" value="Custom Package" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
+                    <input type="text" placeholder="Price" value="₹1,999" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                </div>
+                <input type="text" placeholder="Features (comma separated)" value="Dedicated Support, Instant Booking" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+            `;
+            list.appendChild(div);
+        }
+
+        function gatherPricingTiers() {
+            const tiers = [];
+            const cards = document.querySelectorAll('#pricing-tier-list > div');
+            cards.forEach(c => {
+                const name = c.querySelector('.tier-name').value.trim();
+                const price = c.querySelector('.tier-price').value.trim();
+                const featuresRaw = c.querySelector('.tier-features').value.trim();
+                const features = featuresRaw.split(',').map(f => f.trim()).filter(Boolean);
+                if (name && price) {
+                    tiers.push({ name, price, period: "", features });
+                }
+            });
+            return tiers;
+        }
 
         // Presets data
         const presets = {
@@ -350,7 +555,11 @@
                 location: "Hyderabad",
                 phone: "7337537599",
                 whatsapp: "917337537599",
-                services: "Deluxe Executive Suites, Fine Dining, Banquet Facilities"
+                services: "Deluxe Executive Suites, Fine Dining, Banquet Facilities",
+                tiers: [
+                    { name: "Standard Deluxe", price: "₹3,999/night", features: "King Bed, Free Wi-Fi, Breakfast" },
+                    { name: "Executive Suite", price: "₹6,499/night", features: "Balcony City View, Jacuzzi, Transit" }
+                ]
             },
             dental: {
                 name: "Austin Smile Studio",
@@ -358,7 +567,11 @@
                 location: "Austin, TX",
                 phone: "+1 (512) 555-0198",
                 whatsapp: "15125550198",
-                services: "Cosmetic Dentistry, Teeth Whitening, Emergency Dental"
+                services: "Cosmetic Dentistry, Teeth Whitening, Emergency Dental",
+                tiers: [
+                    { name: "Diagnostic Exam", price: "$89 flat", features: "Full Dental Exam, X-Rays, Consultation" },
+                    { name: "Complete Care Plan", price: "$249 standard", features: "Ultrasonic Cleaning, Enamel Polish, Fluoride" }
+                ]
             },
             plumbing: {
                 name: "London Rapid Plumbers",
@@ -366,7 +579,11 @@
                 location: "London, UK",
                 phone: "+44 20 7946 0912",
                 whatsapp: "442079460912",
-                services: "24/7 Burst Pipes, Boiler Repair, Drain Unblocking"
+                services: "24/7 Burst Pipes, Boiler Repair, Drain Unblocking",
+                tiers: [
+                    { name: "Emergency Callout", price: "£89 flat", features: "Rapid 30-Min Arrival, Full Diagnostic, Upfront Quote" },
+                    { name: "Full Repair Plan", price: "£220 standard", features: "Complete Pipe/Boiler Repair, OEM Parts, Guarantee" }
+                ]
             },
             cafe: {
                 name: "Kaveri Artisan Roasters",
@@ -374,7 +591,11 @@
                 location: "Bangalore, IN",
                 phone: "+91 98450 12345",
                 whatsapp: "919845012345",
-                services: "Single Origin Brews, Table Reservations, Event Catering"
+                services: "Single Origin Brews, Table Reservations, Event Catering",
+                tiers: [
+                    { name: "Daily Roasters Pass", price: "₹499/week", features: "Unlimited Filter Brews, 10% Pastry Discount" },
+                    { name: "Artisan Tasting Pass", price: "₹1,299/mo", features: "Specialty Pour-Over Flights, Reserved Booths" }
+                ]
             }
         };
 
@@ -387,6 +608,23 @@
             document.getElementById("biz-phone").value = p.phone;
             document.getElementById("biz-whatsapp").value = p.whatsapp;
             document.getElementById("biz-services").value = p.services;
+
+            if (p.tiers && p.tiers.length) {
+                const list = document.getElementById('pricing-tier-list');
+                list.innerHTML = "";
+                p.tiers.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = "p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs";
+                    div.innerHTML = `
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="Tier Name" value="${t.name}" class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-200 font-bold tier-name">
+                            <input type="text" placeholder="Price" value="${t.price}" class="w-24 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-emerald-400 font-bold tier-price">
+                        </div>
+                        <input type="text" placeholder="Features (comma separated)" value="${t.features}" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-slate-300 text-[11px] tier-features">
+                    `;
+                    list.appendChild(div);
+                });
+            }
         }
 
         // Viewport Switcher
@@ -415,13 +653,10 @@
             }
         }
 
-        // Web Speech API for Voice Controller
+        // Web Speech API
         function setupSpeechRecognition() {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) {
-                console.warn("Web Speech API not supported on this browser.");
-                return null;
-            }
+            if (!SpeechRec) return null;
             const rec = new SpeechRec();
             rec.continuous = false;
             rec.interimResults = false;
@@ -441,15 +676,8 @@
                 document.getElementById("voice-indicator").innerText = "Voice captured!";
             };
 
-            rec.onerror = (event) => {
-                console.error("Speech recognition error:", event.error);
-                stopVoiceRecording();
-            };
-
-            rec.onend = () => {
-                stopVoiceRecording();
-            };
-
+            rec.onerror = () => stopVoiceRecording();
+            rec.onend = () => stopVoiceRecording();
             return rec;
         }
 
@@ -461,11 +689,15 @@
                     return;
                 }
             }
-
             if (isRecording) {
-                recognition.stop();
+                try { recognition.stop(); } catch(e) {}
+                stopVoiceRecording();
             } else {
-                recognition.start();
+                try {
+                    recognition.start();
+                } catch(e) {
+                    console.error("Mic start error:", e);
+                }
             }
         }
 
@@ -482,7 +714,7 @@
             if (e) e.preventDefault();
             const btn = document.getElementById("btn-generate");
             btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Synthesizing & Reflecting...</span>`;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Synthesizing with Assets...</span>`;
             lucide.createIcons();
 
             const payload = {
@@ -491,7 +723,14 @@
                 location: document.getElementById("biz-location").value,
                 phone: document.getElementById("biz-phone").value,
                 whatsapp: document.getElementById("biz-whatsapp").value,
-                services: document.getElementById("biz-services").value
+                services: document.getElementById("biz-services").value,
+                assets: {
+                    logo_url: document.getElementById("asset-logo-url").value,
+                    photos: uploadedPhotos,
+                    video_url: document.getElementById("asset-video-url").value,
+                    brochure_url: document.getElementById("asset-brochure-url").value,
+                    pricing_tiers: gatherPricingTiers()
+                }
             };
 
             try {
@@ -506,12 +745,12 @@
                 alert("Error calling website generation pipeline: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i><span>Generate & Self-Heal</span>`;
+                btn.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i><span>Generate & Build with Assets</span>`;
                 lucide.createIcons();
             }
         }
 
-        // Voice Command Submit (General Idea Application)
+        // Voice Command Submit
         async function submitVoiceCommand() {
             const transcript = document.getElementById("voice-transcript-input").value;
             if (!transcript.trim()) {
@@ -533,7 +772,14 @@
                     location: document.getElementById("biz-location").value,
                     phone: document.getElementById("biz-phone").value,
                     whatsapp: document.getElementById("biz-whatsapp").value,
-                    services: document.getElementById("biz-services").value
+                    services: document.getElementById("biz-services").value,
+                    assets: {
+                        logo_url: document.getElementById("asset-logo-url").value,
+                        photos: uploadedPhotos,
+                        video_url: document.getElementById("asset-video-url").value,
+                        brochure_url: document.getElementById("asset-brochure-url").value,
+                        pricing_tiers: gatherPricingTiers()
+                    }
                 }
             };
 
@@ -555,7 +801,7 @@
             }
         }
 
-        // Auto-Deploy Functionality
+        // Auto-Deploy
         async function deployWebsite() {
             if (!currentHtmlCode) {
                 alert("Please generate a website before deploying.");
@@ -589,8 +835,6 @@
                     document.getElementById("deploy-open-link").href = data.public_url;
                     document.getElementById("deploy-modal").classList.remove("hidden");
                     fetchMemories();
-                } else {
-                    alert("Deployment failed.");
                 }
             } catch (err) {
                 alert("Deployment error: " + err.message);
@@ -615,18 +859,15 @@
         function renderResults(data) {
             currentHtmlCode = data.html;
 
-            // Render live preview inside iframe
             const frame = document.getElementById("preview-frame");
             frame.srcdoc = currentHtmlCode;
 
-            // Update stats
             document.getElementById("stat-iterations").innerText = data.iterations_count || 1;
             const evalData = data.final_evaluation || {};
             const avg = evalData.average_score || 100;
             document.getElementById("stat-score").innerText = avg + "%";
             document.getElementById("stat-progress-bar").style.width = avg + "%";
 
-            // Update individual critics
             if (evalData.critic_results) {
                 evalData.critic_results.forEach(c => {
                     if (c.critic === "UI/UX Critic") {
@@ -660,7 +901,6 @@
                     return;
                 }
 
-                // Render latest first
                 data.memories.slice().reverse().forEach(m => {
                     const div = document.createElement("div");
                     div.className = "p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5";
@@ -701,7 +941,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // Initial boot
         window.addEventListener("DOMContentLoaded", () => {
             fetchMemories();
             handleGenerate();

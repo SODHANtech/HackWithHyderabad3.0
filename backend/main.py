@@ -1,9 +1,10 @@
 import os
 import uuid
+import shutil
 import httpx
 from pathlib import Path
-from typing import Dict, Any, Optional
-from fastapi import FastAPI, HTTPException
+from typing import Dict, Any, List, Optional
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
@@ -12,11 +13,12 @@ from pydantic import BaseModel
 from backend.config import settings
 from backend.services.hindsight_service import hindsight_service
 from backend.orchestrator import orchestration_agent
+from backend.agents.coder import code_generator_agent
 
 app = FastAPI(
     title="VoiceCraft AI Website Architect API",
-    description="Autonomous Website Builder with Hindsight Reflection & Self-Healing Loop",
-    version="1.1.0"
+    description="Autonomous Website Builder with Hindsight Reflection, Asset Vault & Self-Healing Loop",
+    version="1.2.0"
 )
 
 # Enable CORS for local testing & preview
@@ -28,17 +30,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Local directory to store deployed sites
+# Local directories
+UPLOAD_DIR = Path(__file__).resolve().parent / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
 DEPLOYED_DIR = Path(__file__).resolve().parent / "deployed"
 DEPLOYED_DIR.mkdir(parents=True, exist_ok=True)
 
+# Mount uploads static directory
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+
 class GenerateRequest(BaseModel):
-    name: str = "Austin Smile Studio"
-    category: str = "Dental Clinic"
-    location: str = "Austin, TX"
-    phone: str = "+1 (512) 555-0198"
-    whatsapp: Optional[str] = "15125550198"
-    services: Optional[str] = "Teeth Whitening, Dental Implants, Emergency Care"
+    name: str = "Satya Grand Hotel"
+    category: str = "Hotel"
+    location: str = "Hyderabad"
+    phone: str = "7337537599"
+    whatsapp: Optional[str] = "917337537599"
+    services: Optional[str] = "Deluxe Executive Suites, Fine Dining, Banquet Facilities"
+    assets: Optional[Dict[str, Any]] = None
     instructions: Optional[str] = None
 
 class VoiceCommandRequest(BaseModel):
@@ -75,11 +84,43 @@ def health_check():
     }
 
 
+@app.post("/api/upload-asset")
+async def upload_asset(file: UploadFile = File(...)):
+    """Upload logo, photo, video, or brochure PDF into the company asset vault"""
+    try:
+        ext = Path(file.filename).suffix.lower()
+        unique_name = f"{uuid.uuid4().hex[:8]}_{file.filename.replace(' ', '_')}"
+        dest_path = UPLOAD_DIR / unique_name
+        
+        with open(dest_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        file_url = f"/uploads/{unique_name}"
+        
+        # Retain asset into Hindsight memory
+        hindsight_service.retain(
+            content=f"Company asset uploaded: {file.filename} (type: {ext}). Stored at {file_url}.",
+            tags=["asset_upload", ext.strip(".")],
+            metadata={"type": "world", "file_url": file_url, "filename": file.filename}
+        )
+
+        return {
+            "success": True,
+            "filename": file.filename,
+            "url": file_url,
+            "ext": ext
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload asset: {str(e)}")
+
+
 @app.post("/api/generate")
 def generate_website(req: GenerateRequest):
-    """Run full pipeline: Intake -> Copy -> Design -> Code -> Critics -> Hindsight Reflection -> Healing"""
+    """Run full pipeline: Intake -> Assets -> Copy -> Design -> Code -> Critics -> Hindsight Reflection -> Healing"""
     try:
         biz_data = req.model_dump()
+        if biz_data.get("assets") is None:
+            biz_data["assets"] = {}
         result = orchestration_agent.run_pipeline(biz_data, initial_prompt=req.instructions)
         return result
     except Exception as e:
@@ -89,26 +130,49 @@ def generate_website(req: GenerateRequest):
 @app.post("/api/voice-command")
 def process_voice_command(req: VoiceCommandRequest):
     """
-    Process user voice instruction, retain command into Hindsight as user preference,
-    and trigger self-correction re-generation with the voice instruction actively applied.
+    Process user voice instruction:
+    1. First check if it's an exact string replacement (e.g. change X to "Y" or replace X with Y).
+    2. Otherwise run full agent reflection & regeneration loop.
     """
     try:
+        biz_data = req.business_data or {}
+        if biz_data.get("assets") is None:
+            biz_data["assets"] = {}
+        biz_name = biz_data.get('name', 'Local Business')
+
         # Retain the user's voice preference in Hindsight
         hindsight_service.retain(
-            content=f"User voice instruction: '{req.transcript}'. Requested on business {req.business_data.get('name')}.",
+            content=f"User voice instruction: '{req.transcript}'. Requested on business {biz_name}.",
             tags=["voice_command", "user_preference"],
             metadata={"type": "experience"}
         )
 
-        # Reflect on how to apply the instruction
-        patch_instruction = hindsight_service.reflect(
-            query=f"How to modify website layout or features for request: {req.transcript}",
-            context=f"Business: {req.business_data.get('name')}"
-        )
+        # Check for fast exact voice replacement (e.g. change book a room to "book room")
+        exact_match = None
+        if req.current_html:
+            exact_match = code_generator_agent._try_exact_voice_replacement(req.current_html, req.transcript)
 
-        # Re-run pipeline passing the voice instruction directly so all agents adapt!
-        biz_data = req.business_data
-        result = orchestration_agent.run_pipeline(biz_data, initial_prompt=req.transcript)
+        if exact_match:
+            # Retain successful replacement
+            hindsight_service.retain(
+                content=f"Applied exact voice replacement: '{req.transcript}' to {biz_name} layout.",
+                tags=["exact_replacement", "success"],
+                metadata={"type": "experience"}
+            )
+            return {
+                "workflow_id": f"exact-{int(uuid.uuid4().hex[:6], 16)}",
+                "business_data": biz_data,
+                "copy_data": {"headline": "Updated via Voice", "cta_primary": req.transcript},
+                "design_system": {"theme_name": "Voice Customized"},
+                "html": exact_match,
+                "iterations_count": 1,
+                "healed": True,
+                "final_evaluation": {"average_score": 100, "passed": True},
+                "logs": [{"timestamp": "Now", "stage": "Voice Engine", "message": f"Applied exact voice replacement: '{req.transcript}'"}]
+            }
+
+        # Otherwise run full pipeline with the voice instruction
+        result = orchestration_agent.run_pipeline(biz_data, initial_prompt=req.transcript, existing_html=req.current_html)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -146,7 +210,6 @@ async def deploy_website(req: DeployRequest):
         except Exception as err:
             public_url = local_url
 
-        # Fallback to local URL if public upload failed
         final_public_url = public_url or local_url
 
         # 3. Retain in Hindsight

@@ -4,7 +4,7 @@ from backend.services.llm_service import llm_service
 from backend.services.hindsight_service import hindsight_service
 
 class CodeGeneratorAgent:
-    """Generates fully functional, responsive HTML/Tailwind/JS code for local businesses."""
+    """Generates fully functional, responsive HTML/Tailwind/JS code for local businesses with multimedia assets."""
 
     def generate_website(
         self,
@@ -12,23 +12,32 @@ class CodeGeneratorAgent:
         copy_data: Dict[str, Any],
         design_system: Dict[str, Any],
         instructions: Optional[str] = None,
-        critique_patch_instructions: Optional[str] = None
+        critique_patch_instructions: Optional[str] = None,
+        existing_html: Optional[str] = None
     ) -> str:
-        name = business_data.get("name", "Apex Solutions")
-        category = business_data.get("category", "Professional Services")
-        location = business_data.get("location", "Austin, TX")
-        phone = business_data.get("phone", "+1 512-555-0198")
-        whatsapp = business_data.get("whatsapp", phone)
+        # Check if voice instruction is an exact text replacement command (e.g. change X to "Y" or replace X with Y)
+        if instructions and existing_html:
+            modified = self._try_exact_voice_replacement(existing_html, instructions)
+            if modified:
+                return modified
+
+        name = business_data.get("name") or "Apex Solutions"
+        category = business_data.get("category") or "Professional Services"
+        location = business_data.get("location") or "Austin, TX"
+        phone = str(business_data.get("phone") or "+1 512-555-0198")
+        whatsapp = str(business_data.get("whatsapp") or phone)
 
         # Standardize WhatsApp URL format per Hindsight Directives
         clean_wa = re.sub(r"[^\d]", "", whatsapp)
         wa_url = f"https://wa.me/{clean_wa}"
 
-        palette = design_system.get("palette", {})
+        palette = (design_system or {}).get("palette") or {}
         primary_color = palette.get("primary", "#2563eb")
-        secondary_color = palette.get("secondary", "#10b981")
 
-        # If we have an active LLM, use it to refine or customize; otherwise assemble our battle-tested template
+        # Check for asset payloads
+        assets = business_data.get("assets") or {}
+
+        # If LLM is active and instructions exist, ask LLM
         if (instructions or critique_patch_instructions) and llm_service.client:
             prompt = f"""
 You are an expert Frontend Architect.
@@ -38,11 +47,11 @@ Category: {category}
 Location: {location}
 WhatsApp URL: {wa_url}
 Primary Color: {primary_color}
-User Voice Instructions / Desired Changes: {instructions or 'None'}
+Assets: {assets}
+User Voice Instructions: {instructions or 'None'}
 Critique Self-Healing Feedback: {critique_patch_instructions or 'None'}
 
-Make sure to strictly apply the requested changes (e.g. if asked to change appointment to book a room, update buttons, forms, and headers accordingly).
-Include working modal booking, mobile hamburger, and interactive chat desk.
+Incorporate logo, product photo gallery, pricing tiers, and brochure if present.
 Return ONLY valid HTML inside ```html ... ``` code block.
 """
             llm_response = llm_service.complete(prompt, system_prompt="You write pristine, production-ready HTML with zero syntax errors.")
@@ -50,8 +59,182 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                 html_code = llm_response.split("```html")[1].split("```")[0].strip()
                 return html_code
 
-        # Default battle-tested, high-conversion template generator
-        return self._build_template(business_data, copy_data, design_system, wa_url, instructions)
+        # Default battle-tested template with full asset support
+        return self._build_template(business_data, copy_data, design_system, wa_url, assets, instructions)
+
+    def _try_exact_voice_replacement(self, html: Optional[str], instructions: Optional[str]) -> Optional[str]:
+        """
+        Detects exact change requests like:
+        - change book a room to "book room"
+        - change "schedule appointment" to "book room"
+        - rename X to Y
+        - replace X with Y
+        """
+        if not html or not instructions:
+            return None
+        inst = instructions.strip().rstrip('.!?')
+        
+        # Regex to capture: change <target> to ["]?<replacement>["]?
+        pattern = re.search(r'(?:change|rename|replace|update)\s+["\']?(.+?)["\']?\s+(?:to|with)\s+["\']?(.+?)["\']?$', inst, re.IGNORECASE)
+        if pattern:
+            target = pattern.group(1).strip().strip('"').strip("'")
+            replacement = pattern.group(2).strip().strip('"').strip("'")
+            
+            # Case-insensitive replacement while preserving structure
+            if target and replacement and target.lower() in html.lower():
+                # Perform regex case-insensitive replacement
+                pattern_re = re.compile(re.escape(target), re.IGNORECASE)
+                updated_html = pattern_re.sub(replacement, html)
+                return updated_html
+        return None
+
+    PHOTO_CATALOG = {
+        "plumbing": [
+            {"url": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80", "title": "Emergency Leak Repair", "desc": "Fast-response pipe inspection and seal fixing"},
+            {"url": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80", "title": "Boiler & Copper Piping", "desc": "Certified installation of residential and commercial lines"},
+            {"url": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80", "title": "Master Diagnostics", "desc": "High-precision tools for 24/7 drainage and blockage resolution"}
+        ],
+        "dental": [
+            {"url": "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80", "title": "State-of-the-Art Suite", "desc": "Modern clinical equipment ensuring gentle precision care"},
+            {"url": "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80", "title": "Cosmetic Smile Architecture", "desc": "Advanced diagnostics and personalized aesthetic treatment"},
+            {"url": "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80", "title": "Gentle Hygiene & Care", "desc": "Preventative cleanings and compassionate patient attention"}
+        ],
+        "hotel": [
+            {"url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80", "title": "Luxury Suite", "desc": "Spacious king suites with panoramic city and garden views"},
+            {"url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80", "title": "Fine Dining Lounge", "desc": "World-class gourmet culinary experience and cocktail bar"},
+            {"url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80", "title": "Wellness & Spa", "desc": "Full rejuvenation, relaxation pools, and sauna retreat"}
+        ],
+        "cafe": [
+            {"url": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80", "title": "Single-Origin Brew", "desc": "Artisan espresso and pour-over selections roasted daily"},
+            {"url": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80", "title": "Artisanal Bakery", "desc": "Fresh daily baked sourdough pastries, croissants and treats"},
+            {"url": "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80", "title": "Relaxed Atmosphere", "desc": "Co-working friendly indoor space and sunlit terrace seating"}
+        ],
+        "restaurant": [
+            {"url": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80", "title": "Chef's Tasting Room", "desc": "Warm ambiance paired with award-winning signature dishes"},
+            {"url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80", "title": "Gourmet Table Service", "desc": "Fresh farm-to-table seasonal ingredients crafted to perfection"},
+            {"url": "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80", "title": "Private Dining & Events", "desc": "Intimate booth settings and celebratory event hosting"}
+        ],
+        "gym": [
+            {"url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80", "title": "Elite Training Floor", "desc": "Top-tier free weights, power racks, and Olympic lifting platforms"},
+            {"url": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80", "title": "Personalized Coaching", "desc": "Certified athletic coaches and customized nutrition tracking"},
+            {"url": "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80", "title": "Recovery & Conditioning", "desc": "Cardio theater, yoga studio, and infrared mobility suites"}
+        ],
+        "salon": [
+            {"url": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80", "title": "Boutique Styling Studio", "desc": "Expert colorists and precision haircutting for modern looks"},
+            {"url": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80", "title": "Luxury Spa Treatments", "desc": "Rejuvenating facials, deep conditioning, and organic skincare"},
+            {"url": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80", "title": "Hair & Beauty Lounge", "desc": "Premium salon aesthetics with personalized pampering"}
+        ],
+        "auto": [
+            {"url": "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80", "title": "Diagnostic Tech Bay", "desc": "Computerized scanning and master mechanic engine care"},
+            {"url": "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80", "title": "Precision Brake & Suspension", "desc": "OEM certified parts and comprehensive vehicle safety service"},
+            {"url": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80", "title": "Detailing & Performance", "desc": "Flawless finish, ceramic coating, and performance inspection"}
+        ],
+        "realestate": [
+            {"url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", "title": "Architectural Elegance", "desc": "Prime properties and custom home tours in top neighborhoods"},
+            {"url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80", "title": "Curated Interiors", "desc": "Spacious open layouts with luxury finishes and natural light"},
+            {"url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80", "title": "Prime Residential", "desc": "Expert market guidance and seamless transaction management"}
+        ],
+        "legal": [
+            {"url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80", "title": "Executive Advisory", "desc": "Decades of proven legal counsel and commercial representation"},
+            {"url": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80", "title": "Client Consultation", "desc": "Strategic advocacy and confidential case evaluation"},
+            {"url": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80", "title": "Corporate Conference Hub", "desc": "Collaborative legal analysis and dispute resolution facilities"}
+        ],
+        "pet": [
+            {"url": "https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80", "title": "Compassionate Veterinary", "desc": "Dedicated animal wellness, diagnostics, and tender care"},
+            {"url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80", "title": "Boutique Pet Grooming", "desc": "Hydro-baths, styling, and soothing coat treatments"},
+            {"url": "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80", "title": "Healthy & Happy Pets", "desc": "Safe daycare and playful boarding facilities"}
+        ],
+        "cleaning": [
+            {"url": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80", "title": "Deep Clean Specialists", "desc": "Hospital-grade eco sanitization and spotless detailing"},
+            {"url": "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80", "title": "Residential Sparkle", "desc": "Complete home and commercial move-in/move-out cleans"},
+            {"url": "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80", "title": "Eco-Friendly Hygiene", "desc": "Non-toxic certified products safe for children and pets"}
+        ],
+        "trade": [
+            {"url": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80", "title": "Master Craftsmanship", "desc": "Licensed, insured trade professionals on-call for projects"},
+            {"url": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80", "title": "Commercial & Residential", "desc": "Upfront transparent pricing with complete satisfaction guarantee"},
+            {"url": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80", "title": "Verified Quality", "desc": "Industry-standard precision tools and dependable service"}
+        ]
+    }
+
+    def _resolve_photos(self, category: str, services_input: Any, instructions: Optional[str], business_name: str, location: str) -> List[Dict[str, str]]:
+        srv_str = " ".join([s.get("title", "") for s in services_input]) if isinstance(services_input, list) else str(services_input or "")
+        text = f"{category} {srv_str} {instructions or ''} {business_name}".lower()
+
+        if re.search(r'\b(plumb\w*|pipe\w*|drain\w*|boiler\w*|leak\w*|clog\w*)\b', text):
+            key = "plumbing"
+        elif re.search(r'\b(dent\w*|tooth|teeth|ortho\w*|smile\w*|implant\w*)\b', text):
+            key = "dental"
+        elif re.search(r'\b(pet\w*|dog\w*|cat\w*|vet\w*|veterin\w*|groom\w*|pup\w*|canine|feline)\b', text):
+            key = "pet"
+        elif re.search(r'\b(hotel\w*|resort\w*|suite\w*|motel\w*|inn\b|villas?|lodge\w*|hostel\w*|bed and breakfast)\b', text) or (re.search(r'\brooms?\b', text) and "groom" not in text):
+            key = "hotel"
+        elif re.search(r'\b(cafe\w*|coffee\w*|roaster\w*|espresso\w*|bakery|bakeries|pastr\w*|barista)\b', text):
+            key = "cafe"
+        elif re.search(r'\b(restaurant\w*|bistro\w*|diner\w*|cuisine|pizza\w*|dining|grill\w*|burger\w*|steakhouse|sushi|tacos?|chef)\b', text):
+            key = "restaurant"
+        elif re.search(r'\b(gym\w*|fitness|workout\w*|crossfit|training|trainer|lifting|bodybuild\w*|athletic)\b', text):
+            key = "gym"
+        elif re.search(r'\b(salon\w*|barber\w*|hair\w*|spa\b|beauty|esthetic\w*|manicure|pedicure|massage)\b', text):
+            key = "salon"
+        elif re.search(r'\b(auto\w*|car\w*|mechanic\w*|tire\w*|brake\w*|vehicle\w*|garage|dealership|detailing)\b', text):
+            key = "auto"
+        elif re.search(r'\b(real\s*estate|realtor\w*|propert\w*|housing|apartments?|interior\s*design|architect\w*)\b', text):
+            key = "realestate"
+        elif re.search(r'\b(legal|law\b|lawyer\w*|attorney\w*|counsel\w*|finance|financial|accounting|accountant|tax\w*|consult\w*)\b', text):
+            key = "legal"
+        elif re.search(r'\b(clean\w*|maid\w*|janitor\w*|sanitiz\w*|housekeep\w*)\b', text):
+            key = "cleaning"
+        else:
+            key = "trade"
+
+        return [dict(p) for p in self.PHOTO_CATALOG[key]]
+
+    def _resolve_pricing_tiers(self, category: str, services_input: Any, instructions: Optional[str]) -> List[Dict[str, Any]]:
+        srv_str = " ".join([s.get("title", "") for s in services_input]) if isinstance(services_input, list) else str(services_input or "")
+        text = f"{category} {srv_str} {instructions or ''}".lower()
+
+        if re.search(r'\b(plumb\w*|pipe\w*|drain\w*|boiler\w*)\b', text):
+            return [
+                {"name": "Emergency Callout", "price": "£89", "period": "flat fee", "badge": "Rapid Arrival", "features": ["30-Min Rapid Dispatch", "Full Video/Pressure Diagnostic", "Transparent Upfront Quote", "No Hidden Charges"]},
+                {"name": "Pipe & Boiler Repair", "price": "£220", "period": "standard", "badge": "Recommended", "features": ["Comprehensive System Repair", "OEM Certified Pipe & Fittings", "12-Month Labor Guarantee", "Safety Check Included"]},
+                {"name": "Annual Home Care Plan", "price": "£399", "period": "/ year", "badge": "Full Cover", "features": ["24/7 Priority Emergency Line", "Annual Boiler Service & Tune-up", "Zero After-Hours Callout Surcharge", "Drain Jetting Included"]}
+            ]
+        elif re.search(r'\b(dent\w*|tooth|teeth|ortho\w*|smile\w*)\b', text):
+            return [
+                {"name": "Diagnostic Exam", "price": "$89", "period": "flat fee", "badge": "Essential", "features": ["Comprehensive Oral Exam", "Digital Low-Dose X-Rays", "Personalized Treatment Plan", "Insurance Direct Billing"]},
+                {"name": "Complete Hygiene Care", "price": "$189", "period": "standard", "badge": "Popular", "features": ["Ultrasonic Scaling", "Enamel Fluoride Treatment", "Gentle Polish & Floss", "Gum Health Assessment"]},
+                {"name": "Cosmetic Smile Package", "price": "$899", "period": "custom", "badge": "Transformation", "features": ["Professional In-Office Whitening", "Custom Take-Home Trays", "Aesthetic Contouring Consultation", "Follow-up Shading Check"]}
+            ]
+        elif re.search(r'\b(hotel\w*|resort\w*|suite\w*|stay|villas?|inn\b)\b', text):
+            return [
+                {"name": "Standard Deluxe", "price": "₹3,999", "period": "/ night", "badge": "Popular", "features": ["King Size Bed", "High-Speed Wi-Fi", "Complimentary Breakfast", "24/7 Room Service"]},
+                {"name": "Executive Suite", "price": "₹6,499", "period": "/ night", "badge": "Best Value", "features": ["City View Balcony", "Jacuzzi & Lounge", "Airport Transit Included", "Free Spa Access"]},
+                {"name": "Presidential Villa", "price": "₹12,999", "period": "/ night", "badge": "Luxury", "features": ["Private Butler Service", "Complimentary Fine Dining", "Private Terrace Pool", "VIP Lounge Access"]}
+            ]
+        elif re.search(r'\b(cafe\w*|coffee\w*|roaster\w*|espresso\w*)\b', text):
+            return [
+                {"name": "Daily Roasters Pass", "price": "₹499", "period": "/ week", "badge": "Starter", "features": ["Unlimited Filter Brews", "10% Bakery Discount", "High-Speed Fiber Wi-Fi"]},
+                {"name": "Artisan Tasting Pass", "price": "₹1,299", "period": "/ month", "badge": "Most Loved", "features": ["Specialty Pour-Over Flight", "Free Pastry with Beverage", "Private Booth Reservation"]},
+                {"name": "Connoisseur Club", "price": "₹2,499", "period": "/ month", "badge": "Exclusive", "features": ["2 Bags Single-Origin Beans", "Masterclass Invite", "Free Cafe Merch"]}
+            ]
+        elif re.search(r'\b(gym\w*|fitness|workout\w*|crossfit|training)\b', text):
+            return [
+                {"name": "Day Pass", "price": "$25", "period": "single pass", "badge": "Trial", "features": ["Full Floor & Machine Access", "Locker & Shower Amenities", "Free InBody Scan"]},
+                {"name": "Monthly All-Access", "price": "$79", "period": "/ month", "badge": "Popular", "features": ["24/7 Keycard Gym Access", "Unlimited Group HIIT/Yoga", "Sauna & Recovery Lounge", "Zero Contract Lock-in"]},
+                {"name": "VIP Coaching Tier", "price": "$199", "period": "/ month", "badge": "Results Guaranteed", "features": ["Weekly 1-on-1 Certified Trainer", "Custom Macro & Nutrition Plan", "Monthly Milestone Check-ins", "App Workout Tracking"]}
+            ]
+        elif re.search(r'\b(salon\w*|barber\w*|hair\w*|spa\b|beauty)\b', text):
+            return [
+                {"name": "Signature Haircut", "price": "$65", "period": "per service", "badge": "Classic", "features": ["Consultation & Custom Styling", "Clarifying Shampoo & Blowout", "Finishing Product Application"]},
+                {"name": "Balayage & Color Art", "price": "$175", "period": "full service", "badge": "Best Seller", "features": ["Custom Color Formulation", "Olaplex Bonding Treatment", "Toner & Gloss Treatment", "Style & Wave Finish"]},
+                {"name": "Full Day Spa Retreat", "price": "$295", "period": "package", "badge": "Ultimate Pamper", "features": ["Aromatherapy Full Body Massage", "Custom Glow Facial", "Hydrating Hair Mask", "Complimentary Champagne"]}
+            ]
+        else:
+            return [
+                {"name": "Diagnostic Inspection", "price": "$89", "period": "flat fee", "badge": "Basic", "features": ["Full On-Site Assessment", "Comprehensive Digital Report", "Upfront Transparent Quotation", "Zero Obligation"]},
+                {"name": "Complete Service Plan", "price": "$249", "period": "standard", "badge": "Recommended", "features": ["Diagnostic + Repair Work", "OEM Certified Parts & Equipment", "90-Day Labor Guarantee", "Priority Scheduling"]},
+                {"name": "Annual Priority Care", "price": "$499", "period": "/ year", "badge": "VIP Protection", "features": ["24/7 Emergency Dispatch", "Quarterly System Maintenance", "Zero After-Hours Surcharge", "15% Member Discount on Repairs"]}
+            ]
 
     def _build_template(
         self,
@@ -59,14 +242,15 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         copy_data: Dict[str, Any],
         design_system: Dict[str, Any],
         wa_url: str,
+        assets: Dict[str, Any],
         instructions: Optional[str] = None
     ) -> str:
-        name = business_data.get("name", "Austin Smile Studio")
-        category = business_data.get("category", "Dental Clinic")
-        location = business_data.get("location", "Austin, TX")
-        phone = business_data.get("phone", "+1 (512) 555-0198")
+        name = business_data.get("name") or "Austin Smile Studio"
+        category = business_data.get("category") or "Dental Clinic"
+        location = business_data.get("location") or "Austin, TX"
+        phone = str(business_data.get("phone") or "+1 (512) 555-0198")
         
-        palette = design_system.get("palette", {})
+        palette = (design_system or {}).get("palette") or {}
         primary = palette.get("primary", "#b45309")
         primary_hover = palette.get("primary_hover", "#92400e")
         secondary = palette.get("secondary", "#0d9488")
@@ -75,35 +259,154 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         headline = copy_data.get("headline", f"{location}'s Premier {category}")
         subheadline = copy_data.get("subheadline", f"Trusted by thousands in {location}. Providing world-class care and verified excellence.")
         
-        # Primary CTA label (strictly adapted to voice instructions and copy data)
         cta_primary = copy_data.get("cta_primary", "Schedule Appointment")
         cta_secondary = copy_data.get("cta_secondary", "Instant WhatsApp Chat")
+
+        # Check for user instructions targeting primary CTA
+        if instructions:
+            inst_lower = instructions.lower()
+            if "book room" in inst_lower and "a room" not in inst_lower:
+                cta_primary = "Book Room"
+            elif "book a room" in inst_lower:
+                cta_primary = "Book a Room"
+            elif "reserve a table" in inst_lower:
+                cta_primary = "Reserve a Table"
 
         services = copy_data.get("services", [])
         testimonials = copy_data.get("testimonials", [])
         why_us = copy_data.get("why_choose_us", [])
 
-        # Form fields adapted to category
+        # Assets extraction
+        assets = assets or {}
+        logo_url = (assets.get("logo_url") or "").strip()
+        photos = assets.get("photos") or []
+        video_url = (assets.get("video_url") or "").strip()
+        brochure_url = (assets.get("brochure_url") or "").strip()
+        pricing_tiers = assets.get("pricing_tiers") or []
+
+        # Default rich photo gallery if none provided - dynamically resolved per business niche and prompt
+        if not photos:
+            photos = self._resolve_photos(category, copy_data.get("services", ""), instructions, name, location)
+
+        # Default pricing tiers if none provided - dynamically resolved per business niche
+        if not pricing_tiers:
+            pricing_tiers = self._resolve_pricing_tiers(category, copy_data.get("services", ""), instructions)
+
+        # Logo Markup
+        if logo_url:
+            logo_markup = f'<img src="{logo_url}" alt="{name} Logo" class="h-10 w-auto object-contain rounded-lg max-w-[140px]">'
+        else:
+            logo_markup = f"""
+            <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md shadow-amber-600/20">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+            </div>
+            """
+
+        # Form adaptation
         is_hotel = "hotel" in category.lower() or "room" in cta_primary.lower() or "stay" in category.lower()
         if is_hotel:
-            form_title = "Reserve Your Suite"
+            form_title = f"{cta_primary} Directly"
             form_subtitle = "Instant booking confirmation with zero prepayment"
             service_select_html = """
-                <option>Executive Deluxe Suite</option>
-                <option>Presidential Luxury Room</option>
-                <option>Standard Business Double</option>
+                <option>Standard Deluxe Room</option>
+                <option>Executive Suite</option>
+                <option>Presidential Villa</option>
                 <option>Banquet & Conference Hall</option>
             """
             date_label = "Check-in / Check-out Dates"
         else:
-            form_title = "Direct Reservation Desk"
+            form_title = f"Reserve Your Service"
             form_subtitle = "Immediate confirmation via SMS / WhatsApp"
             service_select_html = f"""
-                <option>Standard {category} Consultation</option>
-                <option>Express Diagnostic & Service</option>
-                <option>Urgent / Priority Request</option>
+                <option>Standard {category} Service</option>
+                <option>Express Diagnostic & Care</option>
+                <option>Urgent / Priority Service</option>
             """
             date_label = "Preferred Date & Time"
+
+        # Pricing Tiers HTML
+        pricing_html = ""
+        for p in pricing_tiers:
+            badge = p.get("badge", "")
+            badge_html = f'<span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 uppercase tracking-wider">{badge}</span>' if badge else ''
+            
+            features_html = "".join([
+                f'<li class="flex items-center space-x-2.5 text-slate-600 text-xs sm:text-sm"><i data-lucide="check" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i><span>{feat}</span></li>'
+                for feat in p.get("features", [])
+            ])
+
+            pricing_html += f"""
+            <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative group hover:-translate-y-1">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-xl font-bold text-slate-900">{p.get('name', 'Package')}</h4>
+                        {badge_html}
+                    </div>
+                    <div class="mb-6 flex items-baseline space-x-1">
+                        <span class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{p.get('price', '$99')}</span>
+                        <span class="text-xs text-slate-500 font-semibold">{p.get('period', '')}</span>
+                    </div>
+                    <ul class="space-y-3 mb-8">
+                        {features_html}
+                    </ul>
+                </div>
+                <button onclick="selectTier('{p.get('name', '')}')" class="w-full bg-slate-900 group-hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors duration-200 text-sm flex items-center justify-center space-x-2">
+                    <span>Select {p.get('name', 'Plan')}</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+            """
+
+        # Photos Gallery HTML
+        photos_html = ""
+        for photo in photos:
+            p_url = photo.get("url", photo) if isinstance(photo, dict) else photo
+            p_title = photo.get("title", f"{name} Showcase") if isinstance(photo, dict) else "Featured Showcase"
+            p_desc = photo.get("desc", f"Verified excellence in {location}") if isinstance(photo, dict) else ""
+
+            photos_html += f"""
+            <div class="group relative rounded-3xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 bg-slate-900 h-80">
+                <img src="{p_url}" alt="{p_title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent flex flex-col justify-end p-6">
+                    <h4 class="text-white font-bold text-lg mb-1">{p_title}</h4>
+                    <p class="text-slate-300 text-xs leading-relaxed">{p_desc}</p>
+                </div>
+            </div>
+            """
+
+        # Video Section HTML (if provided)
+        video_section_html = ""
+        if video_url:
+            # Check for YouTube embed conversion
+            embed_url = video_url
+            if "watch?v=" in video_url:
+                v_id = video_url.split("watch?v=")[1].split("&")[0]
+                embed_url = f"https://www.youtube.com/embed/{v_id}"
+            elif "youtu.be/" in video_url:
+                v_id = video_url.split("youtu.be/")[1].split("?")[0]
+                embed_url = f"https://www.youtube.com/embed/{v_id}"
+
+            video_section_html = f"""
+            <section class="py-16 bg-slate-950 text-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <span class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-2 block">Virtual Tour</span>
+                    <h3 class="text-3xl font-extrabold mb-8">Experience {name} in Motion</h3>
+                    <div class="max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl border border-slate-800 aspect-video">
+                        <iframe src="{embed_url}" class="w-full h-full border-none" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </section>
+            """
+
+        # Brochure Button Markup
+        brochure_btn_html = ""
+        if brochure_url:
+            brochure_btn_html = f"""
+            <a href="{brochure_url}" target="_blank" download class="inline-flex items-center space-x-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm hover:bg-slate-50 transition">
+                <i data-lucide="file-text" class="w-4 h-4 text-amber-600"></i>
+                <span>Download Brochure (PDF)</span>
+            </a>
+            """
 
         services_html = ""
         for s in services:
@@ -129,8 +432,8 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                     <i data-lucide="star" class="w-4 h-4 fill-current"></i>
                 </div>
                 <p class="text-slate-700 italic mb-4">"{t.get('quote', 'Exceptional service and quick response!')}"</p>
-                <div class="font-semibold text-slate-900 text-sm">{t.get('name', 'Verified Guest')}</div>
-                <div class="text-xs text-slate-500">Verified Client • {location}</div>
+                <div class="font-semibold text-slate-900 text-sm">{t.get('name', 'Verified Client')}</div>
+                <div class="text-xs text-slate-500">Verified • {location}</div>
             </div>
             """
 
@@ -176,9 +479,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md shadow-amber-600/20">
-                    <i data-lucide="sparkles" class="w-5 h-5"></i>
-                </div>
+                {logo_markup}
                 <div>
                     <span class="text-xl font-extrabold tracking-tight text-slate-900">{name}</span>
                     <span class="block text-xs font-medium text-slate-500">{category}</span>
@@ -187,14 +488,16 @@ Return ONLY valid HTML inside ```html ... ``` code block.
 
             <!-- Desktop Nav -->
             <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+                <a href="#gallery" class="hover:text-amber-600 transition-colors">Showcase</a>
                 <a href="#services" class="hover:text-amber-600 transition-colors">Services</a>
+                <a href="#pricing" class="hover:text-amber-600 transition-colors">Pricing & Rates</a>
                 <a href="#why-us" class="hover:text-amber-600 transition-colors">Why Us</a>
-                <a href="#testimonials" class="hover:text-amber-600 transition-colors">Reviews</a>
                 <a href="#contact" class="hover:text-amber-600 transition-colors">Location</a>
             </nav>
 
             <!-- Header Actions -->
             <div class="hidden sm:flex items-center space-x-3">
+                {brochure_btn_html}
                 <a href="tel:{phone.replace(' ', '')}" class="flex items-center space-x-2 text-sm font-semibold text-slate-700 hover:text-amber-600 px-3 py-2 rounded-lg transition-colors">
                     <i data-lucide="phone" class="w-4 h-4 text-amber-600"></i>
                     <span>{phone}</span>
@@ -213,9 +516,10 @@ Return ONLY valid HTML inside ```html ... ``` code block.
 
         <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-6 bg-white border-b border-slate-200 space-y-3">
+            <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium">Showcase Gallery</a>
             <a href="#services" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium">Services</a>
+            <a href="#pricing" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium">Pricing</a>
             <a href="#why-us" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium">Why Us</a>
-            <a href="#testimonials" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium">Reviews</a>
             <a href="#contact" onclick="toggleMobileMenu()" class="block py-2 text-slate-700 font-medium">Contact</a>
             <button onclick="openBookingModal(); toggleMobileMenu();" class="w-full bg-amber-600 text-white py-3 rounded-xl font-semibold shadow-md">
                 {cta_primary}
@@ -305,8 +609,41 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         </div>
     </section>
 
+    <!-- Product / Photo Showcase Gallery Section -->
+    <section id="gallery" class="py-20 bg-white border-b border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Visual Showcase</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Experience Our Spaces & Products</h3>
+                <p class="text-slate-600 mt-4 text-base">Curated photos and assets from {name} in {location}.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {photos_html}
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Showcase (if present) -->
+    {video_section_html}
+
+    <!-- Pricing & Packages Section -->
+    <section id="pricing" class="py-20 bg-slate-50 border-b border-slate-200/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Transparent Pricing</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Packages & Rates</h3>
+                <p class="text-slate-600 mt-4 text-base">Clear, upfront rates with no hidden fees. Select your preferred tier below.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {pricing_html}
+            </div>
+        </div>
+    </section>
+
     <!-- Services Section -->
-    <section id="services" class="py-20 bg-slate-50">
+    <section id="services" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Tailored Offerings</h2>
@@ -321,7 +658,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
     </section>
 
     <!-- Why Choose Us Section -->
-    <section id="why-us" class="py-20 bg-white border-y border-slate-200/60">
+    <section id="why-us" class="py-20 bg-slate-50 border-y border-slate-200/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div class="space-y-6">
@@ -362,7 +699,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
     </section>
 
     <!-- Testimonials Section -->
-    <section id="testimonials" class="py-20 bg-slate-50">
+    <section id="testimonials" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16">
                 <span class="text-xs font-bold text-amber-700 uppercase tracking-widest">Real Customer Feedback</span>
@@ -375,7 +712,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-20 bg-white">
+    <section id="contact" class="py-20 bg-slate-50 border-t border-slate-200/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div class="space-y-6">
@@ -384,7 +721,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                     <p class="text-slate-600 text-base">Have questions or need assistance? Our on-duty concierge and support staff are available 24/7.</p>
 
                     <div class="space-y-4 pt-4">
-                        <div class="flex items-center space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="flex items-center space-x-4 p-4 rounded-2xl bg-white border border-slate-100 shadow-sm">
                             <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="map-pin" class="w-5 h-5"></i>
                             </div>
@@ -394,7 +731,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                             </div>
                         </div>
 
-                        <div class="flex items-center space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="flex items-center space-x-4 p-4 rounded-2xl bg-white border border-slate-100 shadow-sm">
                             <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0">
                                 <i data-lucide="phone-call" class="w-5 h-5"></i>
                             </div>
@@ -417,9 +754,9 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                 </div>
 
                 <!-- Interactive Location / Map Card -->
-                <div class="rounded-3xl bg-slate-100 p-8 border border-slate-200 flex flex-col justify-between relative overflow-hidden">
+                <div class="rounded-3xl bg-white p-8 border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden">
                     <div class="space-y-4">
-                        <div class="inline-flex items-center space-x-2 bg-white px-3 py-1 rounded-full text-xs font-bold text-slate-700 shadow-sm">
+                        <div class="inline-flex items-center space-x-2 bg-slate-100 px-3 py-1 rounded-full text-xs font-bold text-slate-700 shadow-sm">
                             <i data-lucide="navigation" class="w-3.5 h-3.5 text-amber-700"></i>
                             <span>Territory: {location}</span>
                         </div>
@@ -427,7 +764,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                         <p class="text-slate-600 text-sm">Centrally situated in {location} with convenient transit and valet parking.</p>
                     </div>
 
-                    <div class="my-8 h-48 bg-slate-200 rounded-2xl flex items-center justify-center border border-slate-300/80 relative">
+                    <div class="my-8 h-48 bg-slate-100 rounded-2xl flex items-center justify-center border border-slate-200 relative">
                         <div class="text-center space-y-2">
                             <div class="w-12 h-12 rounded-full bg-amber-600 text-white flex items-center justify-center mx-auto shadow-lg animate-bounce">
                                 <i data-lucide="map-pin" class="w-6 h-6"></i>
@@ -448,9 +785,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
     <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800 text-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i>
-                </div>
+                {logo_markup}
                 <span class="text-white font-bold text-base">{name}</span>
             </div>
             <div>
@@ -492,7 +827,6 @@ Return ONLY valid HTML inside ```html ... ``` code block.
 
         <!-- Chat Conversation Area -->
         <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-xs">
-            <!-- Agent Welcome Bubble -->
             <div class="flex items-start space-x-2">
                 <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                     <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
@@ -502,7 +836,6 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                 </div>
             </div>
 
-            <!-- Quick Action Suggestion Chips -->
             <div class="pt-2 flex flex-wrap gap-1.5 pl-8">
                 <button onclick="sendQuickMessage('I would like to {cta_primary.lower()}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full text-[11px] font-medium transition">
                     🛎️ {cta_primary}
@@ -537,7 +870,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                 <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center mb-3">
                     <i data-lucide="calendar" class="w-5 h-5"></i>
                 </div>
-                <h3 class="text-2xl font-bold text-slate-900">{cta_primary}</h3>
+                <h3 class="text-2xl font-bold text-slate-900" id="modal-title">{cta_primary}</h3>
                 <p class="text-slate-500 text-sm mt-1">Direct reservation with {name}. Confirmed within 15 minutes.</p>
             </div>
 
@@ -557,8 +890,8 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Selection</label>
-                    <select class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none text-sm bg-white">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Package / Tier Selection</label>
+                    <select id="modal-service-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none text-sm bg-white">
                         {service_select_html}
                     </select>
                 </div>
@@ -586,12 +919,25 @@ Return ONLY valid HTML inside ```html ... ``` code block.
             menu.classList.toggle('hidden');
         }}
 
-        function openBookingModal() {{
+        function openBookingModal(tierName) {{
             document.getElementById('booking-modal').classList.remove('hidden');
+            if (tierName) {{
+                const sel = document.getElementById('modal-service-select');
+                for (let i = 0; i < sel.options.length; i++) {{
+                    if (sel.options[i].text.toLowerCase().includes(tierName.toLowerCase())) {{
+                        sel.selectedIndex = i;
+                        break;
+                    }}
+                }}
+            }}
         }}
 
         function closeBookingModal() {{
             document.getElementById('booking-modal').classList.add('hidden');
+        }}
+
+        function selectTier(tierName) {{
+            openBookingModal(tierName);
         }}
 
         function openLiveChat() {{
