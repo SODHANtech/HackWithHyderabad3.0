@@ -266,6 +266,105 @@ def reflect_endpoint(req: ReflectRequest):
     return {"reflection": hindsight_service.reflect(query=req.query, context=req.context)}
 
 
+@app.post("/api/demonstrate-hindsight")
+def api_demonstrate_hindsight():
+    """Runs live before/after Hindsight continuous learning demonstration"""
+    from backend.agents.critics import critic_panel
+
+    flawed_html = """
+    <html>
+      <head><title>Quick Fix Plumbers</title></head>
+      <body>
+        <h1>Call Us Today</h1>
+        <a href="https://wa.me/07911123456">Chat on WhatsApp</a>
+        <button id="book-btn">Book Appointment</button>
+      </body>
+    </html>
+    """
+    biz_data = {
+        "business_name": "Quick Fix Plumbers",
+        "category": "Plumber",
+        "phone": "07911 123456",
+        "city": "London"
+    }
+
+    critique_1 = critic_panel.evaluate_all(flawed_html, biz_data)
+
+    for issue in critique_1["all_issues"]:
+        hindsight_service.retain(
+            content=f"Defect logged for {biz_data['category']} ({biz_data['business_name']}): {issue}",
+            tags=["critic_feedback", "flaw_detected", biz_data['category'].lower()],
+            metadata={"business": biz_data["business_name"], "score": str(critique_1["average_score"])}
+        )
+
+    reflection = hindsight_service.reflect(
+        query="Fix WhatsApp formatting and booking modal errors for plumbing service",
+        context="Run 1 failed with missing international phone format and missing modal structures."
+    )
+
+    corrected_html = """
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Quick Fix Plumbers | 24/7 Emergency Service</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script type="application/ld+json">{"@context": "https://schema.org", "@type": "PlumbingService", "name": "Quick Fix Plumbers"}</script>
+      </head>
+      <body class="bg-slate-900 text-white">
+        <header class="p-4 flex justify-between items-center">
+          <span class="font-bold text-xl">Quick Fix Plumbers</span>
+          <button id="mobile-menu-btn" class="md:hidden">Menu</button>
+        </header>
+        <section id="services" class="p-6">
+          <h2 class="text-2xl font-bold">Our Services</h2>
+          <p>Leak detection, pipe repairs, boiler maintenance.</p>
+        </section>
+        <section id="testimonials" class="p-6">
+          <h2 class="text-2xl font-bold">Testimonials</h2>
+          <p>Great emergency response time in London!</p>
+        </section>
+        <section id="contact" class="p-6">
+          <h2 class="text-2xl font-bold">Contact Us</h2>
+          <a href="https://wa.me/447911123456?text=Hi%20Quick%20Fix%20Plumbers" class="bg-emerald-500 px-6 py-3 rounded-lg font-bold inline-block">
+            Chat on WhatsApp
+          </a>
+          <button id="booking-modal-btn" class="bg-blue-600 px-6 py-3 rounded-lg font-bold ml-4">
+            Book Service
+          </button>
+        </section>
+        <footer class="p-4 bg-slate-950 text-center">
+          <p>© 2026 Quick Fix Plumbers</p>
+        </footer>
+        <div id="booking-modal" class="hidden">
+          <button id="close-modal-btn">Close</button>
+        </div>
+        <script>
+          document.getElementById('booking-modal-btn').addEventListener('click', function() {
+            document.getElementById('booking-modal').classList.remove('hidden');
+          });
+          document.getElementById('close-modal-btn').addEventListener('click', function() {
+            document.getElementById('booking-modal').classList.add('hidden');
+          });
+        </script>
+      </body>
+    </html>
+    """
+    critique_2 = critic_panel.evaluate_all(corrected_html, biz_data)
+
+    return {
+        "success": True,
+        "run1_score": critique_1["average_score"],
+        "run1_issues": critique_1["all_issues"],
+        "reflection": reflection,
+        "run2_score": critique_2["average_score"],
+        "run2_critics": critique_2["critic_results"],
+        "html": corrected_html,
+        "memories_count": len(hindsight_service.get_all_memories())
+    }
+
+
 # Mount static frontend directory
 STATIC_DIR = Path(__file__).resolve().parent.parent / "frontend"
 if STATIC_DIR.exists():

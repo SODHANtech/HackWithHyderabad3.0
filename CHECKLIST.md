@@ -55,8 +55,8 @@
 - [x] Integrated browser Web Speech API for voice command input and revisions.
 - [x] Built responsive Live Iframe Sandbox with Desktop (100%), Tablet (768px), and Mobile (375px) viewports.
 - [x] Built live Hindsight Memory Inspector stream and Critic Scorecard.
-- [x] Added direct "Download HTML" and "Open in New Window" options.
-
+- [x] Added direct "Download HTML", "Copy Code", and "Open in New Window" options.
+- [x] Added in-browser "Run Live Demo" button for instant judge Hindsight verification.
 
 ---
 
@@ -64,8 +64,9 @@
 - [x] Tested end-to-end flow with realistic business scenarios (London Plumbers, Austin Dental Clinic, Bangalore Cafe).
 - [x] Verified dynamic niche photo catalog (13 industries, 200 OK verified Unsplash images).
 - [x] Verified full null safety on business assets and phone normalization.
-- [x] Passed 8/8 comprehensive tests in automated test suite.
+- [x] Passed 8/8 comprehensive tests in automated test suite (`scratch/test_suite.py`).
 - [x] Created system architecture, mindmaps, and evaluator roadmap (`PROJECT_STATUS_AND_ARCHITECTURE.md`).
-- [ ] Run Hindsight before/after memory retention script (`demonstrate_hindsight.py`).
-- [ ] Record 60-90 second high-impact demo video.
-- [ ] Submit hackathon project URL and writeup.
+- [x] Verified Hindsight before/after memory retention script (`demonstrate_hindsight.py` & `/api/demonstrate-hindsight`).
+- [x] Pushed clean repository and documentation to [GitHub](https://github.com/SODHANtech/HackWithHyderabad3.0).
+- [ ] Record 60-90 second high-impact demo video (walkthrough script prepared).
+- [ ] Submit hackathon project URL and writeup (submission draft prepared).

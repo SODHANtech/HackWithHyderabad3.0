@@ -299,6 +299,11 @@
                         <span>New Tab</span>
                     </button>
 
+                    <button onclick="copyCode()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span>Copy Code</span>
+                    </button>
+
                     <button onclick="downloadCode()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1.5">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         <span>Download HTML</span>
@@ -382,7 +387,13 @@
                         <i data-lucide="database" class="w-3.5 h-3.5 text-sky-400"></i>
                         <span>Hindsight Memory Bank</span>
                     </span>
-                    <button onclick="fetchMemories()" class="text-[10px] text-sky-400 hover:underline">Refresh</button>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="runHindsightDemo()" id="btn-demo-hindsight" class="px-2 py-0.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold transition flex items-center space-x-1 shadow-sm">
+                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                            <span>Run Demo</span>
+                        </button>
+                        <button onclick="fetchMemories()" class="text-[10px] text-sky-400 hover:underline">Refresh</button>
+                    </div>
                 </div>
 
                 <div id="memory-feed" class="space-y-2 overflow-y-auto max-h-72 pr-1 text-xs">
@@ -939,6 +950,72 @@
             a.download = "index.html";
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        function copyCode() {
+            if (!currentHtmlCode) {
+                showToast("Generate a website first!");
+                return;
+            }
+            navigator.clipboard.writeText(currentHtmlCode).then(() => {
+                showToast("HTML code copied to clipboard!");
+            }).catch(err => {
+                console.error("Copy failed", err);
+                showToast("Failed to copy code");
+            });
+        }
+
+        async function runHindsightDemo() {
+            const btn = document.getElementById("btn-demo-hindsight");
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<span class="animate-spin mr-1">⏳</span> Running...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch("/api/demonstrate-hindsight", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentHtmlCode = data.html;
+                    renderPreview(data.html);
+                    
+                    document.getElementById("stat-iterations").innerText = "2 (Auto-Healed)";
+                    document.getElementById("stat-score").innerText = data.run2_score + "%";
+                    document.getElementById("stat-progress-bar").style.width = data.run2_score + "%";
+
+                    if (data.run2_critics) {
+                        data.run2_critics.forEach(c => {
+                            if (c.critic === "UI/UX Critic") {
+                                document.getElementById("score-ui").innerText = c.score + "%";
+                                document.getElementById("summary-ui").innerText = c.summary;
+                            } else if (c.critic === "Functionality Critic") {
+                                document.getElementById("score-func").innerText = c.score + "%";
+                                document.getElementById("summary-func").innerText = c.summary;
+                            } else if (c.critic === "Performance & Responsiveness Critic") {
+                                document.getElementById("score-perf").innerText = c.score + "%";
+                                document.getElementById("summary-perf").innerText = c.summary;
+                            } else if (c.critic === "Code Quality & Validation Critic") {
+                                document.getElementById("score-code").innerText = c.score + "%";
+                                document.getElementById("summary-code").innerText = c.summary;
+                            }
+                        });
+                    }
+
+                    showToast(`Hindsight Demo: Score elevated from ${data.run1_score}% to ${data.run2_score}%!`);
+                    await fetchMemories();
+                } else {
+                    showToast("Demo execution failed");
+                }
+            } catch (err) {
+                console.error("Demo failed:", err);
+                showToast("Error running demonstration");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
         }
 
         window.addEventListener("DOMContentLoaded", () => {
