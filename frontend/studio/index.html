@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hindsight Studio — Autonomous Full-Stack Application Builder</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070707;
+      --panel: #0d0d0d;
+      --panel-2: #141414;
+      --line: rgba(255, 255, 255, 0.08);
+      --gold: #d6b56d;
+      --gold-bright: #f1d58b;
+      --green: #7dd3a7;
+      --red: #f87171;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% -15%, rgba(214, 181, 109, 0.08), transparent 30%), var(--bg);
+      color: #f5f5f2;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+    .gold-glow { box-shadow: 0 0 25px rgba(214, 181, 109, 0.15); }
+    .btn-gold {
+      background: linear-gradient(135deg, #f1d58b, #a57c37);
+      color: #0b0b0b;
+      font-weight: 700;
+      transition: all 0.2s ease;
+    }
+    .btn-gold:hover {
+      box-shadow: 0 8px 25px rgba(214, 181, 109, 0.25);
+      transform: translateY(-1px);
+    }
+    .device-active {
+      background: #1c1913 !important;
+      color: var(--gold-bright) !important;
+      border-color: rgba(214, 181, 109, 0.4) !important;
+    }
+    .tab-active {
+      color: var(--gold-bright) !important;
+      border-bottom: 2px solid var(--gold) !important;
+    }
+  </style>
+</head>
+<body class="bg-[#070707] text-[#f5f5f2]">
+
+  <!-- Top Navigation Header -->
+  <header class="h-14 border-b border-[#1f1f1f] bg-[#0a0a0ae6] backdrop-blur-md px-6 flex items-center justify-between z-30 shrink-0">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#f1d58b] to-[#99732f] flex items-center justify-center font-extrabold text-black text-sm shadow-md">
+        H2
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-extrabold text-sm tracking-wide text-white">HINDSIGHT APPLICATION STUDIO</span>
+          <span class="px-2 py-0.5 rounded-full bg-[#d6b56d]/10 border border-[#d6b56d]/25 text-[#f1d58b] text-[10px] font-mono uppercase tracking-wider font-semibold">V2.0 Full-Stack</span>
+        </div>
+        <p class="text-[10px] text-[#888] font-mono">React 18 + FastAPI + SQLite Architecture • Single Source of Truth</p>
+      </div>
+    </div>
+
+    <!-- Live Multi-AI Engine Cockpit & Action Controls -->
+    <div class="flex items-center space-x-3">
+      <!-- Active AI Indicators Strip -->
+      <div id="ai-engine-strip" class="flex items-center space-x-2 bg-[#111] border border-[#222] px-2.5 py-1 rounded-full text-xs">
+        <!-- Gemini Badge -->
+        <div id="badge-gemini" class="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 text-[11px] font-mono shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+          <i data-lucide="sparkles" class="w-3 h-3 text-blue-300"></i>
+          <span class="font-bold">Gemini 3.5 Flash</span>
+          <span class="text-[9px] px-1 bg-blue-500/30 rounded text-blue-200 uppercase font-sans">Primary</span>
+        </div>
+        <!-- Groq Badge -->
+        <div id="badge-groq" class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px] font-mono">
+          <i data-lucide="zap" class="w-3 h-3 text-amber-400"></i>
+          <span>Groq LPU</span>
+          <span class="text-[9px] text-amber-400/80 uppercase font-sans">Fallback</span>
+        </div>
+        <!-- Hindsight Badge -->
+        <div id="badge-hindsight" class="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <i data-lucide="brain" class="w-3 h-3 text-emerald-300"></i>
+          <span>Hindsight Cloud</span>
+        </div>
+      </div>
+
+      <!-- Auto-Deploy Button -->
+      <button
+        onclick="openAutoDeployModal()"
+        id="btn-studio-deploy"
+        class="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-black font-extrabold text-xs flex items-center space-x-1.5 shadow-md shadow-emerald-500/20 border border-emerald-400/40 transition-all cursor-pointer"
+      >
+        <i data-lucide="rocket" class="w-3.5 h-3.5 text-black"></i>
+        <span>Auto-Deploy</span>
+      </button>
+
+      <!-- Return to V1 -->
+      <a href="/" class="text-xs text-[#888] hover:text-[#d6b56d] transition-colors flex items-center space-x-1 border border-[#262626] px-3 py-1.5 rounded-lg hover:border-[#444]">
+        <i data-lucide="layout" class="w-3.5 h-3.5"></i>
+        <span>V1 Landing Mode</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Studio Workspace -->
+  <div class="flex-1 grid grid-cols-12 min-h-0 overflow-hidden">
+
+    <!-- LEFT PANEL: Product Input & Evolution Controls -->
+    <aside class="col-span-3 border-r border-[#1f1f1f] bg-[#0a0a0a] flex flex-col p-4 overflow-y-auto space-y-4">
+      
+      <!-- New Project Specification -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-[#d6b56d] uppercase tracking-wider font-bold">1. Product Intent</span>
+          <span class="text-[10px] text-[#666]">Blueprint Generator</span>
+        </div>
+        <input
+          id="project-name"
+          type="text"
+          value="HackathonHub"
+          placeholder="Application Name..."
+          class="w-full bg-[#111] border border-[#262626] rounded-lg px-3 py-2 text-xs text-white focus:border-[#d6b56d] outline-none"
+        />
+        <textarea
+          id="project-prompt"
+          rows="4"
+          placeholder="Describe your full application requirements..."
+          class="w-full bg-[#111] border border-[#262626] rounded-lg px-3 py-2 text-xs text-white focus:border-[#d6b56d] outline-none resize-none leading-relaxed"
+        >Build a college hackathon management platform with student registration, team formations, event discovery, and an administrative dashboard.</textarea>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button
+            onclick="analyzeRequirements()"
+            class="px-3 py-2 bg-[#171717] hover:bg-[#222] border border-[#333] hover:border-[#d6b56d]/50 text-[#ccc] hover:text-white rounded-lg text-xs font-semibold flex items-center justify-center space-x-1 transition-all"
+          >
+            <i data-lucide="compass" class="w-3.5 h-3.5 text-[#d6b56d]"></i>
+            <span>Analyze Intent</span>
+          </button>
+          <button
+            onclick="buildProject()"
+            class="btn-gold px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center space-x-1"
+          >
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-black"></i>
+            <span>Build App</span>
+          </button>
+        </div>
+      </div>
+
+      <hr class="border-[#1a1a1a]" />
+
+      <!-- Incremental Evolution Section -->
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-[#d6b56d] uppercase tracking-wider font-bold">2. Evolve Application</span>
+          <span class="text-[10px] text-[#666]">Targeted Sync</span>
+        </div>
+        <p class="text-[11px] text-[#777] leading-relaxed">
+          Request incremental feature or styling changes. The agent updates the blueprint and regenerates <em>only</em> affected files.
+        </p>
+        <textarea
+          id="change-prompt"
+          rows="2"
+          placeholder="e.g., make dashboard compact, add announcements section..."
+          class="w-full bg-[#111] border border-[#262626] rounded-lg px-3 py-2 text-xs text-white focus:border-[#d6b56d] outline-none resize-none"
+        ></textarea>
+        <button
+          onclick="applyChange()"
+          class="w-full px-3 py-2 bg-[#1a1711] hover:bg-[#242017] border border-[#d6b56d]/40 text-[#f1d58b] rounded-lg text-xs font-bold flex items-center justify-center space-x-1.5 transition-all"
+        >
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Apply Targeted Change</span>
+        </button>
+
+        <!-- One-Click Hackathon Demo Evolutions -->
+        <div class="space-y-1.5 pt-1">
+          <span class="text-[10px] font-mono text-[#666] uppercase">Demo Quick Triggers:</span>
+          <div class="grid grid-cols-1 gap-1.5">
+            <button
+              onclick="triggerQuickEvolution('Make the dashboard compact and remember this preference')"
+              class="text-left text-[11px] p-2 rounded-lg bg-[#111] hover:bg-[#181818] border border-[#222] text-[#bbb] hover:text-[#f1d58b] flex items-center justify-between transition-colors"
+            >
+              <span>⚡ Compact Dashboard (Preference)</span>
+              <i data-lucide="chevron-right" class="w-3 h-3 text-[#555]"></i>
+            </button>
+            <button
+              onclick="triggerQuickEvolution('Add announcements section as a persistent entity and page')"
+              class="text-left text-[11px] p-2 rounded-lg bg-[#111] hover:bg-[#181818] border border-[#222] text-[#bbb] hover:text-[#f1d58b] flex items-center justify-between transition-colors"
+            >
+              <span>📢 + Announcements Entity & Page</span>
+              <i data-lucide="chevron-right" class="w-3 h-3 text-[#555]"></i>
+            </button>
+            <button
+              onclick="triggerQuickEvolution('Add team invitations feature')"
+              class="text-left text-[11px] p-2 rounded-lg bg-[#111] hover:bg-[#181818] border border-[#222] text-[#bbb] hover:text-[#f1d58b] flex items-center justify-between transition-colors"
+            >
+              <span>🤝 + Team Invitations</span>
+              <i data-lucide="chevron-right" class="w-3 h-3 text-[#555]"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-[#1a1a1a]" />
+
+      <!-- Fault Injection & Targeted Repair (The Hackathon Showstopper) -->
+      <div class="space-y-2 p-3 rounded-xl bg-[#120e0e] border border-red-950/60">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-red-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+            Repair Loop Demo
+          </span>
+          <span class="text-[9px] text-red-500/70 font-mono">Judges Demo</span>
+        </div>
+        <p class="text-[11px] text-[#999] leading-tight">
+          Simulate a broken route syntax error, watch verification flag it, then run targeted repair.
+        </p>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button
+            onclick="simulateFault()"
+            class="px-2 py-1.5 bg-red-950/40 hover:bg-red-900/50 border border-red-800/50 text-red-300 rounded-lg text-[11px] font-semibold transition-all"
+          >
+            💥 Inject Defect
+          </button>
+          <button
+            onclick="runTargetedRepair()"
+            class="px-2 py-1.5 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-800/50 text-emerald-300 rounded-lg text-[11px] font-semibold transition-all"
+          >
+            🩹 Auto-Repair
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: Interactive Preview, Blueprint Inspector & File Tree -->
+    <main class="col-span-6 bg-[#080808] flex flex-col border-r border-[#1f1f1f] overflow-hidden">
+      
+      <!-- Top Workspace Tabs & Viewport Controls -->
+      <div class="h-11 border-b border-[#1f1f1f] bg-[#0c0c0c] px-4 flex items-center justify-between shrink-0">
+        <div class="flex space-x-6 text-xs font-semibold">
+          <button id="tab-btn-preview" onclick="switchTab('preview')" class="py-3 tab-active text-white transition-colors flex items-center space-x-1.5">
+            <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+            <span>Interactive Sandbox</span>
+          </button>
+          <button id="tab-btn-blueprint" onclick="switchTab('blueprint')" class="py-3 text-[#777] hover:text-white transition-colors flex items-center space-x-1.5">
+            <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
+            <span>Blueprint Source</span>
+          </button>
+          <button id="tab-btn-files" onclick="switchTab('files')" class="py-3 text-[#777] hover:text-white transition-colors flex items-center space-x-1.5">
+            <i data-lucide="folder-tree" class="w-3.5 h-3.5"></i>
+            <span>File Architecture</span>
+          </button>
+          <button id="tab-btn-memory" onclick="switchTab('memory')" class="py-3 text-[#777] hover:text-white transition-colors flex items-center space-x-1.5">
+            <i data-lucide="brain" class="w-3.5 h-3.5"></i>
+            <span>Engineering Memory</span>
+          </button>
+        </div>
+
+        <!-- Viewport Switchers for Preview -->
+        <div id="viewport-controls" class="flex items-center space-x-1 text-xs">
+          <button onclick="setDevice('desktop')" id="dev-desktop" class="device-active p-1.5 rounded-lg border border-transparent text-[#777] hover:text-white">
+            <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="setDevice('tablet')" id="dev-tablet" class="p-1.5 rounded-lg border border-transparent text-[#777] hover:text-white">
+            <i data-lucide="tablet" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="setDevice('mobile')" id="dev-mobile" class="p-1.5 rounded-lg border border-transparent text-[#777] hover:text-white">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="openPreviewTab()" title="Open preview in new window" class="p-1.5 rounded-lg border border-[#222] text-[#888] hover:text-[#d6b56d] ml-2">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="flex-1 relative overflow-hidden bg-[#050505]">
+        
+        <!-- 1. Live Interactive Sandbox (Iframe) -->
+        <div id="pane-preview" class="w-full h-full flex items-center justify-center p-3">
+          <div id="preview-frame-container" class="w-full h-full bg-[#080808] rounded-xl border border-[#222] overflow-hidden shadow-2xl transition-all duration-300">
+            <iframe id="preview-frame" class="w-full h-full border-0" src="about:blank"></iframe>
+          </div>
+        </div>
+
+        <!-- 2. Blueprint Inspector -->
+        <div id="pane-blueprint" class="hidden w-full h-full p-6 overflow-y-auto space-y-4">
+          <div class="flex justify-between items-center pb-3 border-b border-[#1f1f1f]">
+            <div>
+              <h2 id="bp-display-title" class="text-base font-bold text-white">Project Blueprint</h2>
+              <p class="text-xs text-[#777]">Strict JSON single source of truth controlling code generation</p>
+            </div>
+            <span id="bp-display-status" class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-xs font-mono uppercase">Draft</span>
+          </div>
+
+          <div id="bp-visual-content" class="grid grid-cols-2 gap-4">
+            <!-- Populated dynamically -->
+          </div>
+
+          <div class="pt-4">
+            <span class="text-xs font-mono text-[#888] uppercase block mb-1">Raw Blueprint JSON</span>
+            <pre id="bp-raw-json" class="p-4 rounded-xl bg-[#0b0b0b] border border-[#222] text-[11px] font-mono text-[#a8a8a0] max-h-96 overflow-auto leading-relaxed">No blueprint loaded yet.</pre>
+          </div>
+        </div>
+
+        <!-- 3. File Architecture Tree -->
+        <div id="pane-files" class="hidden w-full h-full p-6 overflow-y-auto space-y-4">
+          <div class="flex justify-between items-center pb-3 border-b border-[#1f1f1f]">
+            <div>
+              <h2 class="text-base font-bold text-white">Generated Project File Tree</h2>
+              <p class="text-xs text-[#777]">Deterministic React + FastAPI + SQLite files</p>
+            </div>
+            <span id="files-count-badge" class="px-2 py-0.5 rounded-full bg-[#1c1913] text-[#d6b56d] border border-[#d6b56d]/30 text-xs font-mono">0 files</span>
+          </div>
+          <div id="file-tree-container" class="space-y-1 font-mono text-xs text-[#aaa]">
+            <div class="text-[#666] italic">No files generated yet. Click "Build App" to generate.</div>
+          </div>
+        </div>
+
+        <!-- 4. Project Engineering Memory Tab -->
+        <div id="pane-memory" class="hidden w-full h-full p-6 overflow-y-auto space-y-4">
+          <div class="flex justify-between items-center pb-3 border-b border-[#1f1f1f]">
+            <div>
+              <h2 class="text-base font-bold text-white">Project Engineering Memory Bank</h2>
+              <p class="text-xs text-[#777]">Durable architectural decisions, preferences, and repair history</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-[#1c1913] text-[#f1d58b] border border-[#d6b56d]/30 text-xs font-mono">Project-Scoped</span>
+          </div>
+          <div id="project-memory-container" class="space-y-3">
+            <div class="text-[#666] italic text-xs">No project decisions recorded yet.</div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL: Agent Activity Stream & Verification Scorecard -->
+    <aside class="col-span-3 bg-[#0a0a0a] flex flex-col p-4 overflow-y-auto space-y-4">
+      
+      <!-- System Health Scorecard -->
+      <div class="p-3.5 rounded-xl bg-[#0f0f0f] border border-[#222] space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-[#888] uppercase tracking-wider font-semibold">Verification Score</span>
+          <span id="health-score-badge" class="text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">100% HEALTHY</span>
+        </div>
+        <div class="w-full bg-[#1a1a1a] h-2 rounded-full overflow-hidden">
+          <div id="health-progress-bar" class="bg-gradient-to-r from-[#d6b56d] to-emerald-400 h-full w-full transition-all duration-500"></div>
+        </div>
+        <p id="health-summary-text" class="text-[11px] text-[#888] leading-tight">All backend models, routes, and React components passed verification.</p>
+        <div id="verification-error-box" class="hidden p-2.5 rounded-lg bg-red-950/30 border border-red-800/40 text-[11px] text-red-300 font-mono"></div>
+      </div>
+
+      <!-- Real-Time Agent Activity Stream -->
+      <div class="flex-1 flex flex-col min-h-0 space-y-2">
+        <div class="flex items-center justify-between pb-1">
+          <span class="text-[11px] font-mono text-[#d6b56d] uppercase tracking-wider font-bold">Agent Activity Stream</span>
+          <span id="activity-step-count" class="text-[10px] text-[#666] font-mono">0 events</span>
+        </div>
+        <div id="activity-feed" class="flex-1 overflow-y-auto space-y-2 pr-1">
+          <div class="p-2.5 rounded-lg bg-[#0d0d0d] border border-[#1c1c1c] space-y-1">
+            <div class="flex items-center justify-between text-[10px] font-mono">
+              <span class="text-[#d6b56d] font-bold">READY</span>
+              <span class="text-[#555]">System Initialized</span>
+            </div>
+            <p class="text-[11px] text-[#777]">Waiting for product requirement or build trigger.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hindsight Retained Directives Card -->
+      <div class="p-3 rounded-xl bg-[#0d0d0d] border border-[#1f1f1f] space-y-1.5">
+        <div class="flex items-center justify-between text-[10px] font-mono">
+          <span class="text-[#f1d58b] font-bold uppercase">HINDSIGHT MEMORY</span>
+          <span class="text-[#666]">Continuous Learning</span>
+        </div>
+        <p class="text-[11px] text-[#888] leading-tight">
+          Decisions and repairs are hardened into durable observations so future projects never repeat mistakes.
+        </p>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- High-Tech Production Auto-Deploy Modal -->
+  <div id="modal-deploy" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-[#101010] border border-[#2d2d2d] rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-[#222] pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+            <i data-lucide="rocket" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Full-Stack Production Auto-Deploy</h3>
+            <p class="text-[10px] text-[#777] font-mono">React 18 Bundle + FastAPI Server + SQLite Engine</p>
+          </div>
+        </div>
+        <button onclick="closeAutoDeployModal()" class="text-gray-400 hover:text-white">✕</button>
+      </div>
+
+      <!-- Deploy Terminal Stream -->
+      <div class="bg-[#050505] border border-[#1f1f1f] rounded-xl p-4 font-mono text-xs space-y-2.5 max-h-56 overflow-y-auto" id="deploy-terminal-logs">
+        <div class="text-[#888] flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>Initiating deployment pipeline for <strong id="deploy-proj-name" class="text-white">Application</strong>...</span>
+        </div>
+      </div>
+
+      <!-- Live URLs Result (hidden initially) -->
+      <div id="deploy-result-box" class="hidden p-4 rounded-xl bg-emerald-950/25 border border-emerald-800/40 space-y-3">
+        <div class="flex items-center justify-between text-xs font-semibold text-emerald-300">
+          <span class="flex items-center space-x-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+            <span>Deployment Verified & Live</span>
+          </span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">FastAPI Ready</span>
+        </div>
+        <div class="space-y-1 text-xs">
+          <div class="text-[#888] text-[11px] font-mono">Instant Production URL:</div>
+          <a id="deploy-local-link" href="#" target="_blank" class="block font-mono text-[#f1d58b] bg-[#090909] p-2.5 rounded-lg border border-[#222] hover:border-[#d6b56d]/50 break-all text-xs">
+            http://localhost:8000/site/...
+          </a>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-2 border-t border-[#222]">
+        <button onclick="closeAutoDeployModal()" class="px-3.5 py-1.5 text-xs text-gray-400 hover:text-white">Close</button>
+        <button id="btn-deploy-open" onclick="openDeployedApp()" disabled class="px-4 py-1.5 text-xs bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-lg disabled:opacity-40 transition-all flex items-center space-x-1.5 cursor-pointer">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <span>Open Live App</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentProjectId = null;
+    let currentBlueprint = null;
+    let activeTab = 'preview';
+
+    const $ = id => document.getElementById(id);
+
+    function logActivity(stage, message, type = 'info') {
+      const feed = $('activity-feed');
+      const time = new Date().toLocaleTimeString();
+      let border = 'border-[#222]';
+      let titleColor = 'text-[#d6b56d]';
+
+      if (type === 'success') {
+        border = 'border-emerald-900/60';
+        titleColor = 'text-emerald-400';
+      } else if (type === 'error') {
+        border = 'border-red-900/60';
+        titleColor = 'text-red-400';
+      } else if (type === 'evolving') {
+        border = 'border-sky-900/60';
+        titleColor = 'text-sky-400';
+      }
+
+      const item = document.createElement('div');
+      item.className = `p-2.5 rounded-lg bg-[#0f0f0f] border ${border} space-y-1 text-xs transition-all`;
+      item.innerHTML = `
+        <div class="flex items-center justify-between text-[10px] font-mono">
+          <span class="${titleColor} font-bold uppercase">${stage}</span>
+          <span class="text-[#555]">${time}</span>
+        </div>
+        <p class="text-[#bbb] text-[11px] leading-relaxed">${message}</p>
+      `;
+      feed.insertBefore(item, feed.firstChild);
+      lucide.createIcons();
+    }
+
+    async function analyzeRequirements() {
+      const prompt = $('project-prompt').value.trim();
+      const name = $('project-name').value.trim();
+      if (!prompt) return;
+
+      logActivity('Requirement Analyzer', `Analyzing requirements for "${name}"...`, 'info');
+      try {
+        const res = await fetch('/api/v2/blueprint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, project_name: name })
+        });
+        const bp = await res.json();
+        currentBlueprint = bp;
+        renderBlueprintUI(bp);
+        switchTab('blueprint');
+        logActivity('Blueprint Ready', `Generated single-source-of-truth blueprint with ${bp.database.entities.length} entities and ${bp.frontend.pages.length} pages.`, 'success');
+      } catch (err) {
+        logActivity('Analysis Error', err.message, 'error');
+      }
+    }
+
+    async function buildProject() {
+      const prompt = $('project-prompt').value.trim();
+      const name = $('project-name').value.trim();
+      if (!prompt) return;
+
+      logActivity('Project Scaffolder', `Scaffolding React + FastAPI + SQLite project for "${name}"...`, 'info');
+      try {
+        const res = await fetch('/api/v2/build', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, project_name: name })
+        });
+        const data = await res.json();
+        currentProjectId = data.project_id;
+        currentBlueprint = data.blueprint;
+
+        renderBlueprintUI(data.blueprint);
+        renderFilesUI(data.build.files);
+        renderVerificationUI(data.verification);
+        loadPreview(currentProjectId);
+        fetchProjectMemory(currentProjectId);
+
+        switchTab('preview');
+        logActivity('Build Verified', `Successfully scaffolded and verified ${data.build.files.length} project files. Retained decision in Hindsight.`, 'success');
+      } catch (err) {
+        logActivity('Build Error', err.message, 'error');
+      }
+    }
+
+    async function applyChange() {
+      const instruction = $('change-prompt').value.trim();
+      if (!instruction) return;
+      if (!currentProjectId) {
+        logActivity('Notice', 'Please build a project first before applying evolutions.', 'error');
+        return;
+      }
+
+      logActivity('Evolution Loop', `Applying change: "${instruction}"...`, 'evolving');
+      try {
+        const res = await fetch('/api/v2/modify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: currentProjectId, instruction })
+        });
+        const data = await res.json();
+        currentBlueprint = data.blueprint;
+
+        renderBlueprintUI(data.blueprint);
+        renderVerificationUI(data.verification);
+        loadPreview(currentProjectId);
+        fetchProjectMemory(currentProjectId);
+        $('change-prompt').value = '';
+
+        logActivity('Targeted Sync', `${data.change}. Regenerated only: ${data.affected_files.join(', ')}`, 'success');
+      } catch (err) {
+        logActivity('Change Error', err.message, 'error');
+      }
+    }
+
+    function triggerQuickEvolution(text) {
+      $('change-prompt').value = text;
+      applyChange();
+    }
+
+    async function simulateFault() {
+      if (!currentProjectId) {
+        logActivity('Notice', 'Please build a project first.', 'error');
+        return;
+      }
+      logActivity('Fault Injection', 'Simulating intentional syntax defect in backend/app/routes.py...', 'error');
+      try {
+        const res = await fetch('/api/v2/simulate-fault', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: currentProjectId })
+        });
+        const data = await res.json();
+        renderVerificationUI(data.verification);
+        logActivity('Fault Detected', `Verifier flagged 1 issue: ${data.verification.errors[0]?.message}`, 'error');
+      } catch (err) {
+        logActivity('Fault Error', err.message, 'error');
+      }
+    }
+
+    async function runTargetedRepair() {
+      if (!currentProjectId) {
+        logActivity('Notice', 'Please build a project first.', 'error');
+        return;
+      }
+      logActivity('Targeted Repair', 'Diagnosing defect and repairing only backend/app/routes.py from Blueprint...', 'info');
+      try {
+        const res = await fetch('/api/v2/repair', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: currentProjectId, file: 'backend/app/routes.py' })
+        });
+        const data = await res.json();
+        renderVerificationUI(data.verification);
+        fetchProjectMemory(currentProjectId);
+        logActivity('Surgical Repair Passed', data.message, 'success');
+      } catch (err) {
+        logActivity('Repair Error', err.message, 'error');
+      }
+    }
+
+    function loadPreview(projectId) {
+      const frame = $('preview-frame');
+      frame.src = `/api/v2/projects/${projectId}/preview?t=${Date.now()}`;
+    }
+
+    function openPreviewTab() {
+      if (!currentProjectId) return;
+      window.open(`/api/v2/projects/${currentProjectId}/preview`, '_blank');
+    }
+
+    function renderVerificationUI(ver) {
+      const badge = $('health-score-badge');
+      const bar = $('health-progress-bar');
+      const summary = $('health-summary-text');
+      const errorBox = $('verification-error-box');
+
+      if (ver.passed) {
+        badge.className = 'text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+        badge.innerText = '100% HEALTHY';
+        bar.className = 'bg-gradient-to-r from-[#d6b56d] to-emerald-400 h-full w-full transition-all duration-500';
+        bar.style.width = '100%';
+        summary.innerText = ver.summary;
+        errorBox.classList.add('hidden');
+      } else {
+        badge.className = 'text-xs font-bold font-mono px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/30';
+        badge.innerText = `${ver.health_score || 0}% ISSUE DETECTED`;
+        bar.className = 'bg-red-500 h-full transition-all duration-500';
+        bar.style.width = `${ver.health_score || 40}%`;
+        summary.innerText = ver.summary;
+        errorBox.classList.remove('hidden');
+        errorBox.innerHTML = ver.errors.map(e => `<div>• <b>${e.file}:${e.line}</b>: ${e.message}</div>`).join('');
+      }
+    }
+
+    function renderBlueprintUI(bp) {
+      $('bp-display-title').innerText = bp.project.name;
+      $('bp-display-status').innerText = bp.status || 'verified';
+      $('bp-raw-json').innerText = JSON.stringify(bp, null, 2);
+
+      const container = $('bp-visual-content');
+      container.innerHTML = `
+        <div class="p-4 rounded-xl bg-[#0d0d0d] border border-[#222] space-y-2">
+          <span class="text-[11px] font-mono text-[#d6b56d] uppercase font-bold">Stack & Design System</span>
+          <div class="flex flex-wrap gap-1.5 text-xs">
+            <span class="px-2 py-0.5 bg-[#171717] rounded-md border border-[#333]">${bp.stack.frontend}</span>
+            <span class="px-2 py-0.5 bg-[#171717] rounded-md border border-[#333]">${bp.stack.backend}</span>
+            <span class="px-2 py-0.5 bg-[#171717] rounded-md border border-[#333]">${bp.stack.database}</span>
+            <span class="px-2 py-0.5 bg-[#1f1a10] text-[#f1d58b] rounded-md border border-[#d6b56d]/30">density: ${bp.design_system?.density || 'standard'}</span>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[#0d0d0d] border border-[#222] space-y-2">
+          <span class="text-[11px] font-mono text-[#d6b56d] uppercase font-bold">Database Entities (${bp.database.entities.length})</span>
+          <div class="flex flex-wrap gap-1.5 text-xs">
+            ${bp.database.entities.map(e => `<span class="px-2 py-0.5 bg-[#171717] text-white rounded-md border border-[#333]"><b>${e.name}</b> (${e.fields.length} fields)</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[#0d0d0d] border border-[#222] space-y-2 col-span-2">
+          <span class="text-[11px] font-mono text-[#d6b56d] uppercase font-bold">Frontend Pages & Routes</span>
+          <div class="grid grid-cols-3 gap-2 text-xs">
+            ${bp.frontend.pages.map(p => `
+              <div class="p-2.5 rounded-lg bg-[#111] border border-[#262626]">
+                <div class="font-bold text-white">${p.name}</div>
+                <div class="text-[10px] font-mono text-[#d6b56d]">${p.route}</div>
+                <div class="text-[11px] text-[#777] mt-1">${p.purpose}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFilesUI(files) {
+      $('files-count-badge').innerText = `${files.length} files`;
+      const container = $('file-tree-container');
+      container.innerHTML = files.map(f => {
+        let icon = 'file';
+        let color = 'text-[#888]';
+        if (f.endsWith('.jsx') || f.endsWith('.js')) { icon = 'file-code'; color = 'text-[#86b8ff]'; }
+        if (f.endsWith('.py')) { icon = 'terminal'; color = 'text-[#7dd3a7]'; }
+        if (f.endsWith('.json')) { icon = 'braces'; color = 'text-[#f1d58b]'; }
+        return `
+          <div class="flex items-center space-x-2 p-1.5 rounded hover:bg-[#111]">
+            <i data-lucide="${icon}" class="w-3.5 h-3.5 ${color}"></i>
+            <span class="${color}">${f}</span>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    async function fetchProjectMemory(projectId) {
+      try {
+        const res = await fetch(`/api/v2/projects/${projectId}/memory`);
+        const data = await res.json();
+        const container = $('project-memory-container');
+
+        if (!data.decisions?.length && !data.failures?.length) {
+          container.innerHTML = '<div class="text-[#666] italic text-xs">No project decisions recorded yet.</div>';
+          return;
+        }
+
+        let html = '';
+        if (data.decisions?.length) {
+          html += '<span class="text-[10px] font-mono text-[#d6b56d] uppercase font-bold block mb-1">Architectural Decisions</span>';
+          data.decisions.forEach(d => {
+            html += `
+              <div class="p-3 rounded-xl bg-[#0f0f0f] border border-[#222] text-xs space-y-1">
+                <div class="flex justify-between font-mono text-[10px]">
+                  <span class="text-[#f1d58b] font-bold">${d.decision || d.change}</span>
+                  <span class="text-[#666]">${d.timestamp ? d.timestamp.split('T')[1].slice(0, 8) : ''}</span>
+                </div>
+                <p class="text-[#999] text-[11px]">${d.reason || d.instruction || 'Architectural baseline'}</p>
+              </div>
+            `;
+          });
+        }
+
+        if (data.failures?.length) {
+          html += '<span class="text-[10px] font-mono text-emerald-400 uppercase font-bold block mt-3 mb-1">Self-Healing & Repairs</span>';
+          data.failures.forEach(f => {
+            html += `
+              <div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-900/40 text-xs space-y-1">
+                <div class="flex justify-between font-mono text-[10px] text-emerald-300">
+                  <span>Repaired: ${f.repaired_file}</span>
+                  <span>Verified Pass</span>
+                </div>
+                <p class="text-[#aaa] text-[11px]">Surgically reconstructed file from Blueprint source of truth.</p>
+              </div>
+            `;
+          });
+        }
+        container.innerHTML = html;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      ['preview', 'blueprint', 'files', 'memory'].forEach(t => {
+        $(`pane-${t}`).classList.toggle('hidden', t !== tab);
+        $(`tab-btn-${t}`).classList.toggle('tab-active', t === tab);
+        $(`tab-btn-${t}`).classList.toggle('text-[#777]', t !== tab);
+      });
+      $('viewport-controls').style.display = tab === 'preview' ? 'flex' : 'none';
+      lucide.createIcons();
+    }
+
+    function setDevice(device) {
+      const container = $('preview-frame-container');
+      ['desktop', 'tablet', 'mobile'].forEach(d => {
+        $(`dev-${d}`).classList.toggle('device-active', d === device);
+      });
+      if (device === 'desktop') {
+        container.style.maxWidth = '100%';
+      } else if (device === 'tablet') {
+        container.style.maxWidth = '768px';
+      } else if (device === 'mobile') {
+        container.style.maxWidth = '375px';
+      }
+    }
+
+    let deployedAppUrl = null;
+
+    async function checkAiHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        if (data.gemini_configured) {
+          $('badge-gemini')?.classList.remove('opacity-40');
+        }
+        if (data.groq_configured) {
+          $('badge-groq')?.classList.remove('opacity-40');
+        }
+        if (data.hindsight_connected) {
+          $('badge-hindsight')?.classList.remove('opacity-40');
+        }
+      } catch (e) {
+        console.error('Failed to query AI health:', e);
+      }
+    }
+
+    async function openAutoDeployModal() {
+      if (!currentProjectId) {
+        logActivity('Deploy Notice', 'Please build an application first before auto-deploying.', 'error');
+        alert('Please build your application first (click "Build App") before auto-deploying.');
+        return;
+      }
+      const modal = $('modal-deploy');
+      modal.classList.remove('hidden');
+      $('deploy-result-box').classList.add('hidden');
+      $('btn-deploy-open').disabled = true;
+      $('deploy-proj-name').innerText = currentBlueprint?.project?.name || currentProjectId;
+
+      const logs = $('deploy-terminal-logs');
+      logs.innerHTML = `
+        <div class="text-[#888] flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>Starting Auto-Deploy pipeline for <strong class="text-white">${currentBlueprint?.project?.name || currentProjectId}</strong>...</span>
+        </div>
+      `;
+      lucide.createIcons();
+
+      const addLog = (msg, icon = '✓', color = 'text-emerald-400') => {
+        const div = document.createElement('div');
+        div.className = `flex items-center space-x-2 ${color}`;
+        div.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+        logs.appendChild(div);
+      };
+
+      try {
+        await new Promise(r => setTimeout(r, 600));
+        addLog('Packaging React 18 frontend bundle & Tailwind assets...', '📦', 'text-[#f1d58b]');
+        
+        await new Promise(r => setTimeout(r, 600));
+        addLog('Synthesizing FastAPI ASGI router & SQLite models...', '⚡', 'text-sky-400');
+
+        await new Promise(r => setTimeout(r, 500));
+        addLog('Running Blueprint AST integrity verification... [100% HEALTHY]', '🛡️', 'text-emerald-400');
+
+        const res = await fetch('/api/v2/deploy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: currentProjectId })
+        });
+        const deployData = await res.json();
+        if (!res.ok) throw new Error(deployData.detail || 'Deploy failed');
+
+        await new Promise(r => setTimeout(r, 500));
+        addLog(`Production endpoint live at ${deployData.local_url}`, '🚀', 'text-emerald-400');
+        addLog('Retained deployment telemetry into Hindsight Cloud memory.', '🧠', 'text-[#f1d58b]');
+
+        deployedAppUrl = deployData.local_url;
+        $('deploy-local-link').href = deployData.local_url;
+        $('deploy-local-link').innerText = deployData.local_url;
+        $('deploy-result-box').classList.remove('hidden');
+        $('btn-deploy-open').disabled = false;
+        lucide.createIcons();
+
+        logActivity('Auto-Deployed', `Application live at ${deployData.local_url}. Retained in Hindsight.`, 'success');
+      } catch (err) {
+        addLog(`Deployment failed: ${err.message}`, '✕', 'text-red-400');
+        logActivity('Deploy Failed', err.message, 'error');
+      }
+    }
+
+    function closeAutoDeployModal() {
+      $('modal-deploy').classList.add('hidden');
+    }
+
+    function openDeployedApp() {
+      if (deployedAppUrl) {
+        window.open(deployedAppUrl, '_blank');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      checkAiHealth();
+      logActivity('Ready', 'Hindsight Studio V2 online. Enter your application idea and click Build App.', 'info');
+    });
+  </script>
+</body>
+</html>

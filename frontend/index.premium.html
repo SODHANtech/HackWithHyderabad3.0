@@ -123,10 +123,6 @@
         .memory-card:hover { transform:translateX(-2px); border-color:rgba(214,181,109,.28) !important; background:#10100f !important; }
         .gold-rule { height:1px; background:linear-gradient(90deg,transparent,rgba(214,181,109,.45),transparent); }
         .status-pill { border-color:rgba(214,181,109,.16) !important; background:rgba(214,181,109,.05) !important; }
-        .impact-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 7px; border-radius:999px; border:1px solid rgba(214,181,109,.18); background:rgba(214,181,109,.06); color:#d6b56d; font-size:9px; }
-        .impact-chip::before { content:"✓"; font-size:8px; color:#7ee2a8; }
-        .impact-flash { animation:impactFlash .65s ease-out; }
-        @keyframes impactFlash { 0%{box-shadow:0 0 0 0 rgba(214,181,109,.28)} 100%{box-shadow:0 0 0 12px rgba(214,181,109,0)} }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden">
@@ -145,38 +141,16 @@
             </div>
         </div>
 
-        <!-- Multi-AI Engine Status Badges & V2 App Studio Launcher -->
-        <div class="flex items-center space-x-3 text-xs font-semibold">
-            <!-- Active AI Indicators Strip -->
-            <div id="ai-engine-strip" class="flex items-center space-x-2 bg-slate-900/90 border border-slate-800 px-2.5 py-1 rounded-full backdrop-blur-md">
-                <!-- Gemini Badge -->
-                <div id="badge-gemini" class="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 text-[11px] font-mono shadow-sm transition-all duration-300">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-                    <i data-lucide="sparkles" class="w-3 h-3 text-blue-300"></i>
-                    <span class="font-bold">Gemini 3.5 Flash</span>
-                    <span class="text-[9px] px-1 bg-blue-500/30 rounded text-blue-200 uppercase font-sans">Primary</span>
-                </div>
-                <!-- Groq Badge -->
-                <div id="badge-groq" class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px] font-mono transition-all duration-300">
-                    <i data-lucide="zap" class="w-3 h-3 text-amber-400"></i>
-                    <span>Groq LPU</span>
-                    <span class="text-[9px] text-amber-400/80 uppercase font-sans">Fallback</span>
-                </div>
-                <!-- Hindsight Badge -->
-                <div id="badge-hindsight" class="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono shadow-sm transition-all duration-300">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <i data-lucide="brain" class="w-3 h-3 text-emerald-300"></i>
-                    <span>Hindsight Cloud</span>
-                    <span id="status-bank" class="text-[9px] px-1 bg-emerald-500/20 rounded text-emerald-200">connected</span>
-                </div>
+        <!-- System Status Badges -->
+        <div class="flex items-center space-x-4 text-xs font-semibold">
+            <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Hindsight Bank: <strong class="text-white" id="status-bank">local-biz-architect</strong></span>
             </div>
-
-            <!-- Launch V2 App Studio Button -->
-            <a href="/studio" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f1d58b] via-[#e5c378] to-[#ab8235] text-black font-extrabold text-xs flex items-center space-x-1.5 shadow-lg shadow-[#f1d58b]/15 hover:scale-105 hover:brightness-110 transition-all border border-[#ffe39e]/40">
-                <i data-lucide="cpu" class="w-3.5 h-3.5 text-black"></i>
-                <span>Launch V2 App Studio</span>
-                <i data-lucide="arrow-right" class="w-3 h-3 ml-0.5 text-black"></i>
-            </a>
+            <div class="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>4-Critic Self-Healing: <strong class="text-white">Active</strong></span>
+            </div>
         </div>
     </header>
 
@@ -357,7 +331,6 @@
                             <span>Voice / Text Command</span>
                         </span>
                         <span id="voice-indicator" class="text-[10px] text-slate-500">Ready</span>
-                        <span id="voice-learning-chip" class="hidden ml-2 px-2 py-0.5 rounded-full border border-[#d6b56d]/20 text-[#d6b56d] bg-[#d6b56d]/5 text-[9px] font-mono">MEMORY UPDATED</span>
                     </div>
 
                     <div class="flex items-center space-x-2">
@@ -442,52 +415,6 @@
                 </div>
                 <p class="text-[11px] text-slate-500 mt-2">The agent remembers decisions, learns from outcomes, and carries those lessons into the next build.</p>
             </div>
-            <!-- Judge Demo: teach once, start a new project, recall automatically -->
-            <div class="p-4 rounded-2xl bg-[#0d0d0c] border border-[#d6b56d]/20 space-y-3">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <div class="text-[9px] font-mono tracking-[.18em] text-[#d6b56d] uppercase">Judge Demo</div>
-                        <div class="text-sm font-bold text-white mt-1">Teach once. Remember forever.</div>
-                    </div>
-                    <span id="demo-memory-count" class="text-[9px] font-mono text-slate-500">0 memories</span>
-                </div>
-                <p class="text-[10px] leading-relaxed text-slate-500">Teach a design preference, then simulate a fresh project and watch Hindsight recall it without repeating the instruction.</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="demoTeachPreference()" id="demo-teach-btn" class="px-3 py-2.5 rounded-xl bg-[#171614] border border-[#d6b56d]/25 text-[#e7c978] text-[10px] font-bold hover:bg-[#201e1a] hover:border-[#d6b56d]/50 transition">
-                        <span class="block">01 · Teach Agent</span>
-                        <span class="block text-[9px] font-normal text-slate-500 mt-0.5">Black / white / gold</span>
-                    </button>
-                    <button onclick="demoStartNewProject()" id="demo-new-btn" class="px-3 py-2.5 rounded-xl bg-white text-black text-[10px] font-bold hover:bg-[#f4e5bc] transition">
-                        <span class="block">02 · New Project</span>
-                        <span class="block text-[9px] font-normal text-slate-500 mt-0.5">Recall previous lessons</span>
-                    </button>
-                </div>
-                <div id="demo-recall-result" class="hidden rounded-xl bg-black/40 border border-slate-800 p-3">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[9px] font-bold uppercase tracking-[.16em] text-slate-500">Recalled for new project</span>
-                        <span id="demo-recall-count" class="text-[9px] font-mono text-[#d6b56d]">0 lessons</span>
-                    </div>
-                    <div id="demo-recall-chips" class="flex flex-wrap gap-1.5"></div>
-                </div>
-                <div id="memory-impact" class="hidden rounded-xl bg-[#11100e] border border-[#d6b56d]/20 p-3 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[9px] font-bold uppercase tracking-[.16em] text-slate-500">Memory Impact</span>
-                        <span class="text-[9px] font-mono text-emerald-400">APPLIED</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="rounded-lg border border-slate-800 bg-black/30 p-2">
-                            <div class="text-[8px] uppercase tracking-wider text-slate-600 mb-1.5">Without memory</div>
-                            <div class="text-[10px] text-slate-500 leading-relaxed">Generic visual system<br>Default interactions<br>No learned preferences</div>
-                        </div>
-                        <div class="rounded-lg border border-[#d6b56d]/20 bg-[#171512] p-2">
-                            <div class="text-[8px] uppercase tracking-wider text-[#d6b56d] mb-1.5">With Hindsight</div>
-                            <div id="memory-impact-applied" class="text-[10px] text-slate-300 leading-relaxed">Learned style applied</div>
-                        </div>
-                    </div>
-                    <div id="memory-impact-chips" class="flex flex-wrap gap-1.5"></div>
-                </div>
-            </div>
-
             <div class="memory-stage learning-pulse">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[10px] font-bold uppercase tracking-[.16em] text-slate-400">Learning loop</span>
@@ -947,121 +874,17 @@
             window.__toastTimer = setTimeout(() => toast.classList.add("toast-hidden"), 4200);
         }
 
-        async function demoTeachPreference() {
-            const btn = document.getElementById("demo-teach-btn");
-            btn.disabled = true;
-            btn.innerHTML = `<span class="block">Teaching Hindsight...</span><span class="block text-[9px] font-normal text-slate-500 mt-0.5">Retaining durable preference</span>`;
-            setLearningStage("retain", "Teaching Hindsight a durable design preference that should survive future projects.", "LEARNING");
-            try {
-                const res = await fetch("/api/demo/learn", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        instruction: "I prefer a black, white and gold visual system. Keep the interface minimal, luxurious and professional. Use subtle hover interactions and avoid excessive animation or gradients.",
-                        business_name: "Hindsight Demo"
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || "Could not teach Hindsight");
-                document.getElementById("demo-memory-count").innerText = `${data.memory_count} memories`;
-                showToast("Hindsight learned", "The design preference is now stored as long-term memory.", "success");
-                fetchMemories();
-                setLearningStage("retain", "Preference retained. Start a new project to prove it can be recalled without repeating it.", "LEARNED");
-            } catch (err) {
-                showToast("Learning failed", err.message, "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span class="block">01 · Teach Agent</span><span class="block text-[9px] font-normal text-slate-500 mt-0.5">Black / white / gold</span>`;
-            }
-        }
-
-        async function demoStartNewProject() {
-            const btn = document.getElementById("demo-new-btn");
-            btn.disabled = true;
-            btn.innerHTML = `<span class="block">Recalling...</span><span class="block text-[9px] font-normal text-slate-500 mt-0.5">Searching Hindsight</span>`;
-            setLearningStage("recall", "Fresh project started. Searching Hindsight for reusable lessons from previous work.", "RECALLING");
-            try {
-                const res = await fetch("/api/demo/recall", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: "new website project user visual design preferences style interaction animation" })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || "Could not recall Hindsight");
-                const panel = document.getElementById("demo-recall-result");
-                const chips = document.getElementById("demo-recall-chips");
-                const memories = data.memories || [];
-                chips.innerHTML = memories.slice(0, 6).map(m => `<span class="px-2 py-1 rounded-lg bg-[#171614] border border-[#d6b56d]/20 text-[9px] text-[#e7c978]">${escapeHtml(m.content)}</span>`).join("");
-                panel.classList.remove("hidden");
-                document.getElementById("demo-recall-count").innerText = `${data.count} lessons`;
-                document.getElementById("demo-memory-count").innerText = `${Math.max(data.count, 1)}+ recalled`;
-                const impact = document.getElementById("memory-impact");
-                const impactChips = document.getElementById("memory-impact-chips");
-                const impactApplied = document.getElementById("memory-impact-applied");
-                const labels = memories.slice(0, 6).map(m => String(m.content || "").replace(/^User preference:\s*/i, "").replace(/\.$/, ""));
-                impactChips.innerHTML = labels.map(label => `<span class="impact-chip">${escapeHtml(label)}</span>`).join("");
-                impactApplied.innerHTML = labels.length ? `${labels.length} learned decision${labels.length === 1 ? "" : "s"} injected into the new design.` : "No prior decisions available yet.";
-                impact.classList.remove("hidden");
-                impact.classList.remove("impact-flash");
-                void impact.offsetWidth;
-                impact.classList.add("impact-flash");
-                setLearningStage("build", `Fresh project inherited ${data.count} durable lesson(s). Generating the real second website now.`, "BUILDING");
-
-                const buildRes = await fetch("/api/demo/generate", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        project_name: "Aurelia AI",
-                        category: "AI Startup",
-                        location: "Hyderabad",
-                        instruction: "Build a premium AI startup website for Aurelia AI. Create a polished landing page with hero, capabilities, proof, and CTA. Apply the user's previously learned design preferences without asking them again."
-                    })
-                });
-                const generated = await buildRes.json().catch(() => ({}));
-                if (!buildRes.ok) throw new Error(generated.detail || `Generation failed (${buildRes.status})`);
-                renderResults(generated);
-                const applied = generated.demo_learning?.count ?? data.count;
-                impactApplied.innerHTML = `${applied} recalled decision${applied === 1 ? "" : "s"} were used by the real generation pipeline.`;
-                setLearningStage("reflect", "Critics evaluated the memory-informed website and the result is visible in the live preview.", "REFLECT");
-                setTimeout(() => setLearningStage("retain", "Second project generated from remembered preferences.", "LEARNED"), 900);
-                showToast("Memory applied to real project", "Aurelia AI was generated using the recalled design language.", "success");
-            } catch (err) {
-                showToast("Recall failed", err.message, "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span class="block">02 · New Project</span><span class="block text-[9px] font-normal text-slate-500 mt-0.5">Recall previous lessons</span>`;
-            }
-        }
-
-        function escapeHtml(value) {
-            return String(value || "").replace(/[&<>\"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
-        }
-
         async function refreshSystemStatus() {
             try {
                 const res = await fetch("/api/health");
                 const data = await res.json();
-                
-                // Update Hindsight status
                 const bank = document.getElementById("status-bank");
-                if (bank) {
-                    bank.innerText = data.hindsight_connected ? "cloud connected" : "local memory";
-                }
-                
-                // Update Gemini badge
-                const geminiBadge = document.getElementById("badge-gemini");
-                if (geminiBadge && data.gemini_configured) {
-                    geminiBadge.classList.remove("opacity-50");
-                }
-                
-                // Update Groq badge
-                const groqBadge = document.getElementById("badge-groq");
-                if (groqBadge && data.groq_configured) {
-                    groqBadge.classList.remove("opacity-50");
-                }
+                bank.innerText = data.hindsight_connected ? "cloud connected" : "local memory";
+                const badge = bank.parentElement;
+                badge.classList.toggle("text-emerald-300", data.hindsight_connected);
+                badge.classList.toggle("text-amber-300", !data.hindsight_connected);
             } catch (_) {
-                const bank = document.getElementById("status-bank");
-                if (bank) bank.innerText = "offline";
+                document.getElementById("status-bank").innerText = "offline";
             }
         }
 
@@ -1153,14 +976,7 @@
                 if (!res.ok) throw new Error(data.detail || `Server error (${res.status})`);
                 renderResults(data);
                 document.getElementById("voice-transcript-input").value = "";
-                const learning = data.voice_learning || {};
-                const learnedCount = (learning.learned_now || []).length;
-                const recalledCount = (learning.recalled_before || []).length;
-                setLearningStage("retain", `Voice revision applied. ${learnedCount} durable lesson(s) learned; ${recalledCount} prior preference(s) recalled.`, "LEARNED");
-                const memoryChip = document.getElementById("voice-learning-chip");
-                if (memoryChip) { memoryChip.classList.remove("hidden"); setTimeout(() => memoryChip.classList.add("hidden"), 5000); }
-                showToast("Revision + learning complete", `${learnedCount} new lesson(s) retained for future projects.`, "success");
-                fetchMemories();
+                showToast("Revision applied", "Your voice instruction has been reflected in the preview.", "success");
             } catch (err) {
                 showToast("Revision failed", err.message, "error");
             } finally {

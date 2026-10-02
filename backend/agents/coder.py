@@ -21,21 +21,21 @@ class CodeGeneratorAgent:
             if modified:
                 return modified
 
-        name = business_data.get("name") or "Apex Solutions"
-        category = business_data.get("category") or "Professional Services"
-        location = business_data.get("location") or "Austin, TX"
-        phone = str(business_data.get("phone") or "+1 512-555-0198")
-        whatsapp = str(business_data.get("whatsapp") or phone)
+        name = business_data.get("name", "Apex Solutions")
+        category = business_data.get("category", "Professional Services")
+        location = business_data.get("location", "Austin, TX")
+        phone = business_data.get("phone", "+1 512-555-0198")
+        whatsapp = business_data.get("whatsapp", phone)
 
         # Standardize WhatsApp URL format per Hindsight Directives
         clean_wa = re.sub(r"[^\d]", "", whatsapp)
         wa_url = f"https://wa.me/{clean_wa}"
 
-        palette = (design_system or {}).get("palette") or {}
+        palette = design_system.get("palette", {})
         primary_color = palette.get("primary", "#2563eb")
 
         # Check for asset payloads
-        assets = business_data.get("assets") or {}
+        assets = business_data.get("assets", {})
 
         # If LLM is active and instructions exist, ask LLM
         if (instructions or critique_patch_instructions) and llm_service.client:
@@ -57,13 +57,12 @@ Return ONLY valid HTML inside ```html ... ``` code block.
             llm_response = llm_service.complete(prompt, system_prompt="You write pristine, production-ready HTML with zero syntax errors.")
             if "```html" in llm_response:
                 html_code = llm_response.split("```html")[1].split("```")[0].strip()
-                if "<html" in html_code.lower() and "<header" in html_code.lower() and "</body>" in html_code.lower():
-                    return html_code
+                return html_code
 
         # Default battle-tested template with full asset support
         return self._build_template(business_data, copy_data, design_system, wa_url, assets, instructions)
 
-    def _try_exact_voice_replacement(self, html: Optional[str], instructions: Optional[str]) -> Optional[str]:
+    def _try_exact_voice_replacement(self, html: str, instructions: str) -> Optional[str]:
         """
         Detects exact change requests like:
         - change book a room to "book room"
@@ -71,9 +70,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         - rename X to Y
         - replace X with Y
         """
-        if not html or not instructions:
-            return None
-        inst = instructions.strip().rstrip('.!?')
+        inst = instructions.strip()
         
         # Regex to capture: change <target> to ["]?<replacement>["]?
         pattern = re.search(r'(?:change|rename|replace|update)\s+["\']?(.+?)["\']?\s+(?:to|with)\s+["\']?(.+?)["\']?$', inst, re.IGNORECASE)
@@ -89,154 +86,6 @@ Return ONLY valid HTML inside ```html ... ``` code block.
                 return updated_html
         return None
 
-    PHOTO_CATALOG = {
-        "plumbing": [
-            {"url": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80", "title": "Emergency Leak Repair", "desc": "Fast-response pipe inspection and seal fixing"},
-            {"url": "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80", "title": "Boiler & Copper Piping", "desc": "Certified installation of residential and commercial lines"},
-            {"url": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80", "title": "Master Diagnostics", "desc": "High-precision tools for 24/7 drainage and blockage resolution"}
-        ],
-        "dental": [
-            {"url": "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80", "title": "State-of-the-Art Suite", "desc": "Modern clinical equipment ensuring gentle precision care"},
-            {"url": "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80", "title": "Cosmetic Smile Architecture", "desc": "Advanced diagnostics and personalized aesthetic treatment"},
-            {"url": "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&w=800&q=80", "title": "Gentle Hygiene & Care", "desc": "Preventative cleanings and compassionate patient attention"}
-        ],
-        "hotel": [
-            {"url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80", "title": "Luxury Suite", "desc": "Spacious king suites with panoramic city and garden views"},
-            {"url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80", "title": "Fine Dining Lounge", "desc": "World-class gourmet culinary experience and cocktail bar"},
-            {"url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80", "title": "Wellness & Spa", "desc": "Full rejuvenation, relaxation pools, and sauna retreat"}
-        ],
-        "cafe": [
-            {"url": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80", "title": "Single-Origin Brew", "desc": "Artisan espresso and pour-over selections roasted daily"},
-            {"url": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80", "title": "Artisanal Bakery", "desc": "Fresh daily baked sourdough pastries, croissants and treats"},
-            {"url": "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80", "title": "Relaxed Atmosphere", "desc": "Co-working friendly indoor space and sunlit terrace seating"}
-        ],
-        "restaurant": [
-            {"url": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80", "title": "Chef's Tasting Room", "desc": "Warm ambiance paired with award-winning signature dishes"},
-            {"url": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80", "title": "Gourmet Table Service", "desc": "Fresh farm-to-table seasonal ingredients crafted to perfection"},
-            {"url": "https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=800&q=80", "title": "Private Dining & Events", "desc": "Intimate booth settings and celebratory event hosting"}
-        ],
-        "gym": [
-            {"url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80", "title": "Elite Training Floor", "desc": "Top-tier free weights, power racks, and Olympic lifting platforms"},
-            {"url": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80", "title": "Personalized Coaching", "desc": "Certified athletic coaches and customized nutrition tracking"},
-            {"url": "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80", "title": "Recovery & Conditioning", "desc": "Cardio theater, yoga studio, and infrared mobility suites"}
-        ],
-        "salon": [
-            {"url": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80", "title": "Boutique Styling Studio", "desc": "Expert colorists and precision haircutting for modern looks"},
-            {"url": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80", "title": "Luxury Spa Treatments", "desc": "Rejuvenating facials, deep conditioning, and organic skincare"},
-            {"url": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80", "title": "Hair & Beauty Lounge", "desc": "Premium salon aesthetics with personalized pampering"}
-        ],
-        "auto": [
-            {"url": "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80", "title": "Diagnostic Tech Bay", "desc": "Computerized scanning and master mechanic engine care"},
-            {"url": "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80", "title": "Precision Brake & Suspension", "desc": "OEM certified parts and comprehensive vehicle safety service"},
-            {"url": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80", "title": "Detailing & Performance", "desc": "Flawless finish, ceramic coating, and performance inspection"}
-        ],
-        "realestate": [
-            {"url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", "title": "Architectural Elegance", "desc": "Prime properties and custom home tours in top neighborhoods"},
-            {"url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80", "title": "Curated Interiors", "desc": "Spacious open layouts with luxury finishes and natural light"},
-            {"url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80", "title": "Prime Residential", "desc": "Expert market guidance and seamless transaction management"}
-        ],
-        "legal": [
-            {"url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80", "title": "Executive Advisory", "desc": "Decades of proven legal counsel and commercial representation"},
-            {"url": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80", "title": "Client Consultation", "desc": "Strategic advocacy and confidential case evaluation"},
-            {"url": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80", "title": "Corporate Conference Hub", "desc": "Collaborative legal analysis and dispute resolution facilities"}
-        ],
-        "pet": [
-            {"url": "https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=800&q=80", "title": "Compassionate Veterinary", "desc": "Dedicated animal wellness, diagnostics, and tender care"},
-            {"url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80", "title": "Boutique Pet Grooming", "desc": "Hydro-baths, styling, and soothing coat treatments"},
-            {"url": "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80", "title": "Healthy & Happy Pets", "desc": "Safe daycare and playful boarding facilities"}
-        ],
-        "cleaning": [
-            {"url": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80", "title": "Deep Clean Specialists", "desc": "Hospital-grade eco sanitization and spotless detailing"},
-            {"url": "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80", "title": "Residential Sparkle", "desc": "Complete home and commercial move-in/move-out cleans"},
-            {"url": "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?auto=format&fit=crop&w=800&q=80", "title": "Eco-Friendly Hygiene", "desc": "Non-toxic certified products safe for children and pets"}
-        ],
-        "trade": [
-            {"url": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80", "title": "Master Craftsmanship", "desc": "Licensed, insured trade professionals on-call for projects"},
-            {"url": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80", "title": "Commercial & Residential", "desc": "Upfront transparent pricing with complete satisfaction guarantee"},
-            {"url": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80", "title": "Verified Quality", "desc": "Industry-standard precision tools and dependable service"}
-        ]
-    }
-
-    def _resolve_photos(self, category: str, services_input: Any, instructions: Optional[str], business_name: str, location: str) -> List[Dict[str, str]]:
-        srv_str = " ".join([s.get("title", "") for s in services_input]) if isinstance(services_input, list) else str(services_input or "")
-        text = f"{category} {srv_str} {instructions or ''} {business_name}".lower()
-
-        if re.search(r'\b(plumb\w*|pipe\w*|drain\w*|boiler\w*|leak\w*|clog\w*)\b', text):
-            key = "plumbing"
-        elif re.search(r'\b(dent\w*|tooth|teeth|ortho\w*|smile\w*|implant\w*)\b', text):
-            key = "dental"
-        elif re.search(r'\b(pet\w*|dog\w*|cat\w*|vet\w*|veterin\w*|groom\w*|pup\w*|canine|feline)\b', text):
-            key = "pet"
-        elif re.search(r'\b(hotel\w*|resort\w*|suite\w*|motel\w*|inn\b|villas?|lodge\w*|hostel\w*|bed and breakfast)\b', text) or (re.search(r'\brooms?\b', text) and "groom" not in text):
-            key = "hotel"
-        elif re.search(r'\b(cafe\w*|coffee\w*|roaster\w*|espresso\w*|bakery|bakeries|pastr\w*|barista)\b', text):
-            key = "cafe"
-        elif re.search(r'\b(restaurant\w*|bistro\w*|diner\w*|cuisine|pizza\w*|dining|grill\w*|burger\w*|steakhouse|sushi|tacos?|chef)\b', text):
-            key = "restaurant"
-        elif re.search(r'\b(gym\w*|fitness|workout\w*|crossfit|training|trainer|lifting|bodybuild\w*|athletic)\b', text):
-            key = "gym"
-        elif re.search(r'\b(salon\w*|barber\w*|hair\w*|spa\b|beauty|esthetic\w*|manicure|pedicure|massage)\b', text):
-            key = "salon"
-        elif re.search(r'\b(auto\w*|car\w*|mechanic\w*|tire\w*|brake\w*|vehicle\w*|garage|dealership|detailing)\b', text):
-            key = "auto"
-        elif re.search(r'\b(real\s*estate|realtor\w*|propert\w*|housing|apartments?|interior\s*design|architect\w*)\b', text):
-            key = "realestate"
-        elif re.search(r'\b(legal|law\b|lawyer\w*|attorney\w*|counsel\w*|finance|financial|accounting|accountant|tax\w*|consult\w*)\b', text):
-            key = "legal"
-        elif re.search(r'\b(clean\w*|maid\w*|janitor\w*|sanitiz\w*|housekeep\w*)\b', text):
-            key = "cleaning"
-        else:
-            key = "trade"
-
-        return [dict(p) for p in self.PHOTO_CATALOG[key]]
-
-    def _resolve_pricing_tiers(self, category: str, services_input: Any, instructions: Optional[str]) -> List[Dict[str, Any]]:
-        srv_str = " ".join([s.get("title", "") for s in services_input]) if isinstance(services_input, list) else str(services_input or "")
-        text = f"{category} {srv_str} {instructions or ''}".lower()
-
-        if re.search(r'\b(plumb\w*|pipe\w*|drain\w*|boiler\w*)\b', text):
-            return [
-                {"name": "Emergency Callout", "price": "£89", "period": "flat fee", "badge": "Rapid Arrival", "features": ["30-Min Rapid Dispatch", "Full Video/Pressure Diagnostic", "Transparent Upfront Quote", "No Hidden Charges"]},
-                {"name": "Pipe & Boiler Repair", "price": "£220", "period": "standard", "badge": "Recommended", "features": ["Comprehensive System Repair", "OEM Certified Pipe & Fittings", "12-Month Labor Guarantee", "Safety Check Included"]},
-                {"name": "Annual Home Care Plan", "price": "£399", "period": "/ year", "badge": "Full Cover", "features": ["24/7 Priority Emergency Line", "Annual Boiler Service & Tune-up", "Zero After-Hours Callout Surcharge", "Drain Jetting Included"]}
-            ]
-        elif re.search(r'\b(dent\w*|tooth|teeth|ortho\w*|smile\w*)\b', text):
-            return [
-                {"name": "Diagnostic Exam", "price": "$89", "period": "flat fee", "badge": "Essential", "features": ["Comprehensive Oral Exam", "Digital Low-Dose X-Rays", "Personalized Treatment Plan", "Insurance Direct Billing"]},
-                {"name": "Complete Hygiene Care", "price": "$189", "period": "standard", "badge": "Popular", "features": ["Ultrasonic Scaling", "Enamel Fluoride Treatment", "Gentle Polish & Floss", "Gum Health Assessment"]},
-                {"name": "Cosmetic Smile Package", "price": "$899", "period": "custom", "badge": "Transformation", "features": ["Professional In-Office Whitening", "Custom Take-Home Trays", "Aesthetic Contouring Consultation", "Follow-up Shading Check"]}
-            ]
-        elif re.search(r'\b(hotel\w*|resort\w*|suite\w*|stay|villas?|inn\b)\b', text):
-            return [
-                {"name": "Standard Deluxe", "price": "₹3,999", "period": "/ night", "badge": "Popular", "features": ["King Size Bed", "High-Speed Wi-Fi", "Complimentary Breakfast", "24/7 Room Service"]},
-                {"name": "Executive Suite", "price": "₹6,499", "period": "/ night", "badge": "Best Value", "features": ["City View Balcony", "Jacuzzi & Lounge", "Airport Transit Included", "Free Spa Access"]},
-                {"name": "Presidential Villa", "price": "₹12,999", "period": "/ night", "badge": "Luxury", "features": ["Private Butler Service", "Complimentary Fine Dining", "Private Terrace Pool", "VIP Lounge Access"]}
-            ]
-        elif re.search(r'\b(cafe\w*|coffee\w*|roaster\w*|espresso\w*)\b', text):
-            return [
-                {"name": "Daily Roasters Pass", "price": "₹499", "period": "/ week", "badge": "Starter", "features": ["Unlimited Filter Brews", "10% Bakery Discount", "High-Speed Fiber Wi-Fi"]},
-                {"name": "Artisan Tasting Pass", "price": "₹1,299", "period": "/ month", "badge": "Most Loved", "features": ["Specialty Pour-Over Flight", "Free Pastry with Beverage", "Private Booth Reservation"]},
-                {"name": "Connoisseur Club", "price": "₹2,499", "period": "/ month", "badge": "Exclusive", "features": ["2 Bags Single-Origin Beans", "Masterclass Invite", "Free Cafe Merch"]}
-            ]
-        elif re.search(r'\b(gym\w*|fitness|workout\w*|crossfit|training)\b', text):
-            return [
-                {"name": "Day Pass", "price": "$25", "period": "single pass", "badge": "Trial", "features": ["Full Floor & Machine Access", "Locker & Shower Amenities", "Free InBody Scan"]},
-                {"name": "Monthly All-Access", "price": "$79", "period": "/ month", "badge": "Popular", "features": ["24/7 Keycard Gym Access", "Unlimited Group HIIT/Yoga", "Sauna & Recovery Lounge", "Zero Contract Lock-in"]},
-                {"name": "VIP Coaching Tier", "price": "$199", "period": "/ month", "badge": "Results Guaranteed", "features": ["Weekly 1-on-1 Certified Trainer", "Custom Macro & Nutrition Plan", "Monthly Milestone Check-ins", "App Workout Tracking"]}
-            ]
-        elif re.search(r'\b(salon\w*|barber\w*|hair\w*|spa\b|beauty)\b', text):
-            return [
-                {"name": "Signature Haircut", "price": "$65", "period": "per service", "badge": "Classic", "features": ["Consultation & Custom Styling", "Clarifying Shampoo & Blowout", "Finishing Product Application"]},
-                {"name": "Balayage & Color Art", "price": "$175", "period": "full service", "badge": "Best Seller", "features": ["Custom Color Formulation", "Olaplex Bonding Treatment", "Toner & Gloss Treatment", "Style & Wave Finish"]},
-                {"name": "Full Day Spa Retreat", "price": "$295", "period": "package", "badge": "Ultimate Pamper", "features": ["Aromatherapy Full Body Massage", "Custom Glow Facial", "Hydrating Hair Mask", "Complimentary Champagne"]}
-            ]
-        else:
-            return [
-                {"name": "Diagnostic Inspection", "price": "$89", "period": "flat fee", "badge": "Basic", "features": ["Full On-Site Assessment", "Comprehensive Digital Report", "Upfront Transparent Quotation", "Zero Obligation"]},
-                {"name": "Complete Service Plan", "price": "$249", "period": "standard", "badge": "Recommended", "features": ["Diagnostic + Repair Work", "OEM Certified Parts & Equipment", "90-Day Labor Guarantee", "Priority Scheduling"]},
-                {"name": "Annual Priority Care", "price": "$499", "period": "/ year", "badge": "VIP Protection", "features": ["24/7 Emergency Dispatch", "Quarterly System Maintenance", "Zero After-Hours Surcharge", "15% Member Discount on Repairs"]}
-            ]
-
     def _build_template(
         self,
         business_data: Dict[str, Any],
@@ -246,16 +95,17 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         assets: Dict[str, Any],
         instructions: Optional[str] = None
     ) -> str:
-        name = business_data.get("name") or "Austin Smile Studio"
-        category = business_data.get("category") or "Dental Clinic"
-        location = business_data.get("location") or "Austin, TX"
-        phone = str(business_data.get("phone") or "+1 (512) 555-0198")
+        name = business_data.get("name", "Austin Smile Studio")
+        category = business_data.get("category", "Dental Clinic")
+        location = business_data.get("location", "Austin, TX")
+        phone = business_data.get("phone", "+1 (512) 555-0198")
         
-        palette = (design_system or {}).get("palette") or {}
+        palette = design_system.get("palette", {})
         primary = palette.get("primary", "#b45309")
         primary_hover = palette.get("primary_hover", "#92400e")
         secondary = palette.get("secondary", "#0d9488")
         accent = palette.get("accent", "#f59e0b")
+        memory_theme = design_system.get("memory_theme", "default")
 
         headline = copy_data.get("headline", f"{location}'s Premier {category}")
         subheadline = copy_data.get("subheadline", f"Trusted by thousands in {location}. Providing world-class care and verified excellence.")
@@ -277,32 +127,93 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         testimonials = copy_data.get("testimonials", [])
         why_us = copy_data.get("why_choose_us", [])
 
+        # Category-aware section heading; never carry hotel language into a clinic/cafe site.
+        cat_lower = category.lower()
+        if "hotel" in cat_lower or "resort" in cat_lower or "stay" in cat_lower or "lodge" in cat_lower:
+            offerings_label = "Tailored Hospitality"
+            offerings_heading = "Stay, Dine & Unwind"
+            offerings_subtitle = f"Thoughtfully designed hospitality experiences in {location}."
+        elif "dental" in cat_lower:
+            offerings_label = "Patient-Focused Care"
+            offerings_heading = "Complete Dental Care"
+            offerings_subtitle = f"Modern dental services focused on comfort, clarity, and confident care in {location}."
+        elif any(term in cat_lower for term in ("clinic", "hospital", "medical", "health")):
+            offerings_label = "Patient-Focused Care"
+            offerings_heading = "Care Designed Around You"
+            offerings_subtitle = f"Professional healthcare services with clear guidance and compassionate support in {location}."
+        elif any(term in cat_lower for term in ("cafe", "coffee", "restaurant", "bakery")):
+            offerings_label = "Signature Experiences"
+            offerings_heading = "Made for Good Moments"
+            offerings_subtitle = f"Fresh flavors, welcoming spaces, and memorable experiences in {location}."
+        else:
+            offerings_label = "Our Services"
+            offerings_heading = f"Trusted {category} Services"
+            offerings_subtitle = f"Professional services tailored to customers in {location}."
+
         # Assets extraction
-        assets = assets or {}
-        logo_url = (assets.get("logo_url") or "").strip()
-        photos = assets.get("photos") or []
-        video_url = (assets.get("video_url") or "").strip()
-        brochure_url = (assets.get("brochure_url") or "").strip()
-        pricing_tiers = assets.get("pricing_tiers") or []
+        logo_url = assets.get("logo_url", "").strip()
+        photos = assets.get("photos", [])
+        video_url = assets.get("video_url", "").strip()
+        brochure_url = assets.get("brochure_url", "").strip()
+        pricing_tiers = assets.get("pricing_tiers", [])
+
+        # Default rich photo gallery if none provided
+        if not photos:
+            if "hotel" in category.lower():
+                photos = [
+                    {"url": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80", "title": "Luxury Suite", "desc": "Spacious king suites with panoramic views"},
+                    {"url": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80", "title": "Fine Dining Lounge", "desc": "World-class gourmet culinary experience"},
+                    {"url": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80", "title": "Wellness & Spa", "desc": "Full rejuvenation and relaxation retreat"}
+                ]
+            elif "cafe" in category.lower():
+                photos = [
+                    {"url": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80", "title": "Single-Origin Brew", "desc": "Artisan espresso and cold brew selections"},
+                    {"url": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80", "title": "Artisanal Bakery", "desc": "Fresh daily baked sourdough and pastries"},
+                    {"url": "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80", "title": "Relaxed Atmosphere", "desc": "Co-working friendly indoor and terrace seating"}
+                ]
+            else:
+                photos = [
+                    {"url": "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80", "title": "State-of-the-Art Facility", "desc": "Modern equipment ensuring precision care"},
+                    {"url": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80", "title": "Certified Specialists", "desc": "Licensed, background-checked professionals"},
+                    {"url": "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80", "title": "Patient Comfort", "desc": "Dedicated care with satisfaction guarantee"}
+                ]
 
         # Protect against stale pricing from a previous category. If a clinic/cafe/etc.
         # receives hotel-specific tiers from the UI, discard them and derive category-safe defaults.
         category_lower = category.lower()
         hotel_terms = ("suite", "room", "villa", "king bed", "room service", "/night", "/ night")
-        has_hotel_pricing = any(any(term in str(v).lower() for term in hotel_terms) for tier in pricing_tiers for v in (tier.values() if isinstance(tier, dict) else []))
+        has_hotel_pricing = any(any(term in str(v).lower() for term in hotel_terms) for tier in pricing_tiers for v in tier.values())
         if not pricing_tiers or ("hotel" not in category_lower and "resort" not in category_lower and has_hotel_pricing):
-            pricing_tiers = self._resolve_pricing_tiers(category, copy_data.get("services", ""), instructions)
-
-        # Default rich photo gallery if none provided - dynamically resolved per business niche and prompt
-        if not photos:
-            photos = self._resolve_photos(category, copy_data.get("services", ""), instructions, name, location)
-
-        is_hospitality = "hotel" in category_lower or "resort" in category_lower or "stay" in category_lower
-        pricing_heading = "Packages & Rates" if is_hospitality else "Services & Pricing"
-        pricing_subtitle = f"Clear, upfront options tailored for this {category.lower()}."
-        offerings_label = "Tailored Offerings" if is_hospitality else "Our Services"
-        offerings_heading = "World-Class Comfort & Amenities" if is_hospitality else f"Professional {category} Solutions"
-        offerings_subtitle = f"Delivering verified excellence in {location}."
+            if "hotel" in category_lower or "resort" in category_lower or "stay" in category_lower:
+                pricing_tiers = [
+                    {"name": "Standard Deluxe", "price": "₹3,999", "period": "/ night", "badge": "Popular", "features": ["King Size Bed", "High-Speed Wi-Fi", "Complimentary Breakfast", "24/7 Room Service"]},
+                    {"name": "Executive Suite", "price": "₹6,499", "period": "/ night", "badge": "Best Value", "features": ["City View Balcony", "Jacuzzi & Lounge", "Airport Transit Included", "Free Spa Access"]},
+                    {"name": "Presidential Villa", "price": "₹12,999", "period": "/ night", "badge": "Luxury", "features": ["Private Butler Service", "Complimentary Fine Dining", "Private Terrace Pool", "VIP Lounge Access"]}
+                ]
+            elif "dental" in category_lower:
+                pricing_tiers = [
+                    {"name": "Dental Checkup", "price": "₹499", "period": "", "badge": "Basic", "features": ["Consultation", "Oral Examination", "Basic Screening"]},
+                    {"name": "Smile Care", "price": "₹2,499", "period": "", "badge": "Popular", "features": ["Cleaning", "Whitening Consultation", "Follow-up"]},
+                    {"name": "Complete Dental Care", "price": "₹5,999", "period": "", "badge": "Complete", "features": ["Advanced Consultation", "Treatment Plan", "Follow-up"]}
+                ]
+            elif any(x in category_lower for x in ("clinic", "hospital", "medical", "health")):
+                pricing_tiers = [
+                    {"name": "Consultation", "price": "₹499", "period": "", "badge": "Basic", "features": ["Doctor Consultation", "Basic Assessment", "Digital Prescription"]},
+                    {"name": "Complete Care", "price": "₹1,499", "period": "", "badge": "Popular", "features": ["Consultation", "Diagnostics", "Follow-up Support"]},
+                    {"name": "Priority Care", "price": "₹2,999", "period": "", "badge": "Priority", "features": ["Priority Appointment", "Advanced Diagnostics", "Dedicated Support"]}
+                ]
+            elif any(x in category_lower for x in ("cafe", "coffee", "restaurant", "bakery")):
+                pricing_tiers = [
+                    {"name": "Coffee & Pastry", "price": "₹299", "period": "", "badge": "Starter", "features": ["Fresh Brew", "Pastry", "Dine-in Seating"]},
+                    {"name": "Tasting Experience", "price": "₹799", "period": "", "badge": "Popular", "features": ["Specialty Coffee Flight", "Dessert Pairing", "Table Reservation"]},
+                    {"name": "Cafe Membership", "price": "₹1,499", "period": "/ month", "badge": "Member", "features": ["Member Discounts", "Priority Seating", "Free Beverage"]}
+                ]
+            else:
+                pricing_tiers = [
+                    {"name": "Basic Service", "price": "₹999", "period": "", "badge": "Basic", "features": ["Initial Consultation", "Basic Service", "Summary Report"]},
+                    {"name": "Complete Service", "price": "₹2,499", "period": "", "badge": "Recommended", "features": ["Full Assessment", "Professional Service", "Follow-up"]},
+                    {"name": "Priority Service", "price": "₹4,999", "period": "", "badge": "Priority", "features": ["Priority Support", "Advanced Service", "Dedicated Assistance"]}
+                ]
 
         # Logo Markup
         if logo_url:
@@ -460,6 +371,28 @@ Return ONLY valid HTML inside ```html ... ``` code block.
             </li>
             """
 
+        if memory_theme == "luxury_dark":
+            memory_style = """
+        /* HINDSIGHT-LEARNED VISUAL SYSTEM: black / white / gold, restrained motion */
+        :root { --memory-gold:#D4AF37; --memory-gold-soft:#F0D878; --memory-black:#090909; --memory-ink:#111111; --memory-paper:#F5F3EE; }
+        body { background:#F5F3EE !important; color:#111111 !important; }
+        header { background:rgba(245,243,238,.94) !important; border-color:rgba(212,175,55,.28) !important; }
+        .bg-amber-600,.bg-amber-700 { background-color:var(--memory-gold) !important; }
+        .hover\:bg-amber-700:hover,.hover\:bg-amber-600:hover { background-color:var(--memory-gold-soft) !important; }
+        .text-amber-500,.text-amber-600,.text-amber-700,.text-amber-800,.text-amber-900 { color:var(--memory-gold) !important; }
+        .bg-amber-50,.bg-amber-100 { background-color:rgba(212,175,55,.10) !important; }
+        .border-amber-100,.border-amber-200 { border-color:rgba(212,175,55,.28) !important; }
+        .bg-slate-900,.bg-slate-950 { background-color:var(--memory-black) !important; }
+        .bg-slate-50 { background-color:#F5F3EE !important; }
+        .border-slate-200,.border-slate-100 { border-color:rgba(17,17,17,.10) !important; }
+        .bg-gradient-to-b,.bg-gradient-to-tr,.bg-gradient-to-r { background-image:none !important; }
+        button,a { transition:transform .22s ease, box-shadow .22s ease, background-color .22s ease, color .22s ease !important; }
+        button:hover,a:hover { transform:translateY(-2px); }
+        .shadow-lg,.shadow-xl,.shadow-2xl { box-shadow:0 18px 50px rgba(9,9,9,.10) !important; }
+        """
+        else:
+            memory_style = ""
+
         html = f"""<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -476,6 +409,7 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         body {{
             font-family: 'Plus Jakarta Sans', sans-serif;
         }}
+        {memory_style}
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased selection:bg-amber-500 selection:text-white">
@@ -644,8 +578,8 @@ Return ONLY valid HTML inside ```html ... ``` code block.
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-xs font-bold text-amber-700 uppercase tracking-widest mb-2">Transparent Pricing</h2>
-                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{pricing_heading}</h3>
-                <p class="text-slate-600 mt-4 text-base">{pricing_subtitle}</p>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">{("hotel" in category.lower() or "resort" in category.lower()) and "Packages & Rates" or "Services & Pricing"}</h3>
+                <p class="text-slate-600 mt-4 text-base">Clear, upfront options tailored for this {category.lower()}.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

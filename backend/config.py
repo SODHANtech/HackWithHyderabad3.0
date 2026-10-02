@@ -12,6 +12,9 @@ class Settings(BaseModel):
     hindsight_base_url: str = os.getenv("HINDSIGHT_BASE_URL", "https://api.hindsight.vectorize.io")
     hindsight_bank_id: str = os.getenv("HINDSIGHT_BANK_ID", "local-biz-architect")
     
+    gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
+    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+
     groq_api_key: str = os.getenv("GROQ_API_KEY", "")
     groq_model: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
     
@@ -23,7 +26,11 @@ class Settings(BaseModel):
         return bool(self.hindsight_api_key and self.hindsight_api_key.strip() and self.hindsight_api_key != "your_hindsight_api_key_here")
 
     @property
+    def has_gemini_credentials(self) -> bool:
+        return bool(self.gemini_api_key and self.gemini_api_key.strip() and self.gemini_api_key != "your_gemini_api_key_here")
+
+    @property
     def has_groq_credentials(self) -> bool:
-        return bool(self.groq_api_key and self.groq_api_key.strip() and self.groq_api_key != "your_groq_api_key_here")
+        return self.has_gemini_credentials or bool(self.groq_api_key and self.groq_api_key.strip() and self.groq_api_key != "your_groq_api_key_here")
 
 settings = Settings()

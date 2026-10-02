@@ -95,6 +95,23 @@ class DesignAgent:
             palette["primary"] = "#7c3aed"
             palette["primary_hover"] = "#6d28d9"
 
+        # Convert durable Hindsight preferences into an explicit visual mode.
+        # This makes recalled memory change the generated site, not merely the prompt.
+        luxury_dark = (
+            ("black" in inst_lower or "dark" in inst_lower)
+            and ("gold" in inst_lower or "luxury" in inst_lower)
+        )
+        if luxury_dark:
+            palette.update({
+                "primary": "#D4AF37",
+                "primary_hover": "#F0D878",
+                "secondary": "#0A0A0A",
+                "accent": "#FFFFFF",
+                "bg_light": "#F5F3EE",
+                "text_dark": "#0A0A0A",
+                "tag": "Memory-Learned Noir & Gold"
+            })
+
         # Check Hindsight memory for any user-overridden design constraints
         memories = hindsight_service.recall(
             query=f"design system styling guidelines for {category}",
@@ -110,6 +127,7 @@ class DesignAgent:
                 "heading_weight": "font-extrabold tracking-tight",
                 "body_size": "text-slate-600 text-base leading-relaxed"
             },
+            "memory_theme": "luxury_dark" if luxury_dark else "default",
             "components": {
                 "button_radius": "rounded-xl",
                 "card_shadow": "shadow-sm hover:shadow-md transition-shadow duration-200 border border-slate-100",

@@ -1,30 +1,26 @@
 import os
-import json
-import logging
 from typing import Dict, Any
 import httpx
 
 from backend.config import settings
 
-logger = logging.getLogger("groq_service")
-
 class GroqService:
-    """Wrapper around Groq LLM to fetch structured business data from a natural language prompt."""
+    """Simple wrapper around Groq LLM to fetch business data from a user prompt."""
 
     def __init__(self):
         self.api_key = settings.groq_api_key
-        self.model = settings.groq_model or "qwen/qwen3.8-27b"
+        self.model = settings.groq_model
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.client = httpx.AsyncClient(timeout=15.0) if self.api_key else None
 
     async def get_business_profile(self, prompt: str) -> Dict[str, Any]:
         """Ask Groq to generate a structured JSON with business details.
         The prompt should ask for fields: name, category, location, phone, whatsapp,
         assets (logo_url, photos, video_url, brochure_url, pricing_tiers).
-        Returns a dict parsed from the LLM response with resilient fallback.
+        Returns a dict parsed from the LLM response.
         """
-        if not self.api_key:
-            return self._fallback_profile(prompt)
-        
+        if not self.client:
+            raise RuntimeError("Groq API key not configured")
         system_prompt = (
             "You are an expert JSON generator. Given a user description, output a JSON object "
             "with the following keys: name (string), category (string), location (string), "
@@ -47,38 +43,15 @@ class GroqService:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-
+        response = await self.client.post(self.base_url, json=payload, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        # Extract the first assistant message content
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                response = await client.post(self.base_url, json=payload, headers=headers)
-                response.raise_for_status()
-                data = response.json()
-
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-            cleaned = content.strip()
-            if cleaned.startswith("```json"):
-                cleaned = cleaned[7:]
-            if cleaned.startswith("```"):
-                cleaned = cleaned[3:]
-            if cleaned.endswith("```"):
-                cleaned = cleaned[:-3]
-            business_data = json.loads(cleaned.strip())
-            if isinstance(business_data, dict):
-                return business_data
+            # The LLM should return pure JSON; parse it safely.
+            import json
+            business_data = json.loads(content)
         except Exception as e:
-            logger.warning(f"Groq API call or JSON decode failed: {e}. Using resilient fallback profile.")
-        
-        return self._fallback_profile(prompt)
-
-    def _fallback_profile(self, prompt: str) -> Dict[str, Any]:
-        words = prompt.split()
-        name = " ".join(words[:3]).title() if len(words) >= 3 else (prompt.title() or "Local Enterprise")
-        return {
-            "name": name,
-            "category": "Local Business",
-            "location": "Metro Area",
-            "phone": "+1 555-0100",
-            "whatsapp": "+1 555-0100",
-            "services": prompt,
-            "assets": {}
-        }
+            raise ValueError(f"Failed to parse Groq JSON response: {e}\nRaw content: {content}")
+        return business_data

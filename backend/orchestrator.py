@@ -40,13 +40,19 @@ class OrchestrationAgent:
         instruction_summary = f" Instructions: '{initial_prompt}'" if initial_prompt else ""
         log_event("Intake", f"Processing {business_data.get('name')} in {business_data.get('location')} ({business_data.get('category')}).{instruction_summary}")
 
+        # Learn durable user preferences BEFORE generation so memory can influence this run.
+        learned_preferences = hindsight_service.learn_user_preferences(
+            initial_prompt or "",
+            business_name=business_data.get("name", ""),
+            workflow_id=workflow_id
+        )
+        if learned_preferences:
+            log_event("Hindsight Learning", f"Learned {len(learned_preferences)} durable user preference(s)", learned_preferences)
+
         # Retain company context & assets in Hindsight
-        assets = business_data.get("assets") or {}
-        photos = assets.get("photos") or []
-        pricing_tiers = assets.get("pricing_tiers") or []
-        logo_url = assets.get("logo_url")
+        assets = business_data.get("assets", {})
         hindsight_service.retain(
-            content=f"Business profile: {business_data.get('name')} in {business_data.get('location')}. Category: {business_data.get('category')}. WhatsApp: {business_data.get('whatsapp', business_data.get('phone'))}. Assets: {len(photos)} photos, Logo: {bool(logo_url)}, Pricing Tiers: {len(pricing_tiers)}.{instruction_summary}",
+            content=f"Business profile: {business_data.get('name')} in {business_data.get('location')}. Category: {business_data.get('category')}. WhatsApp: {business_data.get('whatsapp', business_data.get('phone'))}. Assets: {len(assets.get('photos', []))} photos, Logo: {bool(assets.get('logo_url'))}, Pricing Tiers: {len(assets.get('pricing_tiers', []))}.{instruction_summary}",
             tags=["business_intake", business_data.get("category", "local_biz").lower()],
             metadata={"type": "world", "workflow_id": workflow_id}
         )
@@ -56,14 +62,32 @@ class OrchestrationAgent:
             query=f"design copy functionality directives for {business_data.get('category')} {initial_prompt or ''}",
             tags=["pattern", "directive"]
         )
-        log_event("Hindsight Recall", f"Retrieved {len(recalled)} historical directives and observations from memory", recalled)
+        user_preferences = hindsight_service.recall_user_preferences(
+            category=business_data.get("category", ""),
+            current_instruction=initial_prompt or "",
+            max_results=8
+        )
+        memory_context = hindsight_service.format_memory_context(user_preferences)
+        log_event("Hindsight Recall", f"Retrieved {len(recalled)} architectural memories and {len(user_preferences)} reusable user preferences", {
+            "architectural": recalled,
+            "user_preferences": user_preferences
+        })
 
-        # Step 3: Run Copywriter & Designer
-        log_event("Copywriter Agent", f"Generating copy incorporating voice instructions: '{initial_prompt or 'Default'}'...")
-        copy_data = copywriter_agent.generate_copy(business_data, instructions=initial_prompt)
+        # Memory is now a first-class generation input.
+        memory_instructions = (
+            f"{initial_prompt or ''}\n\n"
+            "LONG-TERM USER PREFERENCES RECALLED FROM HINDSIGHT:\n"
+            f"{memory_context}\n\n"
+            "Treat these as persistent preferences unless the current user instruction explicitly overrides them. "
+            "Do not mention the memory system in generated website copy."
+        ).strip()
 
-        log_event("Design Agent", f"Selecting design system and color palette for {business_data.get('category')}...")
-        design_system = design_agent.choose_design_system(business_data.get("category", "default"), instructions=initial_prompt)
+        # Step 3: Run Copywriter & Designer with recalled user memory
+        log_event("Copywriter Agent", "Generating copy using current request + recalled user preferences...")
+        copy_data = copywriter_agent.generate_copy(business_data, instructions=memory_instructions)
+
+        log_event("Design Agent", f"Selecting design system using category + recalled user preferences...")
+        design_system = design_agent.choose_design_system(business_data.get("category", "default"), instructions=memory_instructions)
 
         # Step 4: Initial Code Generation
         log_event("Code Generator Agent", "Assembling tailored HTML with company assets, gallery, and pricing...")
@@ -71,7 +95,7 @@ class OrchestrationAgent:
             business_data,
             copy_data,
             design_system,
-            instructions=initial_prompt,
+            instructions=memory_instructions,
             existing_html=existing_html
         )
 
@@ -125,10 +149,24 @@ class OrchestrationAgent:
                         business_data,
                         copy_data,
                         design_system,
-                        instructions=initial_prompt,
+                        instructions=memory_instructions,
                         critique_patch_instructions=reflection_patch,
                         existing_html=current_html
                     )
+
+        # Persist the outcome so later projects can learn from what worked or failed.
+        if critic_results:
+            outcome_tag = "accepted_pattern" if critic_results.get("passed") else "learning_outcome"
+            hindsight_service.retain(
+                content=(
+                    f"Website generation outcome for {business_data.get('name')}: "
+                    f"score {critic_results.get('average_score')}%. "
+                    f"User-facing preferences active: {memory_context}. "
+                    f"Critic issues: {'; '.join(critic_results.get('all_issues', [])) or 'none'}."
+                ),
+                tags=["generation_outcome", outcome_tag],
+                metadata={"type": "experience", "workflow_id": workflow_id, "score": str(critic_results.get("average_score"))}
+            )
 
         return {
             "workflow_id": workflow_id,
@@ -140,6 +178,9 @@ class OrchestrationAgent:
             "healed": healed,
             "final_evaluation": critic_results,
             "recalled_memories": recalled,
+            "recalled_user_preferences": user_preferences,
+            "learned_preferences": learned_preferences,
+            "memory_context": memory_context,
             "logs": logs
         }
 

@@ -2,7 +2,7 @@ import json
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from backend.config import settings
+from backend.config import settings, ROOT_DIR
 
 logger = logging.getLogger("hindsight_service")
 
@@ -11,7 +11,34 @@ class HindsightService:
         self.bank_id = settings.hindsight_bank_id
         self.client = None
         self.local_memories: List[Dict[str, Any]] = []
+        self.memory_file = ROOT_DIR / "hindsight_memory.json"
+        self._load_local_memories()
         self._init_client()
+
+    def _load_local_memories(self):
+        """Load resilient local memory so learning survives backend restarts."""
+        if not self.memory_file:
+            return
+        try:
+            if self.memory_file.exists():
+                data = json.loads(self.memory_file.read_text(encoding="utf-8"))
+                if isinstance(data, list):
+                    self.local_memories = data
+                    logger.info("Loaded %s persistent local Hindsight memories", len(data))
+        except Exception as e:
+            logger.warning("Could not load persistent Hindsight memory: %s", e)
+
+    def _persist_local_memories(self):
+        """Persist the local fallback memory after every learning event."""
+        if not self.memory_file:
+            return
+        try:
+            self.memory_file.write_text(
+                json.dumps(self.local_memories, ensure_ascii=False, indent=2),
+                encoding="utf-8"
+            )
+        except Exception as e:
+            logger.warning("Could not persist local Hindsight memory: %s", e)
 
     def _init_client(self):
         if settings.has_hindsight_credentials:
@@ -29,7 +56,9 @@ class HindsightService:
         else:
             logger.info("No live Hindsight API key detected. Operating in simulated Hindsight mode (records all retains, recalls, and reflections locally).")
             # Seed default architectural knowledge
-            self._seed_default_memories()
+            if not self.local_memories:
+                self._seed_default_memories()
+                self._persist_local_memories()
 
     def _configure_bank(self):
         """Configure mission and directives on the Hindsight bank"""
@@ -96,6 +125,90 @@ class HindsightService:
         ]
         self.local_memories.extend(seeds)
 
+    def learn_user_preferences(self, instruction: str, business_name: str = "", workflow_id: str = "") -> List[str]:
+        """Extract durable, reusable preferences from a user's instruction and retain them.
+
+        This intentionally stores stable design/development preferences rather than every
+        transient command, so future projects can benefit from what the user repeatedly
+        teaches the agent.
+        """
+        text = (instruction or "").strip()
+        if not text:
+            return []
+
+        lower = text.lower()
+        preferences = []
+        rules = [
+            (("no gradient", "no gradients", "without gradient", "avoid gradients"),
+             "User prefers interfaces without gradients."),
+            (("black, white and gold", "black white gold", "black and white and gold", "black/white/gold"),
+             "User prefers a black, white, and gold visual palette."),
+            (("black and gold", "black & gold"),
+             "User prefers a black-and-gold visual palette."),
+            (("minimal", "minimalist", "clean and minimal", "minimal design"),
+             "User prefers a clean, minimal interface with restrained visual clutter."),
+            (("luxurious", "luxury", "premium", "rich look", "high-end"),
+             "User prefers a premium, luxurious, high-end visual direction."),
+            (("no excessive animation", "avoid excessive animation", "not too much animation", "subtle animation"),
+             "User prefers subtle, purposeful animation rather than excessive motion."),
+            (("hover effects", "interactive hover", "interactive elements"),
+             "User prefers interactive UI states and meaningful hover feedback."),
+            (("no emojis", "without emojis", "avoid emojis"),
+             "User prefers professional interfaces without decorative emojis."),
+            (("professional", "corporate", "professional look"),
+             "User prefers a professional, polished visual language."),
+            (("dark mode", "dark theme", "dark interface"),
+             "User prefers a dark interface/theme."),
+            (("light mode", "light theme", "white background"),
+             "User prefers a light interface/theme with a clean background."),
+        ]
+        for triggers, memory in rules:
+            if any(t in lower for t in triggers):
+                preferences.append(memory)
+
+        # Capture explicit preference sentences even when they do not match a preset.
+        explicit_markers = ("i prefer ", "i like ", "i want ", "keep it ", "always use ", "don't use ", "do not use ", "avoid ")
+        if any(marker in lower for marker in explicit_markers):
+            compact = " ".join(text.split())
+            if len(compact) <= 240:
+                preferences.append(f"User instruction/preference: {compact}")
+
+        # De-duplicate while preserving order.
+        preferences = list(dict.fromkeys(preferences))
+        for pref in preferences:
+            self.retain(
+                content=pref,
+                tags=["user_preference", "design_preference", "long_term_memory"],
+                metadata={"type": "user_preference", "workflow_id": workflow_id, "business": business_name, "learning": "explicit_user_instruction"}
+            )
+        return preferences
+
+    def recall_user_preferences(self, category: str = "", current_instruction: str = "", max_results: int = 8) -> List[Dict[str, Any]]:
+        """Recall durable user preferences for the current generation task."""
+        query = (
+            f"user preferences design style visual language interaction animation typography "
+            f"{category} {current_instruction}"
+        ).strip()
+        return self.recall(
+            query=query,
+            tags=["user_preference", "design_preference", "long_term_memory"],
+            max_results=max_results
+        )
+
+    def format_memory_context(self, memories: List[Dict[str, Any]], max_chars: int = 3500) -> str:
+        """Format recalled memories into a compact context block for downstream agents."""
+        lines = []
+        seen = set()
+        for memory in memories:
+            content = str(memory.get("content", "")).strip()
+            if not content or content in seen:
+                continue
+            seen.add(content)
+            lines.append(f"- {content}")
+            if sum(len(x) + 1 for x in lines) >= max_chars:
+                break
+        return "\n".join(lines) if lines else "- No durable user preferences recalled yet."
+
     def retain(self, content: str, tags: Optional[List[str]] = None, metadata: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
         """
         Retain memory: Stores facts, critic evaluations, or self-correction lessons.
@@ -114,6 +227,7 @@ class HindsightService:
             "source": "hindsight_cloud" if self.client else "hindsight_local"
         }
         self.local_memories.append(memory_entry)
+        self._persist_local_memories()
 
         if self.client:
             try:

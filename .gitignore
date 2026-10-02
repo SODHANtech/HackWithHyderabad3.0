@@ -1,3 +1,8 @@
+# Environment secrets - NEVER COMMIT
+.env
+*.env
+.env.*
+
 # Python
 __pycache__/
 *.py[cod]
@@ -8,10 +13,6 @@ env/
 venv/
 .venv/
 ENV/
-*.env
-.env
-scratch/
-backend/deployed/
 
 # Node
 node_modules/
@@ -19,6 +20,12 @@ dist/
 build/
 .next/
 .cache/
+
+# Runtime / Generated artifacts
+generated_projects/
+deployed/
+uploads/
+hindsight_memory.json
 
 # OS / Editor
 .DS_Store
